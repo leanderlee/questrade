@@ -1,0 +1,33 @@
+{
+  "name": "questrade",
+  "version": "0.0.1",
+  "description": "Questrade API",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:leanderlee/questrade.git"
+  },
+  "keywords": [
+    "Questrade",
+    "stocks",
+    "trading"
+  ],
+  "author": "Leander Lee <me@leander.ca>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/leanderlee/questrade/issues"
+  },
+  "homepage": "https://github.com/leanderlee/questrade",
+  "devDependencies": {
+    "mocha": "^2.5.3"
+  },
+  "dependencies": {
+    "lodash": "^4.13.1",
+    "mkdirp": "^0.5.1",
+    "moment": "^2.13.0",
+    "request": "^2.72.0"
+  }
+}
