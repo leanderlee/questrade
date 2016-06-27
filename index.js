@@ -9,14 +9,17 @@ var request = require('request');
 
 function Questrade (opts) {
   var self = this;
+  if (opts === undefined) throw new Error('questrade_missing_api_key');
   opts = opts || {};
 
   if (typeof opts === 'string') {
-    opts = { seedToken: opts };
+    if (opts.indexOf('/') === -1) {
+      opts = { seedToken: opts };
+    } else {
+      opts = { keyFile: opts };
+    }
   }
-
-  if (!opts.seedToken) throw new Error('questrade_api_missing_key');
-
+  
   self.test       = opts.test === undefined ? false : !!opts.test;
   self.keyDir     = opts.keyDir     || './keys';
   self.apiVersion = opts.apiVersion || 'v1';
@@ -304,14 +307,15 @@ Questrade.prototype.getOptionQuoteSimplified = function (filters, cb) {
   this.getOptionQuote(filters, function (err, quotes) {
     cb(null, _.chain(quotes)
       .map(quote => {
-        var parsedSymbol = quote.symbol.slice(quote.underlying.length).match(/(.+)(C|P)(\d+\.\d+)$/);
-        if (parsedSymbol.length >= 4) {
-          var parsedDate = parsedSymbol[1].match(/^(\d+)([a-zA-Z]+)(\d+)$/);
+        var parsedSymbol = quote.symbol.match(/^([a-zA-Z]+)(.+)(C|P)(\d+\.\d+)$/);
+        if (parsedSymbol.length >= 5) {
+          var parsedDate = parsedSymbol[2].match(/^(\d+)([a-zA-Z]+)(\d+)$/);
           var expiryDate = moment().utc().month(parsedDate[2]).date(parsedDate[1]).year('20'+parsedDate[3]).startOf('day');
           var expiryString = expiryDate.toISOString().slice(0, -1) + '000-04:00';
+          quote.underlying = parsedSymbol[1];
           quote.expiryDate = expiryString;
-          quote.strikePrice = parseFloat(parsedSymbol[3]);
-          quote.optionType = parsedSymbol[2] === 'P' ? 'Put' : 'Call';
+          quote.strikePrice = parseFloat(parsedSymbol[4]);
+          quote.optionType = parsedSymbol[3] === 'P' ? 'Put' : 'Call';
         }
         return quote;
       })
