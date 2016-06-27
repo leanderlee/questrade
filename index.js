@@ -19,7 +19,7 @@ function Questrade (opts) {
       opts = { keyFile: opts };
     }
   }
-  
+
   self.test       = opts.test === undefined ? false : !!opts.test;
   self.keyDir     = opts.keyDir     || './keys';
   self.apiVersion = opts.apiVersion || 'v1';
@@ -266,7 +266,7 @@ Questrade.prototype.getOptionChain = function (symbolId, cb) {
     if (err) return cb(err);
     cb(null, _.chain(response.optionChain)
       .keyBy('expiryDate')
-      .mapValues(option => _.keyBy(option.chainPerRoot[0].chainPerStrikePrice, 'strikePrice'))
+      .mapValues(function (option) { return _.keyBy(option.chainPerRoot[0].chainPerStrikePrice, 'strikePrice') })
       .value())
   })
 }
@@ -306,7 +306,7 @@ Questrade.prototype.getOptionQuote = function (filters, cb) {
 Questrade.prototype.getOptionQuoteSimplified = function (filters, cb) {
   this.getOptionQuote(filters, function (err, quotes) {
     cb(null, _.chain(quotes)
-      .map(quote => {
+      .map(function (quote) {
         var parsedSymbol = quote.symbol.match(/^([a-zA-Z]+)(.+)(C|P)(\d+\.\d+)$/);
         if (parsedSymbol.length >= 5) {
           var parsedDate = parsedSymbol[2].match(/^(\d+)([a-zA-Z]+)(\d+)$/);
@@ -320,16 +320,16 @@ Questrade.prototype.getOptionQuoteSimplified = function (filters, cb) {
         return quote;
       })
       .groupBy('underlying')
-      .mapValues(quotes => {
+      .mapValues(function (quotes) {
         return _.chain(quotes)
           .groupBy('optionType')
-          .mapValues(quotes => {
+          .mapValues(function (quotes) {
             return _.chain(quotes)
               .groupBy('expiryDate')
-              .mapValues(quotes => {
+              .mapValues(function (quotes) {
                 return _.chain(quotes)
-                  .keyBy(quote => quote.strikePrice.toFixed(2))
-                  .mapValues(quote => _.pick(quote, ['symbol', 'symbolId', 'lastTradePrice']))
+                  .keyBy(function (quote) { return quote.strikePrice.toFixed(2) })
+                  .mapValues(function (quote) { return _.pick(quote, ['symbol', 'symbolId', 'lastTradePrice']) })
                   .value();
               })
               .value()
