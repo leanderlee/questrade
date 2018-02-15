@@ -377,7 +377,7 @@ Questrade.prototype.testOrder = function (opts, cb) {
 }
 
 Questrade.prototype.removeOrder = function (id, cb) {
-  this._accountApi('DELETE', '/orders/' + id, opts, cb)
+  this._accountApi('DELETE', '/orders/' + id, cb)
 }
 
 Questrade.prototype.createStrategy = function (opts, cb) {
