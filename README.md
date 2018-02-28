@@ -38,7 +38,7 @@ var qt = new Questrade('./path/to/file'); // Location of a text file with the AP
 
 // Wait to login
 qt.on('ready', function () {
-  
+
   // Access your account here
   qt.getAccounts()
   qt.getBalances()
@@ -66,6 +66,85 @@ By default, if you instantiate the `Questrade` class without passing in an accou
 
 ```js
 qt.account = '123456'; // Switch to account 123456 -- All future calls will use this account.
+```
+
+## Streaming
+
+For those accounts that have L1 data access (either practice account or Advanced market data packages) you can stream live market data.
+
+```js
+var request = require('request');
+var Questrade = require('questrade');
+
+var options = {
+  test: true, // For practice accounts
+  seedToken: 'YOURTOKENHERE',
+}
+
+var qt = new Questrade(options);
+
+// Wait to login
+qt.on('ready', function (err) {
+  // Websocket port changes by API and by symbol. So you have to get the port every time you need different data stream
+  var getWebSocketURL = function (symbolId, cb) {
+    var webSocketURL;
+    request({
+      method: 'GET',
+      url: qt.apiUrl + '/markets/quotes?ids=' + symbolId + '&stream=true&mode=WebSocket',
+      auth: {
+        bearer: qt.accessToken
+      }
+    }, function (err, http, body) {
+      if (err) {
+        cb(err, null);
+      } else {
+        response = JSON.parse(body);
+        webSocketURL = qt.api_server.slice(0, -1) + ':' + response.streamPort + '/' + qt.apiVersion + '/markets/quotes?ids=' + symbolId + 'stream=true&mode=WebSocket';
+        cb(null, webSocketURL);
+      }
+    });
+  }
+  getWebSocketURL('9291,8049', function (err, webSocketURL) { // BMO.TO & AAPL
+    console.log(webSocketURL);
+    const WebSocket = require('ws');
+    const ws = new WebSocket(webSocketURL);
+
+    ws.on('open', function open() {
+      ws.send(qt.accessToken);
+    });
+
+    ws.on('message', function incoming(data) {
+      console.log(data);
+      // Do what you want with the data
+    });
+
+    // CLOSING WebSocket Connections otherwise will remain open
+    process.on('exit', function () {
+      if (ws) {
+        console.log('CLOSE WebSocket');
+        ws.close();
+      }
+    });
+
+    //catches ctrl+c event
+    process.on('SIGINT', function () {
+      if (ws) {
+        console.log('CLOSE WebSocket SIGINT');
+        ws.close();
+      }
+    });
+
+    //catches uncaught exceptions
+    process.on('uncaughtException', function () {
+      if (ws) {
+        console.log('CLOSE WebSocket');
+        ws.close();
+      }
+    });
+  });
+
+})
+
 ```
 
 ## Some examples
