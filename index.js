@@ -276,8 +276,30 @@ Questrade.prototype.getClosedOrders = function (cb) {
   });
 };
 
-Questrade.prototype.getActivities = function (cb) {
-  this._accountApi('GET', '/activities', cb);
+Questrade.prototype.getActivities = function (opts, cb) {
+  if (typeof opts === 'function') {
+    cb = opts;
+    opts = {};
+  }
+  opts = opts || {};
+  if (opts.startTime && !moment(opts.startTime).isValid()) {
+    return cb({
+      message: 'start_time_invalid',
+      details: opts.startTime
+    });
+  }
+  if (opts.endTime && !moment(opts.endTime).isValid()) {
+    return cb({
+      message: 'end_time_invalid',
+      details: opts.endTime
+    });
+  }
+  var startTime = opts.startTime ? moment(opts.startTime).toISOString() : moment().startOf('day').subtract(30, 'days').toISOString();
+  var endTime = opts.endTime ? moment(opts.endTime).toISOString() : moment().toISOString();
+  this._accountApi('GET', '/activities', {
+    startTime: startTime,
+    endTime: endTime
+  }, cb);
 };
 
 Questrade.prototype.getSymbol = function (id, cb) {
