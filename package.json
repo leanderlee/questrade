@@ -1,33 +1,45 @@
 {
-  "name": "questrade",
-  "version": "1.1.4",
-  "description": "Questrade API",
+  "name": "questrade-ts",
+  "version": "1.0.0",
+  "description": "Unofficial Questrade API wraper with typescript support by Luxcium.",
   "main": "index.js",
   "scripts": {
+    "build":"tsc",
     "test": "mocha"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:leanderlee/questrade.git"
+    "url": "git@github.com/luxcium/questrade.git"
   },
   "keywords": [
     "Questrade",
     "stocks",
     "trading"
   ],
-  "author": "Leander Lee <me@leander.ca>",
+  "author": "Luxcium <luxcium@neb401.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/leanderlee/questrade/issues"
+    "url": "https://github.com/luxcium/questrade/issues"
   },
-  "homepage": "https://github.com/leanderlee/questrade",
-  "devDependencies": {
-    "mocha": "^2.5.3"
-  },
+  "homepage": "https://github.com/luxcium/questrade",
   "dependencies": {
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
     "moment": "^2.20.1",
-    "request": "^2.83.0"
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.123",
+    "@types/mkdirp": "^0.5.2",
+    "@types/moment": "^2.13.0",
+    "@types/node": "^11.13.0",
+    "@types/request": "^2.48.1",
+    "prettier": "^1.16.4",
+    "tslib": "^1.9.3",
+    "tslint": "^5.15.0",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.4.1",
+    "typescript-tslint-plugin": "^0.3.1"
   }
 }

@@ -1,11 +1,11 @@
-var util = require('util');
-var EE = require('events').EventEmitter;
-var fs = require('fs');
-var _ = require('lodash');
-var path = require('path');
-var mkdirp = require('mkdirp');
-var moment = require('moment');
-var request = require('request');
+import { inherits } from 'util';
+import { EventEmitter as EE } from 'events';
+import { writeFile, readFile } from 'fs';
+import { keyBy, chain, pick } from 'lodash';
+import { dirname } from 'path';
+import { sync } from 'mkdirp';
+import moment from 'moment';
+import request from 'request';
 
 /**
  * Questrade Class to interact with Questrade API
@@ -73,13 +73,13 @@ function Questrade(opts) {
 
 }
 
-util.inherits(Questrade, EE);
+inherits(Questrade, EE);
 
 // Saves the latest refreshToken in the file name after the seedToken
 Questrade.prototype._saveKey = function (cb) {
-  cb = cb || function () {};
+  cb = cb || function () { };
   var self = this;
-  fs.writeFile(self._getKeyFile(), self.refreshToken, 'utf8', function (err) {
+  writeFile(self._getKeyFile(), self.refreshToken, 'utf8', function (err) {
     if (err) return cb({
       message: 'failed_to_write',
       details: err
@@ -95,14 +95,14 @@ Questrade.prototype._getKeyFile = function () {
 
 // Reads the refreshToken stored in the file (if it exist), otherwise uses the seedToken
 Questrade.prototype._loadKey = function (cb) {
-  cb = cb || function () {};
+  cb = cb || function () { };
   var self = this;
   if (self.keyFile) {
-    mkdirp.sync(path.dirname(self.keyFile)); //Synchronously create a new directory
+    sync(dirname(self.keyFile)); //Synchronously create a new directory
   } else {
-    mkdirp.sync(self.keyDir);
+    sync(self.keyDir);
   }
-  fs.readFile(self._getKeyFile(), 'utf8', function (err, refreshToken) {
+  readFile(self._getKeyFile(), 'utf8', function (err, refreshToken) {
     if (err || !refreshToken) {
       self.refreshToken = self.seedToken;
       return self._saveKey(cb);
@@ -124,7 +124,7 @@ Questrade.prototype._refreshKey = function (cb) {
     url: self.authUrl + '/oauth2/token',
     qs: data,
     data: data
-  }, function (err, http, body) {
+  }, function (null: unknown, http, body) {
     try {
       var creds = JSON.parse(body);
       self.api_server = creds.api_server;
@@ -146,7 +146,7 @@ Questrade.prototype._refreshKey = function (cb) {
 
 // Method that actually mades the GET/POST request to Questrade
 Questrade.prototype._api = function (method, endpoint, params, cb) {
-  cb = cb || function () {};
+  cb = cb || function () { };
   var self = this;
   if (typeof params === 'function') {
     cb = params;
@@ -188,7 +188,7 @@ Questrade.prototype._accountApi = function (method, endpoint, params, cb) {
 
 // Sets self.account to the first account (presumively the "primary account")
 Questrade.prototype.setPrimaryAccount = function (cb) {
-  cb = cb || function () {};
+  cb = cb || function () { };
   var self = this;
   self.getAccounts(function (err, accounts) {
     if (err) return cb(err);
@@ -210,7 +210,7 @@ Questrade.prototype.getAccounts = function (cb) {
   console.log('getAccounts');
   this._api('GET', '/accounts', function (err, response) {
     if (err) return cb(err);
-    cb(null, _.keyBy(response.accounts, 'number'));
+    cb(null, keyBy(response.accounts, 'number'));
   });
 };
 
@@ -245,7 +245,7 @@ Questrade.prototype.getOrders = function (ids, cb) {
     ids: ids.join(',')
   }, function (err, response) {
     if (err) return cb(err);
-    cb(null, _.keyBy(response.orders, 'id'));
+    cb(null, keyBy(response.orders, 'id'));
   });
 };
 
@@ -254,7 +254,7 @@ Questrade.prototype.getOpenOrders = function (cb) {
     stateFilter: 'Open'
   }, function (err, response) {
     if (err) return cb(err);
-    cb(null, _.keyBy(response.orders, 'id'));
+    cb(null, keyBy(response.orders, 'id'));
   });
 };
 
@@ -263,7 +263,7 @@ Questrade.prototype.getAllOrders = function (cb) {
     stateFilter: 'All'
   }, function (err, response) {
     if (err) return cb(err);
-    cb(null, _.keyBy(response.orders, 'id'));
+    cb(null, keyBy(response.orders, 'id'));
   });
 };
 
@@ -272,7 +272,7 @@ Questrade.prototype.getClosedOrders = function (cb) {
     stateFilter: 'Closed'
   }, function (err, response) {
     if (err) return cb(err);
-    cb(null, _.keyBy(response.orders, 'id'));
+    cb(null, keyBy(response.orders, 'id'));
   });
 };
 
@@ -348,7 +348,7 @@ Questrade.prototype.getSymbols = function (ids, cb) {
     if (!response.symbols.length) return cb({
       message: 'symbols_not_found'
     });
-    cb(null, _.keyBy(response.symbols, params.names ? 'symbol' : 'symbolId'));
+    cb(null, keyBy(response.symbols, params.names ? 'symbol' : 'symbolId'));
   });
 };
 
@@ -372,10 +372,10 @@ Questrade.prototype.search = function (query, offset, cb) {
 Questrade.prototype.getOptionChain = function (symbolId, cb) {
   this._api('GET', '/symbols/' + symbolId + '/options', function (err, response) {
     if (err) return cb(err);
-    cb(null, _.chain(response.optionChain)
+    cb(null, chain(response.optionChain)
       .keyBy('expiryDate')
       .mapValues(function (option) {
-        return _.keyBy(option.chainPerRoot[0].chainPerStrikePrice, 'strikePrice');
+        return keyBy(option.chainPerRoot[0].chainPerStrikePrice, 'strikePrice');
       })
       .value());
   });
@@ -384,7 +384,7 @@ Questrade.prototype.getOptionChain = function (symbolId, cb) {
 Questrade.prototype.getMarkets = function (cb) {
   this._api('GET', '/markets', function (err, response) {
     if (err) return cb(err);
-    cb(null, _.keyBy(response.markets, 'name'));
+    cb(null, keyBy(response.markets, 'name'));
   });
 };
 
@@ -408,7 +408,7 @@ Questrade.prototype.getQuotes = function (ids, cb) {
     ids: ids.join(',')
   }, function (err, response) {
     if (err) return cb(err);
-    cb(null, _.keyBy(response.quotes, 'symbolId'));
+    cb(null, keyBy(response.quotes, 'symbolId'));
   });
 };
 
@@ -424,7 +424,7 @@ Questrade.prototype.getOptionQuote = function (filters, cb) {
 
 Questrade.prototype.getOptionQuoteSimplified = function (filters, cb) {
   this.getOptionQuote(filters, function (err, quotes) {
-    cb(null, _.chain(quotes)
+    cb(null, chain(quotes)
       .map(function (quote) {
         var parsedSymbol = quote.symbol.match(/^([a-zA-Z]+)(.+)(C|P)(\d+\.\d+)$/);
         if (parsedSymbol.length >= 5) {
@@ -440,18 +440,18 @@ Questrade.prototype.getOptionQuoteSimplified = function (filters, cb) {
       })
       .groupBy('underlying')
       .mapValues(function (quotes) {
-        return _.chain(quotes)
+        return chain(quotes)
           .groupBy('optionType')
           .mapValues(function (quotes) {
-            return _.chain(quotes)
+            return chain(quotes)
               .groupBy('expiryDate')
               .mapValues(function (quotes) {
-                return _.chain(quotes)
+                return chain(quotes)
                   .keyBy(function (quote) {
                     return quote.strikePrice.toFixed(2);
                   })
                   .mapValues(function (quote) {
-                    return _.pick(quote, ['symbol', 'symbolId', 'lastTradePrice']);
+                    return pick(quote, ['symbol', 'symbolId', 'lastTradePrice']);
                   })
                   .value();
               })
@@ -519,4 +519,4 @@ Questrade.prototype.testStrategy = function (opts, cb) {
 
 
 
-module.exports = Questrade;
+export default Questrade;
