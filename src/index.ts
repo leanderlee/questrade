@@ -9,6 +9,123 @@ import { dirname } from 'path';
 import request from 'request';
 import { inherits } from 'util';
 
+/** @format */
+
+export class QuestradeClass {
+  public constructor() {
+    //
+  }
+  public setPrimaryAccount = () => {
+    //
+  };
+  public getAccounts = () => {
+    //
+  };
+  public getPositions = () => {
+    //
+  };
+  public getBalances = () => {
+    //
+  };
+  public getExecutions = () => {
+    //
+  };
+  public getOrder = () => {
+    //
+  };
+  public getOrders = () => {
+    //
+  };
+  public getOpenOrders = () => {
+    //
+  };
+  public getAllOrders = () => {
+    //
+  };
+  public getClosedOrders = () => {
+    //
+  };
+  public getActivities = () => {
+    //
+  };
+  public getSymbol = () => {
+    //
+  };
+  public getSymbols = () => {
+    //
+  };
+  public search = () => {
+    //
+  };
+  public getOptionChain = () => {
+    //
+  };
+  public getMarkets = () => {
+    //
+  };
+  public getQuote = () => {
+    //
+  };
+  public getQuotes = () => {
+    //
+  };
+  public getOptionQuote = () => {
+    //
+  };
+  public getOptionQuoteSimplified = () => {
+    //
+  };
+  public getCandles = () => {
+    //
+  };
+  public createOrder = () => {
+    //
+  };
+  public updateOrder = () => {
+    //
+  };
+  public testOrder = () => {
+    //
+  };
+  public removeOrder = () => {
+    //
+  };
+  public createStrategy = () => {
+    //
+  };
+  public testStrategy = () => {
+    //
+  };
+  public tempFunct() {
+    return {
+      accountAp: this.accountApi,
+      api: this.api,
+      getKeyFile: this.getKeyFile,
+      loadKey: this.loadKey,
+      refreshKey: this.refreshKey,
+      saveKey: this.saveKey,
+    };
+  }
+  private saveKey = () => {
+    //
+  };
+  private getKeyFile = () => {
+    //
+  };
+  private loadKey = () => {
+    //
+  };
+  private refreshKey = () => {
+    //
+  };
+  private api = () => {
+    //
+  };
+  private accountApi = () => {
+    //
+  };
+}
+
 /**
  * Questrade Class to interact with Questrade API
  * @constructor
