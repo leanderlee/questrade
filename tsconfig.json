@@ -19,27 +19,30 @@
     "listEmittedFiles": true,
     "jsx": "preserve",
     "types": ["node"],
-    "typeRoots": ["node_modules/.registry.npmjs.org/@types/**/*", "node_modules/@types/**/*"],
+    "typeRoots": [
+      "node_modules/.registry.npmjs.org/@types/**/*",
+      "node_modules/@types/**/*"
+    ],
     // "rootDirs": [],
 
     /* Strict Type-Checking Options */
-    "strict": true,
-    "alwaysStrict": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictBindCallApply": true,
-    "strictFunctionTypes": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
+    "strict": false,
+    "alwaysStrict": false,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "strictBindCallApply": false,
+    "strictFunctionTypes": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
 
     /* Additional Checks */
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": false,
+    "noImplicitReturns": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
 
     "experimentalDecorators": false,
-    "emitDecoratorMetadata": false,
+    "emitDecoratorMetadata": false
 
     /* Basic Options */
     // "target": "es5",                          /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019' or 'ESNEXT'. */
@@ -101,9 +104,7 @@
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
   "include": ["./src/**/*"],
-  "exclude": [
-    "./node_modules/**/*",
-  ],
+  "exclude": ["./node_modules/**/*"],
   "plugins": [
     {
       "name": "typescript-tslint-plugin",

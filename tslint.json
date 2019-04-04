@@ -1,11 +1,60 @@
 {
-    "defaultSeverity": "error",
-    "extends": [
-        "tslint:latest",
-        "tslint-config-airbnb",
-        "tslint-config-prettier"
-      ],
-    "jsRules": {},
-    "rules": {},
-    "rulesDirectory": []
+  "extends": [
+    "tslint:latest",
+    "tslint-config-airbnb",
+    "tslint-config-prettier"
+  ],
+
+  "defaultSeverity": "warning",
+  "rulesDirectory": [],
+  "rules": {
+    "import-name": true,
+    "max-line-length": [true, 120],
+    "no-boolean-literal-compare": false,
+    "no-console": false,
+    "no-unused-expression": true,
+    "no-unused-variable": true,
+    "object-literal-sort-keys": true,
+    "object-shorthand-properties-first": false,
+    "ordered-imports": true,
+    "triple-equals": [true, "allow-null-check"],
+
+    "ter-arrow-parens": [
+      true,
+      "as-needed",
+      {
+        "requireForBlockBody": false
+      }
+    ],
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-pascal-case",
+      "allow-leading-underscore",
+      "allow-trailing-underscore"
+    ]
+  },
+  "jsRules": {
+    "import-name": false,
+    "max-line-length": [true, 120],
+    "no-console": false,
+    "object-literal-sort-keys": true,
+    "ordered-imports": true,
+    "triple-equals": [true, "allow-null-check"],
+    "ter-arrow-parens": [
+      true,
+      "as-needed",
+      {
+        "requireForBlockBody": false
+      }
+    ],
+    "variable-name": [
+      true,
+      "check-format",
+      "allow-leading-underscore",
+      "allow-trailing-underscore",
+      "ban-keywords"
+    ]
+  }
 }

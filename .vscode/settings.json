@@ -3,5 +3,6 @@
     "prettier.singleQuote": true,
     "prettier.tslintIntegration": true,
     "prettier.trailingComma": "es5",
-    "prettier.requireConfig": true
+    "prettier.requireConfig": true,
+    "editor.fontLigatures": true
 }
