@@ -112,22 +112,20 @@ export class QuestradeClass extends EE {
   }
 
   public setPrimaryAccount = (cb: callBack) => {
-    this.getAccounts(
-      (err: error, accounts: any) => {
-        if (err) return cb(err, null);
-        if (!accounts || !Object.keys(accounts).length) {
-          return cb(new Error('no_accounts_found'));
-        }
-        const primaryAccount = Object.keys(accounts).filter(accountNumber => {
-          return accounts[accountNumber].isPrimary;
-        });
-        if (!primaryAccount.length) {
-          return cb(new Error('no_primary_account'));
-        }
-        this._account = primaryAccount[0];
-        cb(null, this._account);
+    this.getAccounts((err: error, accounts: any) => {
+      if (err) return cb(err, null);
+      if (!accounts || !Object.keys(accounts).length) {
+        return cb(new Error('no_accounts_found'));
       }
-    );
+      const primaryAccount = Object.keys(accounts).filter(accountNumber => {
+        return accounts[accountNumber].isPrimary;
+      });
+      if (!primaryAccount.length) {
+        return cb(new Error('no_primary_account'));
+      }
+      this._account = primaryAccount[0];
+      cb(null, this._account);
+    });
   };
 
   public getAccounts = (cb: callBack) => {
@@ -485,15 +483,15 @@ export class QuestradeClass extends EE {
     opts?: { startTime?: any; endTime?: any; interval?: any } | callBack,
     cb?: callBack
   ) => {
-
-
-   const callback:callBack|undefined = typeof opts === 'function' ? opts  : cb
-   if (callback === undefined) throw new Error()
-   const opt:any = typeof opts === 'undefined' ? {} : opts
-
+    const callback: callBack | undefined =
+      typeof opts === 'function' ? opts : cb;
+    if (callback === undefined) throw new Error();
+    const opt: any = typeof opts === 'undefined' ? {} : opts;
 
     if (opt.startTime && !moment(opt.startTime).isValid()) {
-      return callback(new Error('start_time_invalid'), { details: opt.startTime });
+      return callback(new Error('start_time_invalid'), {
+        details: opt.startTime,
+      });
     }
     if (opt.endTime && !moment(opt.endTime).isValid()) {
       return callback(new Error('end_time_invalid'), { details: opt.endTime });

@@ -1,16 +1,19 @@
 /** @format */
 
-import { jestPreset } from 'ts-jest';
+const { defaults: jestPreset } = require('ts-jest/presets');
+
+// import { jestPreset } from 'ts-jest';
+// export default {
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
   moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx'],
+  preset: 'ts-jest',
   rootDir: '../../../',
+  testEnvironment: 'node',
+  testPathIgnorePatterns: ['\\\\node_modules\\\\', '\\\\build\\\\'],
 
   // The glob patterns Jest uses to detect test files
   testMatch: ['**/?(*.)+(smoke.detection).[tj]s?(x)'],
   verbose: true,
-  testPathIgnorePatterns: ['\\\\node_modules\\\\', '\\\\build\\\\'],
   transform: {
     ...jestPreset.transform,
   },

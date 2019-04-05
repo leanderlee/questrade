@@ -14,7 +14,7 @@
     "no-console": false,
     "no-unused-expression": true,
     "no-unused-variable": true,
-    "object-literal-sort-keys": true,
+    "object-literal-sort-keys": false,
     "object-shorthand-properties-first": false,
     "ordered-imports": true,
     "triple-equals": [true, "allow-null-check"],
@@ -39,7 +39,7 @@
     "import-name": false,
     "max-line-length": [true, 120],
     "no-console": false,
-    "object-literal-sort-keys": true,
+    "object-literal-sort-keys": false,
     "ordered-imports": true,
     "triple-equals": [true, "allow-null-check"],
     "ter-arrow-parens": [

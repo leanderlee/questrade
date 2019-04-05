@@ -27,7 +27,7 @@
     // "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "jsx": "preserve",
-    "types": ["node"],
+    "types": ["node", "jest"],
     "typeRoots": [
       "node_modules/.registry.npmjs.org/@types/**/*",
       "node_modules/@types/**/*"
@@ -99,7 +99,15 @@
   },
   "compileOnSave": true,
   "include": ["./src/**/*"],
-  "exclude": ["./node_modules/**/*", "./build/**/*"],
+  "exclude": [
+    "./node_modules/**/*",
+    "./build/**/*",
+    "./src/__tests__/**/*",
+    "*.test.*",
+    "*.spec.*",
+    "**/jest.config.*"
+  ],
+
   "plugins": [
     {
       "name": "typescript-tslint-plugin",

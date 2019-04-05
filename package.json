@@ -5,13 +5,15 @@
   "main": "./build/index.js",
   "types": "./build/lib/index.d.ts",
   "scripts": {
+    "smoke:test": "jest --silent --detectOpenHandles --forceExit --config ./src/__tests__/smoketest/jest.config.js",
     "build": "tsc --declarationDir ./build/lib/",
     "build:diagnostics": "tsc --declarationDir ./build/lib/ --diagnostics",
     "build:traceResolution": "tsc --declarationDir ./build/lib/ --traceResolution",
     "build:listFiles": "tsc --declarationDir ./build/lib/ --listFiles",
     "build:listEmittedFiles": "tsc --declarationDir ./build/lib/ --listEmittedFiles",
-    "predist": "rimraf build",
-    "test": "mocha"
+    "predist": "rimraf build;npm run smoke:test",
+    "dist": "npm run build",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -20,7 +22,8 @@
   "keywords": [
     "Questrade",
     "stocks",
-    "trading"
+    "trading",
+    "typescript"
   ],
   "author": "Luxcium <luxcium@neb401.com>",
   "license": "MIT",
@@ -35,12 +38,14 @@
     "request": "^2.88.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.1.7",
     "@types/jest": "^24.0.11",
     "@types/lodash": "^4.14.123",
     "@types/mkdirp": "^0.5.2",
     "@types/moment": "^2.13.0",
     "@types/node": "^11.13.0",
     "@types/request": "^2.48.1",
+    "chai": "^4.2.0",
     "jest": "^24.7.1",
     "prettier": "^1.16.4",
     "rimraf": "^2.6.3",

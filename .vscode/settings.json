@@ -10,5 +10,20 @@
   "prettier.tslintIntegration": true,
   "prettier.trailingComma": "es5",
   "prettier.requireConfig": true,
-  "editor.fontLigatures": true
+  "editor.fontLigatures": true,
+  "javascript.format.enable": false,
+  "typescript.format.enable": false,
+  // On save, run both fixAll and organizeImports source actions
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.organizeImports": true
+  },
+  "editor.wordWrapColumn": 121,
+  "prettier.eslintIntegration": true,
+  "prettier.printWidth": 120,
+  "coverage-gutters.coverageReportFileName": "**/coverage/**/index.html",
+  "npm-scripts.showStartNotification": false,
+  "bracket-pair-colorizer-2.showBracketsInRuler": true,
+  "coverage-gutters.showRulerCoverage": true,
+  "bracket-pair-colorizer-2.rulerPosition": "Full"
 }
