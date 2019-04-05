@@ -1,8 +1,14 @@
 {
-    "editor.formatOnSave": true,
-    "prettier.singleQuote": true,
-    "prettier.tslintIntegration": true,
-    "prettier.trailingComma": "es5",
-    "prettier.requireConfig": true,
-    "editor.fontLigatures": true
+  "json.schemas": [
+    {
+      "fileMatch": ["/tsconfig.json"],
+      "url": "./tsconfig.schema.json"
+    }
+  ],
+  "editor.formatOnSave": true,
+  "prettier.singleQuote": true,
+  "prettier.tslintIntegration": true,
+  "prettier.trailingComma": "es5",
+  "prettier.requireConfig": true,
+  "editor.fontLigatures": true
 }

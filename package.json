@@ -2,9 +2,15 @@
   "name": "questrade-ts",
   "version": "1.0.0",
   "description": "Unofficial Questrade API wraper with typescript support by Luxcium.",
-  "main": "index.js",
+  "main": "./build/index.js",
+  "types": "./build/lib/index.d.ts",
   "scripts": {
-    "build":"tsc",
+    "build": "tsc --declarationDir ./build/lib/",
+    "build:diagnostics": "tsc --declarationDir ./build/lib/ --diagnostics",
+    "build:traceResolution": "tsc --declarationDir ./build/lib/ --traceResolution",
+    "build:listFiles": "tsc --declarationDir ./build/lib/ --listFiles",
+    "build:listEmittedFiles": "tsc --declarationDir ./build/lib/ --listEmittedFiles",
+    "predist": "rimraf build",
     "test": "mocha"
   },
   "repository": {
@@ -29,12 +35,16 @@
     "request": "^2.88.0"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.11",
     "@types/lodash": "^4.14.123",
     "@types/mkdirp": "^0.5.2",
     "@types/moment": "^2.13.0",
     "@types/node": "^11.13.0",
     "@types/request": "^2.48.1",
+    "jest": "^24.7.1",
     "prettier": "^1.16.4",
+    "rimraf": "^2.6.3",
+    "ts-jest": "^24.0.1",
     "tslib": "^1.9.3",
     "tslint": "^5.15.0",
     "tslint-config-airbnb": "^5.11.1",
