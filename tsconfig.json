@@ -10,7 +10,12 @@
     "allowSyntheticDefaultImports": true,
 
     "rootDir": "./src",
-    "outDir": "../build",
+    "outDir": "./build",
+
+    /* Source Map Options */
+    "declaration": true,
+    "inlineSources": true,
+    "inlineSourceMap": true,
 
     // "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
@@ -26,20 +31,20 @@
     // "rootDirs": [],
 
     /* Strict Type-Checking Options */
-    "strict": false,
-    "alwaysStrict": false,
-    "noImplicitAny": false,
-    "noImplicitThis": false,
-    "strictBindCallApply": false,
-    "strictFunctionTypes": false,
-    "strictNullChecks": false,
-    "strictPropertyInitialization": false,
+    "strict": true,
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
 
     /* Additional Checks */
-    "noFallthroughCasesInSwitch": false,
-    "noImplicitReturns": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
 
     "experimentalDecorators": false,
     "emitDecoratorMetadata": false
