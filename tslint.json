@@ -13,7 +13,6 @@
     "no-boolean-literal-compare": false,
     "no-console": false,
     "no-unused-expression": true,
-    "no-unused-variable": true,
     "object-literal-sort-keys": false,
     "object-shorthand-properties-first": false,
     "ordered-imports": true,

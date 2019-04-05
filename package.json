@@ -6,12 +6,12 @@
   "types": "./build/lib/index.d.ts",
   "scripts": {
     "smoke:test": "jest --silent --detectOpenHandles --forceExit --config ./src/__tests__/smoketest/jest.config.js",
-    "build": "tsc --declarationDir ./build/lib/",
+    "prebuild": "rimraf build",
+    "build": "tsc",
     "build:diagnostics": "tsc --declarationDir ./build/lib/ --diagnostics",
     "build:traceResolution": "tsc --declarationDir ./build/lib/ --traceResolution",
     "build:listFiles": "tsc --declarationDir ./build/lib/ --listFiles",
     "build:listEmittedFiles": "tsc --declarationDir ./build/lib/ --listEmittedFiles",
-    "prebuild": "rimraf build;npm run smoke:test",
     "gitcheck": "git diff-index origin/ts-class",
     "copy:package:json": "cp-cli package.json ./build/package.json",
     "copy:npmignore": "cp-cli .npmignore ./build/.npmignore && npm run copy:package:json",
@@ -20,6 +20,8 @@
     "copy:static:files": "npm run copy:readme",
     "predist": "npm run test && npm run build && npm run copy:static:files && npm run gitcheck",
     "dist": "npm run build",
+    "lint": "tslint --project . --format stylish",
+    "pretest": "tsc --noEmit --pretty && npm run lint && npm run smoke:test",
     "test": "jest"
   },
   "repository": {

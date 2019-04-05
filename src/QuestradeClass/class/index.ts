@@ -22,55 +22,58 @@ type error = Error | null;
 type callBack = (err: error, response?: any) => any;
 
 export class QuestradeClass extends EE {
+  public seedToken: string;
   private _accessToken: string;
   private _test: boolean;
   private _keyDir: string;
   private _apiVersion: string;
   private _keyFile: string;
-  private _seedToken: string;
   private _account: string;
   private _refreshToken: string;
-  private _apiServer: string;
+  // private _apiServer: string;
   private _apiUrl: string;
   private _authUrl: string;
   public constructor(opts?: QuestradeClassOptions) {
     super();
+    this._test = false;
+    this._keyDir = './keys';
+    this._apiVersion = 'v1';
+    this._keyFile = '';
+    this.seedToken = '';
+    this._account = '';
+
     if (typeof opts === 'undefined' || opts === undefined) {
       throw new Error('questrade_missing_api_key or options');
     }
+    if (typeof opts === 'string' && opts.indexOf('/') !== -1) {
+      this._keyFile = opts;
+    }
 
-    // if (typeof opts === 'string') {
-    //   if (opts.indexOf('/') === -1) {
-    //     opts = {
-    //       seedToken: opts,
-    //     };
-    //   } else {
-    //     opts = {
-    //       keyFile: opts,
-    //     };
-    //   }
-    // }
+    if (typeof opts === 'string' && opts.indexOf('/') === -1) {
+      this.seedToken = opts;
+    }
 
-    // Set to true if using a practice account (http://www.questrade.com/api/free-practice-account)
-    this._test = opts.test === undefined ? false : !!opts.test;
-    // Directory where the last refreshToken is stored. The file name will have to be seedToken
-    this._keyDir = opts.keyDir || './keys';
-    // Used as part of the API URL
-    this._apiVersion = opts.apiVersion || 'v1';
-    // File that stores the last refreshToken. Not really neede if you keep the seedToken and the keyDir
-    this._keyFile = opts.keyFile || '';
-    // The original token obtained mannuelly from the interface
-    this._seedToken = opts.seedToken || '';
-    // The default Account agains wich the API are made. GetAccounts() will return the possible values
-    this._account = opts.account || '';
+    if (typeof opts === 'object') {
+      // Set to true if using a practice account (http://www.questrade.com/api/free-practice-account)
+      this._test = opts.test === undefined ? false : !!opts.test;
+      // Directory where the last refreshToken is stored. The file name will have to be seedToken
+      this._keyDir = opts.keyDir || './keys';
+      // Used as part of the API URL
+      this._apiVersion = opts.apiVersion || 'v1';
+      // File that stores the last refreshToken. Not really neede if you keep the seedToken and the keyDir
+      this._keyFile = opts.keyFile || '';
+      // The original token obtained mannuelly from the interface
+      this.seedToken = opts.seedToken || '';
+      // The default Account agains wich the API are made. GetAccounts() will return the possible values
+      this._account = opts.account || '';
+    }
     // The refresh token used to login and get the new accessToken,
     // the new refreshToken (next time to log in) and the api_server
     this._refreshToken = '';
     // Stores The unique token that is used to call each API call, Changes everytime you Refresh Tokens (aka Login)
     this._accessToken = '';
     // The server your connection needs to be made to (changes sometimes)
-    this._apiServer = '';
-    console.log(this._apiServer);
+    // this._apiServer = '';
     // Strores the URL (without the endpoint) to use for regular GET/POST Apis
     this._apiUrl = '';
 
@@ -561,7 +564,7 @@ export class QuestradeClass extends EE {
 
   // Gets name of the file where the refreshToken is stored
   private _getKeyFile = () => {
-    return this._keyFile || `${this._keyDir}/${this._seedToken}`;
+    return this._keyFile || `${this._keyDir}/${this.seedToken}`;
   };
 
   // Reads the refreshToken stored in the file (if it exist), otherwise uses the seedToken
@@ -580,7 +583,7 @@ export class QuestradeClass extends EE {
     }
     readFile(this._getKeyFile(), 'utf8', (err, refreshToken) => {
       if (err || !refreshToken) {
-        this._refreshToken = this._seedToken;
+        this._refreshToken = this.seedToken;
         return this._saveKey(cb);
       }
       this._refreshToken = refreshToken;
@@ -603,7 +606,7 @@ export class QuestradeClass extends EE {
       (_res: any, _http: any, body: any) => {
         try {
           const creds = JSON.parse(body);
-          this._apiServer = creds.api_server;
+          // this._apiServer = creds.api_server;
           this._apiUrl = creds.api_server + this._apiVersion;
           this._accessToken = creds.access_token;
           this._refreshToken = creds.refresh_token;

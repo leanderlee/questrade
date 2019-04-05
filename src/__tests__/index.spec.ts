@@ -1,21 +1,19 @@
 /** @format */
 
-// var assert = require('assert');
-// var Questrade = require('../');
+import assert from 'assert';
+import { QuestradeClass } from '../QuestradeClass/class';
 
-// describe('API', function () {
+describe('API', () => {
+  it('throws error if there is no key', () => {
+    assert.throws(() => {
+      return new QuestradeClass();
+    });
+  });
 
-//   it('throws error if there is no key', function () {
-//     assert.throws(function () {
-//       var qt = new Questrade();
-//     });
-//   })
-
-//   it('sets the key as an option or as a string', function () {
-//     var qt1 = new Questrade('abc');
-//     assert.equal(qt1.seedToken, 'abc');
-//     var qt2 = new Questrade({ seedToken: 'abc' });
-//     assert.equal(qt2.seedToken, 'abc');
-//   })
-
-// })
+  it('sets the key as an option or as a string', () => {
+    const qt1 = new QuestradeClass('abc');
+    assert.equal(qt1.seedToken, 'abc');
+    const qt2 = new QuestradeClass({ seedToken: 'abc' });
+    assert.equal(qt2.seedToken, 'abc');
+  });
+});
