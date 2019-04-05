@@ -7,7 +7,7 @@ const { defaults: jestPreset } = require('ts-jest/presets');
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  coverageDirectory: './coverage/tests',
+  coverageDirectory: './build/coverage',
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   rootDir: '.',
   // The glob patterns Jest uses to detect test files

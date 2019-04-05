@@ -4,9 +4,9 @@ import { EventEmitter as EE } from 'events';
 import { readFile, writeFile } from 'fs';
 import { chain, keyBy, pick } from 'lodash';
 import { sync } from 'mkdirp';
-import moment from 'moment';
+import { default as moment } from 'moment';
 import { dirname } from 'path';
-import request from 'request';
+import { default as request } from 'request';
 type seedToken = string;
 type keyFile = any;
 interface IQuestradeOpts {
@@ -54,23 +54,28 @@ export class QuestradeClass extends EE {
     }
 
     if (typeof opts === 'object') {
-      // Set to true if using a practice account (http://www.questrade.com/api/free-practice-account)
+      // Set to true if using a practice account
+      // (http://www.questrade.com/api/free-practice-account)
       this._test = opts.test === undefined ? false : !!opts.test;
-      // Directory where the last refreshToken is stored. The file name will have to be seedToken
+      // Directory where the last refreshToken is stored.
+      // The file name will have to be seedToken
       this._keyDir = opts.keyDir || './keys';
       // Used as part of the API URL
       this._apiVersion = opts.apiVersion || 'v1';
-      // File that stores the last refreshToken. Not really neede if you keep the seedToken and the keyDir
+      // File that stores the last refreshToken.
+      // Not really neede if you keep the seedToken and the keyDir
       this._keyFile = opts.keyFile || '';
       // The original token obtained mannuelly from the interface
       this.seedToken = opts.seedToken || '';
-      // The default Account agains wich the API are made. GetAccounts() will return the possible values
+      // The default Account agains wich the API are made.
+      // GetAccounts() will return the possible values
       this._account = opts.account || '';
     }
     // The refresh token used to login and get the new accessToken,
     // the new refreshToken (next time to log in) and the api_server
     this._refreshToken = '';
-    // Stores The unique token that is used to call each API call, Changes everytime you Refresh Tokens (aka Login)
+    // Stores The unique token that is used to call each API call,
+    //  Changes everytime you Refresh Tokens (aka Login)
     this._accessToken = '';
     // The server your connection needs to be made to (changes sometimes)
     // this._apiServer = '';
@@ -156,7 +161,8 @@ export class QuestradeClass extends EE {
       if (err) return cb(err, null);
       if (!response.orders.length) {
         if (typeof cb === 'undefined') {
-          throw new Error('callback function required');
+          // throw new Error('callback function required');
+          return console.log("throw new Error('callback function required');")
         }
         const message = 'order_not_found';
         return cb(new Error(message));
@@ -168,7 +174,9 @@ export class QuestradeClass extends EE {
   public getOrders = (ids: any, cb: callBack) => {
     if (!Array.isArray(ids)) {
       if (typeof cb === 'undefined') {
-        throw new Error('callback function required');
+        // throw new Error('callback function required');
+        return console.log("throw new Error('callback function required');")
+
       }
       const message = 'missing_ids';
       return cb(new Error(message));
@@ -447,7 +455,9 @@ export class QuestradeClass extends EE {
               optionQuote.underlying = parsedSymbol[1];
               optionQuote.expiryDate = expiryString;
               optionQuote.strikePrice = parseFloat(parsedSymbol[4]);
-              optionQuote.optionType = parsedSymbol[3] === 'P' ? 'Put' : 'Call';
+              optionQuote.optionType = parsedSymbol[3] === 'P'
+              ? 'Put'
+              : 'Call';
             }
             return optionQuote;
           })
@@ -488,7 +498,7 @@ export class QuestradeClass extends EE {
   ) => {
     const callback: callBack | undefined =
       typeof opts === 'function' ? opts : cb;
-    if (callback === undefined) throw new Error();
+    if (callback === undefined) throw new Error('Callback undefined');
     const opt: any = typeof opts === 'undefined' ? {} : opts;
 
     if (opt.startTime && !moment(opt.startTime).isValid()) {
@@ -591,7 +601,8 @@ export class QuestradeClass extends EE {
     });
   };
 
-  // Refreshed the tokem (aka Logs in) using the latest RefreshToken (or the SeedToken if no previous saved file)
+  // Refreshed the tokem (aka Logs in) using the latest RefreshToken
+  // (or the SeedToken if no previous saved file)
   private _refreshKey = (cb: callBack) => {
     const data = {
       grant_type: 'refresh_token',
