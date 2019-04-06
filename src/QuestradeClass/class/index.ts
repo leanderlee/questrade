@@ -1,5 +1,5 @@
 /** @format */
-
+import { default as axios } from 'axios';
 import { EventEmitter as EE } from 'events';
 import { readFile, writeFile } from 'fs';
 import { chain, keyBy, pick } from 'lodash';
@@ -86,60 +86,63 @@ export class QuestradeClass extends EE {
       : 'https://login.questrade.com';
 
     // Running the Authentification process and emit 'ready' when done
-    this._loadKey((loadKeyErr: error) => {
+
+    const fnRefreshKey = (refreshKeyErr: error) => {
+      if (refreshKeyErr) {
+        return this.emit('error', {
+          details: refreshKeyErr,
+          message: 'failed_to_refresh_key',
+        });
+      }
+
+      if (this._account) return this.emit('ready');
+
+      this.setPrimaryAccount()
+        .then(() => this.emit('ready'))
+        .catch((setPrimaryAccountErr: error) =>
+          this.emit('error', {
+            details: setPrimaryAccountErr,
+            message: 'failed_to_set_account',
+          })
+        );
+      return this.emit('ready');
+    };
+
+    const fnLowKey = (loadKeyErr: error) => {
       if (loadKeyErr) {
         return this.emit('error', {
           details: loadKeyErr,
           message: 'failed_to_load_key',
         });
       }
-
-      this._refreshKey((refreshKeyErr: error) => {
-        if (refreshKeyErr) {
-          return this.emit('error', {
-            details: refreshKeyErr,
-            message: 'failed_to_refresh_key',
-          });
-        }
-
-        if (this._account) return this.emit('ready');
-        this.setPrimaryAccount((setPrimaryAccountErr: error) => {
-          if (setPrimaryAccountErr) {
-            return this.emit('error', {
-              details: setPrimaryAccountErr,
-              message: 'failed_to_set_account',
-            });
-          }
-          return this.emit('ready');
-        });
-        return this.emit('ready');
-      });
+      this._refreshKey(fnRefreshKey);
       return this.emit('ready');
-    });
+    };
+
+    this._loadKey(fnLowKey);
   }
 
-  public setPrimaryAccount = (cb: callBack) => {
-    this.getAccounts((err: error, accounts: any) => {
-      if (err) return cb(err, null);
-      if (!accounts || !Object.keys(accounts).length) {
-        return cb(new Error('no_accounts_found'));
-      }
-      const primaryAccount = Object.keys(accounts).filter(accountNumber => {
+  public setPrimaryAccount = async () => {
+    const accounts: any = await this.getAccounts();
+    if (!accounts || !Object.keys(accounts).length) {
+      throw new Error('no_accounts_found');
+    }
+    const primaryAccount = Object.keys(accounts).filter(
+      (accountNumber: any) => {
         return accounts[accountNumber].isPrimary;
-      });
-      if (!primaryAccount.length) {
-        return cb(new Error('no_primary_account'));
       }
-      this._account = primaryAccount[0];
-      cb(null, this._account);
-    });
+    );
+    if (!primaryAccount.length) {
+      throw new Error('no_primary_account');
+    }
+    this._account = primaryAccount[0];
+    return this._account;
   };
 
-  public getAccounts = (cb: callBack) => {
-    console.log('getAccounts');
-    this._api('GET', '/accounts', (err: error, response: any) => {
-      if (err) return cb(err, null);
-      cb(null, keyBy(response.accounts, 'number'));
+  public getAccounts = async () => {
+    return this._api('GET', '/accounts', (err: error, response: any) => {
+      if (err) throw err;
+      return keyBy(response.accounts, 'number');
     });
   };
 
@@ -269,7 +272,7 @@ export class QuestradeClass extends EE {
     );
   };
 
-  public getSymbol = (id: any, cb: callBack) => {
+  public getSymbol = async (id: any) => {
     let params: any = false;
     if (typeof id === 'number') {
       params = {
@@ -281,22 +284,18 @@ export class QuestradeClass extends EE {
       };
     }
     if (params === false) {
-      return cb(new Error('missing_id'));
+      throw new Error('missing_id');
     }
-    this._api('GET', '/symbols', params, (err: error, response: any) => {
-      if (err) return cb(err, null);
-      if (!response.symbols.length) {
-        return cb(new Error('symbol_not_found'));
-      }
-      cb(null, response.symbols[0]);
-    });
+    const response: any = this._api('GET', '/symbols', params);
+
+    return response.symbols[0];
   };
 
-  public getSymbols = (ids: any, cb: callBack) => {
+  public getSymbols = async (ids: any) => {
     if (!Array.isArray(ids)) {
-      return cb(new Error('missing_ids'));
+      throw new Error('missing_ids');
     }
-    if (!ids.length) return cb(null, {});
+    if (!ids.length) return {};
     let params: any = false;
     if (typeof ids[0] === 'number') {
       params = {
@@ -308,40 +307,26 @@ export class QuestradeClass extends EE {
       };
     }
     if (params === false) {
-      return cb(new Error('missing_id'));
+      throw new Error('missing_id');
     }
-    this._api('GET', '/symbols', params, (err: error, response: any) => {
-      if (err) return cb(err, null);
-      if (!response.symbols.length) {
-        return cb(new Error('symbols_not_found'));
-      }
-      cb(null, keyBy(response.symbols, params.names ? 'symbol' : 'symbolId'));
-    });
+    const response: any = await this._api('GET', '/symbols', params);
+
+    if (!response.symbols.length) {
+      throw new Error('symbols_not_found');
+    }
+    return keyBy(response.symbols, params.names ? 'symbol' : 'symbolId');
   };
 
-  public search = (query: any, offset_: any, cb_: any) => {
-    let cb: callBack = cb_;
-    let offset: any = offset_;
-
-    if (typeof offset === 'function') {
-      cb = offset;
-      offset = 0;
-    }
+  public search = async (query: any, offset: any) => {
     if (typeof query !== 'string') {
-      return cb(new Error('missing_query'));
+      throw new Error('missing_query');
     }
-    this._api(
-      'GET',
-      '/symbols/search',
-      {
-        offset,
-        prefix: query,
-      },
-      (err: error, response: any) => {
-        if (err) return cb(err, null);
-        cb(null, response.symbols);
-      }
-    );
+    const response: any = await this._api('GET', '/symbols/search', {
+      offset,
+      prefix: query,
+    });
+
+    return response.symbols;
   };
 
   public getOptionChain = (symbolId: any, cb: callBack) => {
@@ -392,118 +377,100 @@ export class QuestradeClass extends EE {
     });
   };
 
-  public getQuotes = (ids: any, cb: callBack) => {
+  public getQuotes = async (ids: any) => {
     if (!Array.isArray(ids)) {
-      return cb(new Error('missing_ids'));
+      throw new Error('missing_ids');
     }
-    if (!ids.length) return cb(null, {});
-    this._api(
-      'GET',
-      '/markets/quotes',
-      {
-        ids: ids.join(','),
-      },
-      (err: error, response: any) => {
-        if (err) return cb(err, null);
-        cb(null, keyBy(response.quotes, 'symbolId'));
-      }
-    );
+    if (!ids.length) return {};
+    const response: any = await this._api('GET', '/markets/quotes', {
+      ids: ids.join(','),
+    });
+
+    return keyBy(response.quotes, 'symbolId');
   };
 
-  public getOptionQuote = (filters_: any[], cb: callBack) => {
+  public getOptionQuote = async (filters_: any[]) => {
     let filters = filters_;
     if (!Array.isArray(filters) && typeof filters === 'object') {
       filters = [filters];
     }
-    this._api(
-      'POST',
-      '/markets/quotes/options',
-      {
-        filters,
-      },
-      (err: error, response: any) => {
-        if (err) return cb(err, null);
-        cb(null, response.optionQuotes);
-      }
+    const response: any = await this._api('POST', '/markets/quotes/options', {
+      filters,
+    });
+
+    return response.optionQuotes;
+  };
+
+  public getOptionQuoteSimplified = async (filters: any, cb: callBack) => {
+    const optionsQuotes = await this.getOptionQuote(filters);
+
+    cb(
+      null,
+      chain(optionsQuotes)
+        .map(optionQuote => {
+          const parsedSymbol = optionQuote.symbol.match(
+            /^([a-zA-Z]+)(.+)(C|P)(\d+\.\d+)$/
+          );
+          if (parsedSymbol.length >= 5) {
+            const parsedDate = parsedSymbol[2].match(/^(\d+)([a-zA-Z]+)(\d+)$/);
+            const expiryDate: any = moment()
+              .utc()
+              .month(parsedDate[2])
+              .date(parsedDate[1])
+              .year(20 + parsedDate[3])
+              .startOf('day');
+            const expiryString = `${expiryDate
+              .toISOString()
+              .slice(0, -1)}000-04:00`;
+            optionQuote.underlying = parsedSymbol[1];
+            optionQuote.expiryDate = expiryString;
+            optionQuote.strikePrice = parseFloat(parsedSymbol[4]);
+            optionQuote.optionType = parsedSymbol[3] === 'P' ? 'Put' : 'Call';
+          }
+          return optionQuote;
+        })
+        .groupBy('underlying')
+        .mapValues(underlyingQuotes => {
+          return chain(underlyingQuotes)
+            .groupBy('optionType')
+            .mapValues(optionTypeQuotes => {
+              return chain(optionTypeQuotes)
+                .groupBy('expiryDate')
+                .mapValues(expiryDateQuotes => {
+                  return chain(expiryDateQuotes)
+                    .keyBy(quote => {
+                      return quote.strikePrice.toFixed(2);
+                    })
+                    .mapValues(quote => {
+                      return pick(quote, [
+                        'symbol',
+                        'symbolId',
+                        'lastTradePrice',
+                      ]);
+                    })
+                    .value();
+                })
+                .value();
+            })
+            .value();
+        })
+        .value()
     );
   };
 
-  public getOptionQuoteSimplified = (filters: any, cb: callBack) => {
-    this.getOptionQuote(filters, (_err: error, optionsQuotes: any) => {
-      cb(
-        null,
-        chain(optionsQuotes)
-          .map(optionQuote => {
-            const parsedSymbol = optionQuote.symbol.match(
-              /^([a-zA-Z]+)(.+)(C|P)(\d+\.\d+)$/
-            );
-            if (parsedSymbol.length >= 5) {
-              const parsedDate = parsedSymbol[2].match(
-                /^(\d+)([a-zA-Z]+)(\d+)$/
-              );
-              const expiryDate: any = moment()
-                .utc()
-                .month(parsedDate[2])
-                .date(parsedDate[1])
-                .year(20 + parsedDate[3])
-                .startOf('day');
-              const expiryString = `${expiryDate
-                .toISOString()
-                .slice(0, -1)}000-04:00`;
-              optionQuote.underlying = parsedSymbol[1];
-              optionQuote.expiryDate = expiryString;
-              optionQuote.strikePrice = parseFloat(parsedSymbol[4]);
-              optionQuote.optionType = parsedSymbol[3] === 'P' ? 'Put' : 'Call';
-            }
-            return optionQuote;
-          })
-          .groupBy('underlying')
-          .mapValues(underlyingQuotes => {
-            return chain(underlyingQuotes)
-              .groupBy('optionType')
-              .mapValues(optionTypeQuotes => {
-                return chain(optionTypeQuotes)
-                  .groupBy('expiryDate')
-                  .mapValues(expiryDateQuotes => {
-                    return chain(expiryDateQuotes)
-                      .keyBy(quote => {
-                        return quote.strikePrice.toFixed(2);
-                      })
-                      .mapValues(quote => {
-                        return pick(quote, [
-                          'symbol',
-                          'symbolId',
-                          'lastTradePrice',
-                        ]);
-                      })
-                      .value();
-                  })
-                  .value();
-              })
-              .value();
-          })
-          .value()
-      );
-    });
-  };
-
-  public getCandles = (
+  public getCandles = async (
     id: string,
-    opts?: { startTime?: any; endTime?: any; interval?: any } | callBack,
-    cb?: callBack
+    opts?: { startTime?: any; endTime?: any; interval?: any } | callBack
   ) => {
-    const callback: callBack | undefined =
-      typeof opts === 'function' ? opts : cb;
-    if (callback === undefined) throw new Error('Callback undefined');
     const opt: any = typeof opts === 'undefined' ? {} : opts;
 
     if (opt.startTime && !moment(opt.startTime).isValid()) {
-      return callback(new Error('start_time_invalid'), {
-        details: opt.startTime,
-      });
+      throw new Error('start_time_invalid');
     }
+    // details: opt.startTime,
+
     if (opt.endTime && !moment(opt.endTime).isValid()) {
-      return callback(new Error('end_time_invalid'), { details: opt.endTime });
+      throw new Error('end_time_invalid');
     }
     const startTime = opt.startTime
       ? moment(opt.startTime).toISOString()
@@ -514,19 +481,14 @@ export class QuestradeClass extends EE {
     const endTime = opt.endTime
       ? moment(opt.endTime).toISOString()
       : moment().toISOString();
-    this._api(
-      'GET',
-      `/markets/candles/${id}`,
-      {
-        endTime,
-        interval: opt.interval || 'OneDay',
-        startTime,
-      },
-      (err: error, response: { candles: any }) => {
-        if (err) return callback(err, null);
-        callback(null, response.candles);
-      }
-    );
+
+    const response: any = this._api('GET', `/markets/candles/${id}`, {
+      endTime,
+      interval: opt.interval || 'OneDay',
+      startTime,
+    });
+
+    return response.candles;
   };
 
   public createOrder = (opts: any, cb: callBack) => {
@@ -634,18 +596,11 @@ export class QuestradeClass extends EE {
   };
 
   // Method that actually mades the GET/POST request to Questrade
-  private _api = (
+  private _api = async (
     method?: string,
     endpoint?: string | number,
-    params?: any, // TODO: calback can be there ???
-    cb?: callBack
+    params?: any
   ) => {
-    const callback: callBack = typeof params === 'function' ? params : cb;
-    if (typeof callback === 'undefined') {
-      // throw new Error('callback function required');
-      return console.log("throw new Error('callback function required');");
-    }
-
     const opts: any = {
       auth: {
         bearer: this._accessToken,
@@ -659,18 +614,7 @@ export class QuestradeClass extends EE {
     } else {
       opts.json = params || true;
     }
-    request(opts, (err: error, _http: any, response: any) => {
-      if (err) {
-        const e = new Error('api_call_failed');
-        return callback(e, {
-          // details: e,
-          message: 'api_call_failed',
-          method,
-          url: this._apiUrl + endpoint,
-        });
-      }
-      callback(null, response);
-    });
+    return axios(opts);
   };
 
   // Method that appends the set account to the API calls so all calls
@@ -686,9 +630,8 @@ export class QuestradeClass extends EE {
         // throw new Error('callback function required');
         return console.log("throw new Error('callback function required');");
       }
-      const message = 'no_account_selected';
-      return cb(new Error(message));
+      throw new Error('no_account_selected');
     }
-    this._api(method, `/accounts/${this._account}${endpoint}`, params, cb);
+    return this._api(method, `/accounts/${this._account}${endpoint}`, params);
   };
 }
