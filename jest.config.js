@@ -28,7 +28,7 @@ module.exports = {
   },
 
   notify: true,
-  collectCoverage: true,
+  collectCoverage: false,
   collectCoverageFrom: ['src/**/*.ts'],
   // <rootDir>/build/
   coveragePathIgnorePatterns: [
@@ -36,5 +36,5 @@ module.exports = {
     '<rootDir>/build/',
     '<rootDir>/src/__tests__/smoketest',
   ],
-  coverageReporters: ['text', 'lcov', 'html', 'json'],
+  // coverageReporters: ['text', 'lcov', 'html', 'json'],
 };

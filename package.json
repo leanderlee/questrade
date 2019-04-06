@@ -16,6 +16,8 @@
     "copy:static:files": "npm run copy:readme",
     "predist": "npm run test && npm run build && npm run copy:static:files && npm run gitcheck",
     "dist": "npm run build",
+    "predist:clean": "npm install && npm run test && npm run build && npm run copy:static:files && npm run gitcheck",
+    "dist:clean": "npm run build",
     "lint": "tslint --project . --format stylish",
     "pretest": "tsc --noEmit --pretty && npm run lint && npm run smoke:test",
     "test": "jest"

@@ -30,7 +30,6 @@ export class QuestradeClass extends EE {
   private _keyFile: string;
   private _account: string;
   private _refreshToken: string;
-  // private _apiServer: string;
   private _apiUrl: string;
   private _authUrl: string;
   public constructor(opts?: QuestradeClassOptions) {
@@ -162,7 +161,7 @@ export class QuestradeClass extends EE {
       if (!response.orders.length) {
         if (typeof cb === 'undefined') {
           // throw new Error('callback function required');
-          return console.log("throw new Error('callback function required');")
+          return console.log("throw new Error('callback function required');");
         }
         const message = 'order_not_found';
         return cb(new Error(message));
@@ -175,8 +174,7 @@ export class QuestradeClass extends EE {
     if (!Array.isArray(ids)) {
       if (typeof cb === 'undefined') {
         // throw new Error('callback function required');
-        return console.log("throw new Error('callback function required');")
-
+        return console.log("throw new Error('callback function required');");
       }
       const message = 'missing_ids';
       return cb(new Error(message));
@@ -455,9 +453,7 @@ export class QuestradeClass extends EE {
               optionQuote.underlying = parsedSymbol[1];
               optionQuote.expiryDate = expiryString;
               optionQuote.strikePrice = parseFloat(parsedSymbol[4]);
-              optionQuote.optionType = parsedSymbol[3] === 'P'
-              ? 'Put'
-              : 'Call';
+              optionQuote.optionType = parsedSymbol[3] === 'P' ? 'Put' : 'Call';
             }
             return optionQuote;
           })
@@ -566,6 +562,7 @@ export class QuestradeClass extends EE {
 
     writeFile(this._getKeyFile(), this._refreshToken, 'utf8', (err: error) => {
       if (err) {
+        console.log('error with writeFile ');
         return cb(new Error('failed_to_write'), { details: err });
       }
       cb(null, this._refreshToken);
@@ -577,7 +574,8 @@ export class QuestradeClass extends EE {
     return this._keyFile || `${this._keyDir}/${this.seedToken}`;
   };
 
-  // Reads the refreshToken stored in the file (if it exist), otherwise uses the seedToken
+  // Reads the refreshToken stored in the file (if it exist)
+  // otherwise uses the seedToken
   private _loadKey = (cb_?: any) => {
     let cb: callBack = cb_;
     cb = cb
@@ -644,7 +642,8 @@ export class QuestradeClass extends EE {
   ) => {
     const callback: callBack = typeof params === 'function' ? params : cb;
     if (typeof callback === 'undefined') {
-      throw new Error('callback function required');
+      // throw new Error('callback function required');
+      return console.log("throw new Error('callback function required');");
     }
 
     const opts: any = {
@@ -684,7 +683,8 @@ export class QuestradeClass extends EE {
   ) => {
     if (!this._account) {
       if (typeof cb === 'undefined') {
-        throw new Error('callback function required');
+        // throw new Error('callback function required');
+        return console.log("throw new Error('callback function required');");
       }
       const message = 'no_account_selected';
       return cb(new Error(message));

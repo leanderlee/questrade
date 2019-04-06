@@ -4,16 +4,22 @@ import assert from 'assert';
 import { QuestradeClass } from '../QuestradeClass/class';
 
 describe('API', () => {
-  it('throws error if there is no key', () => {
+  it('sets the key as an option or as a string', async (done: any) => {
+    const qt = new QuestradeClass('abc');
+    assert.equal(qt.seedToken, 'abc');
+    await qt.removeAllListeners();
+    done();
+  });
+  it('sets the key as an option or as a string', async (done: any) => {
+    const qt = new QuestradeClass({ seedToken: 'abc' });
+    assert.equal(qt.seedToken, 'abc');
+    await qt.removeAllListeners();
+    done();
+  });
+  it('throws error if there is no key', async (done: any) => {
     assert.throws(() => {
       return new QuestradeClass();
     });
-  });
-
-  it('sets the key as an option or as a string', () => {
-    const qt1 = new QuestradeClass('abc');
-    assert.equal(qt1.seedToken, 'abc');
-    const qt2 = new QuestradeClass({ seedToken: 'abc' });
-    assert.equal(qt2.seedToken, 'abc');
+    done();
   });
 });
