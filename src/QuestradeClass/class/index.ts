@@ -40,6 +40,7 @@ export class QuestradeClass extends EE {
     this._keyFile = '';
     this.seedToken = '';
     this._account = '';
+    console.log('public constructor(opts?: QuestradeClassOptions) {');
 
     if (typeof opts === 'undefined' || opts === undefined) {
       throw new Error('questrade_missing_api_key or options');
@@ -105,6 +106,7 @@ export class QuestradeClass extends EE {
   }
 
   public setPrimaryAccount = async () => {
+    console.log('public setPrimaryAccount = async () => {');
     const accounts: any = await this.getAccounts();
     if (!accounts || !Object.keys(accounts).length) {
       throw new Error('no_accounts_found');
@@ -122,6 +124,7 @@ export class QuestradeClass extends EE {
   };
 
   public getAccounts = async () => {
+    console.log('public getAccounts = async () => {');
     return this._api('GET', '/accounts', (err: error, response: any) => {
       if (err) throw err;
       return keyBy(response.accounts, 'number');
@@ -129,18 +132,22 @@ export class QuestradeClass extends EE {
   };
 
   public getPositions = async () => {
+    console.log('public getPositions = async () => {');
     return this._accountApi('GET', '/positions');
   };
 
   public getBalances = async () => {
+    console.log('public getBalances = async () => {');
     return this._accountApi('GET', '/balances');
   };
 
   public getExecutions = async () => {
+    console.log('public getExecutions = async () => {');
     return this._accountApi('GET', '/executions');
   };
 
   public getOrder = async (id: any) => {
+    console.log('public getOrder = async (id: any) => {');
     const response: any = await this._accountApi('GET', `/orders/${id}`);
 
     if (!response.orders.length) {
@@ -150,6 +157,7 @@ export class QuestradeClass extends EE {
   };
 
   public getOrders = async (ids: any) => {
+    console.log('public getOrders = async (ids: any) => {');
     if (!Array.isArray(ids)) {
       throw new Error('missing_ids');
     }
@@ -162,6 +170,7 @@ export class QuestradeClass extends EE {
   };
 
   public getOpenOrders = async () => {
+    console.log('public getOpenOrders = async () => {');
     const response: any = await this._accountApi('GET', '/orders', {
       stateFilter: 'Open',
     });
@@ -170,6 +179,7 @@ export class QuestradeClass extends EE {
   };
 
   public getAllOrders = async () => {
+    console.log('public getAllOrders = async () => {');
     const acountResponse: any = await this._accountApi('GET', '/orders', {
       stateFilter: 'All',
     });
@@ -177,6 +187,7 @@ export class QuestradeClass extends EE {
   };
 
   public getClosedOrders = async () => {
+    console.log('public getClosedOrders = async () => {');
     const response: any = await this._accountApi('GET', '/orders', {
       stateFilter: 'Closed',
     });
@@ -185,6 +196,7 @@ export class QuestradeClass extends EE {
   };
 
   public getActivities = async (opts_: any) => {
+    console.log('public getActivities = async (opts_: any) => {');
     const opts = opts_ || {};
     if (opts.startTime && !moment(opts.startTime).isValid()) {
       throw new Error('start_time_invalid');
@@ -208,6 +220,7 @@ export class QuestradeClass extends EE {
   };
 
   public getSymbol = async (id: any) => {
+    console.log('public getSymbol = async (id: any) => {');
     let params: any = false;
     if (typeof id === 'number') {
       params = {
@@ -227,6 +240,7 @@ export class QuestradeClass extends EE {
   };
 
   public getSymbols = async (ids: any) => {
+    console.log('public getSymbols = async (ids: any) => {');
     if (!Array.isArray(ids)) {
       throw new Error('missing_ids');
     }
@@ -253,6 +267,7 @@ export class QuestradeClass extends EE {
   };
 
   public search = async (query: any, offset: any) => {
+    console.log('public search = async (query: any, offset: any) => {');
     if (typeof query !== 'string') {
       throw new Error('missing_query');
     }
@@ -265,6 +280,7 @@ export class QuestradeClass extends EE {
   };
 
   public getOptionChain = async (symbolId: any) => {
+    console.log('public getOptionChain = async (symbolId: any) => {');
     const response: any = await this._api(
       'GET',
       `/symbols/${symbolId}/options`
@@ -279,12 +295,14 @@ export class QuestradeClass extends EE {
   };
 
   public getMarkets = async () => {
+    console.log('public getMarkets = async () => {');
     const response: any = await this._api('GET', '/markets');
 
     return keyBy(response.markets, 'name');
   };
 
   public getQuote = async (id: string) => {
+    console.log('public getQuote = async (id: string) => {');
     const response: any = await this._api('GET', `/markets/quotes/${id}`);
 
     if (!response.quotes) {
@@ -297,6 +315,7 @@ export class QuestradeClass extends EE {
   };
 
   public getQuotes = async (ids: any) => {
+    console.log('public getQuotes = async (ids: any) => {');
     if (!Array.isArray(ids)) {
       throw new Error('missing_ids');
     }
@@ -309,6 +328,7 @@ export class QuestradeClass extends EE {
   };
 
   public getOptionQuote = async (filters_: any[]) => {
+    console.log('public getOptionQuote = async (filters_: any[]) => {');
     let filters = filters_;
     if (!Array.isArray(filters) && typeof filters === 'object') {
       filters = [filters];
@@ -321,6 +341,7 @@ export class QuestradeClass extends EE {
   };
 
   public getOptionQuoteSimplified = async (filters: any) => {
+    console.log('public getOptionQuoteSimplified = async (filters: any) => {');
     const optionsQuotes = await this.getOptionQuote(filters);
 
     return chain(optionsQuotes)
@@ -375,6 +396,7 @@ export class QuestradeClass extends EE {
   };
 
   public getCandles = async (id: string, opts?: any) => {
+    console.log('public getCandles = async (id: string, opts?: any) => {');
     const opt: any = opts || {};
 
     if (opt.startTime && !moment(opt.startTime).isValid()) {
@@ -405,29 +427,36 @@ export class QuestradeClass extends EE {
   };
 
   public createOrder = async (opts: any) => {
+    console.log('public createOrder = async (opts: any) => {');
     return this._accountApi('POST', '/orders', opts);
   };
 
   public updateOrder = async (id: string, opts: any) => {
+    console.log('public updateOrder = async (id: string, opts: any) => {');
     return this._accountApi('POST', `/orders/${id}`, opts);
   };
 
   public testOrder = async (opts: any) => {
+    console.log('public testOrder = async (opts: any) => {');
     return this._accountApi('POST', '/orders/impact', opts);
   };
 
   public removeOrder = async (id: string) => {
+    console.log('public removeOrder = async (id: string) => {');
     return this._accountApi('DELETE', `/orders/${id}`);
   };
 
   public createStrategy = async (opts: any) => {
+    console.log('public createStrategy = async (opts: any) => {');
     return this._accountApi('POST', '/orders/strategy', opts);
   };
 
   public testStrategy = async (opts: any) => {
+    console.log('public testStrategy = async (opts: any) => {');
     return this._accountApi('POST', '/orders/strategy/impact', opts);
   };
   private _saveKey = async () => {
+    console.log('private _saveKey = async () => {');
     const writeFile_ = promisify(writeFile);
 
     try {
@@ -440,12 +469,14 @@ export class QuestradeClass extends EE {
 
   // Gets name of the file where the refreshToken is stored
   private _getKeyFile = () => {
+    console.log('private _getKeyFile = () => {');
     return this._keyFile || `${this._keyDir}/${this.seedToken}`;
   };
 
   // Reads the refreshToken stored in the file (if it exist)
   // otherwise uses the seedToken
   private _loadKey = async () => {
+    console.log('private _loadKey = async () => {');
     if (this._keyFile) {
       sync(dirname(this._keyFile)); // Synchronously create a new directory
     } else {
@@ -466,6 +497,7 @@ export class QuestradeClass extends EE {
   // Refreshed the tokem (aka Logs in) using the latest RefreshToken
   // (or the SeedToken if no previous saved file)
   private _refreshKey = async () => {
+    console.log('private _refreshKey = async () => {');
     const data = {
       grant_type: 'refresh_token',
       refresh_token: this._refreshToken,
@@ -495,6 +527,7 @@ export class QuestradeClass extends EE {
     endpoint?: string | number,
     params?: any
   ) => {
+    console.log('private _api = async (');
     const url: string = this._apiUrl + endpoint;
     const opts: any = {
       auth: {
@@ -516,6 +549,7 @@ export class QuestradeClass extends EE {
   // Method that appends the set account to the API calls so all calls
   // are made to that account. Chage this.account to change the account used
   private _accountApi = async (method?: any, endpoint?: any, params?: any) => {
+    console.log('private _accountApi =  => {');
     if (!this._account) {
       throw new Error('no_account_selected');
     }
