@@ -3,8 +3,8 @@
     /* Basic Options */
     "target": "es5",
     "lib": ["dom", "esnext"],
-    "module": "esnext",
-    "importHelpers": false,
+    "module": "commonjs",
+    "importHelpers": true,
     "pretty": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -53,6 +53,7 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+
     "experimentalDecorators": false,
     "emitDecoratorMetadata": false
 
@@ -100,15 +101,13 @@
     // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
-  "compileOnSave": true,
   "include": ["./src/**/*"],
   "exclude": [
-    "./node_modules/**/*",
-    "./build/**/*",
-    "./src/__tests__/**/*",
-    "*.test.*",
-    "*.spec.*",
-    "**/jest.config.*"
+    "node_modules",
+    "build",
+    "**/*.spec.ts",
+    "**/smoke.detection.ts",
+    "**/__tests__/index.spec.ts"
   ],
 
   "plugins": [

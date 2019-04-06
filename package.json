@@ -7,7 +7,7 @@
   "scripts": {
     "smoke:test": "jest --silent --detectOpenHandles --forceExit --config ./src/__tests__/smoketest/jest.config.js",
     "prebuild": "rimraf build",
-    "build": "tsc",
+    "build": "tsc -b ./tsconfig.json",
     "gitcheck": "git diff-index origin/ts-class",
     "copy:package:json": "cp-cli package.json ./build/package.json",
     "copy:npmignore": "cp-cli .npmignore ./build/.npmignore && npm run copy:package:json",
@@ -20,7 +20,7 @@
     "dist:clean": "npm run build",
     "lint": "tslint --project . --format stylish",
     "pretest": "tsc --noEmit --pretty && npm run lint && npm run smoke:test",
-    "test": "jest"
+    "test": "jest --detectOpenHandles"
   },
   "repository": {
     "type": "git",
@@ -43,22 +43,23 @@
     "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
     "moment": "^2.20.1",
-    "request": "^2.88.0"
+    "node-fetch": "^2.3.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.7"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.7",
     "@types/jest": "^24.0.11",
     "@types/lodash": "^4.14.123",
     "@types/mkdirp": "^0.5.2",
-    "@types/moment": "^2.13.0",
     "@types/node": "^11.13.0",
+    "@types/node-fetch": "^2.3.0",
     "@types/request": "^2.48.1",
-    "chai": "^4.2.0",
+    "@types/request-promise-native": "^1.0.15",
     "cp-cli": "^2.0.0",
     "jest": "^24.7.1",
     "prettier": "^1.16.4",
     "rimraf": "^2.6.3",
-    "ts-jest": "^24.0.1",
+    "ts-jest": "^24.0.2",
     "tslib": "^1.9.3",
     "tslint": "^5.15.0",
     "tslint-config-airbnb": "^5.11.1",
