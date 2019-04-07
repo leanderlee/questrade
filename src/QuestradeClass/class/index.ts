@@ -19,6 +19,8 @@ interface IQuestradeOpts {
 }
 type QuestradeClassOptions = IQuestradeOpts | seedToken | keyFile;
 type error = Error | null;
+
+const introspection = true;
 export class QuestradeClass extends EE {
   public seedToken: string;
 
@@ -42,7 +44,7 @@ export class QuestradeClass extends EE {
     this.seedToken = '';
     this._account = '';
     try {
-      console.log('constructor(opts?: QuestradeClassOptions) {');
+      if (introspection) console.log('constructor(...) {');
       if (typeof opts === 'undefined' || opts === undefined) {
         throw new Error('questrade_missing_api_key or options');
       }
@@ -85,24 +87,47 @@ export class QuestradeClass extends EE {
         ? 'https://practicelogin.q.com'
         : 'https://login.questrade.com';
       // Running the Authentification process and emit 'ready' when done
-      console.log('this._apiServer: ', this._apiServer);
+      if (introspection) {
+        console.log('\n', 'this._apiServer: ', this._apiServer);
+      }
       if (!!this._account) this.emit('ready');
-      this.setPrimaryAccount()
-        .then(() => this.emit('ready'))
-        .catch((setPrimaryAccountErr: error) =>
-          this.emit('error', {
-            details: setPrimaryAccountErr,
-            message: 'failed_to_set_account',
-          })
-        );
-      this.emit('ready');
-      console.log('IN: public constructor AT: _loadKey');
-      this._loadKey();
-      console.log('IN: public constructor AT: _refreshKey');
-      this._refreshKey();
-      this.emit('ready');
+      try {
+        if (introspection) {
+          console.log('\n', 'IN: constructor AT: setPrimaryAccount');
+        }
+        this.setPrimaryAccount().then(() => {
+          if (introspection) console.log('\n', 'IN: constructor AT: _loadKey');
+          this._loadKey().then(() => {
+            try {
+              if (introspection) {
+                console.log('\n', 'IN: constructor AT: _refreshKey');
+              }
+              this._refreshKey().then(() => {
+                try {
+                  this.emit('ready');
+                } catch (refreshKeyError) {
+                  this.emit('error', {
+                    details: refreshKeyError,
+                    message: 'failed_to_refresh_key',
+                  });
+                }
+              });
+            } catch (loadKeyError) {
+              this.emit('error', {
+                details: loadKeyError,
+                message: 'failed_to_load_key',
+              });
+            }
+          });
+        });
+      } catch (setPrimaryAccountError) {
+        this.emit('error', {
+          details: setPrimaryAccountError,
+          message: 'failed_to_set_account',
+        });
+      }
     } catch (error) {
-      console.log('error.message', error.message);
+      if (introspection) console.log('\n', 'error.message', error.message);
       throw new Error(error.message);
     }
   }
@@ -110,7 +135,7 @@ export class QuestradeClass extends EE {
   public setPrimaryAccount = async () => {
     // !!!
     try {
-      console.log('setPrimaryAccount = async () => {');
+      if (introspection) console.log('\n', 'setPrimaryAccount = async () => {');
       const accounts: any = await this.getAccounts();
       if (!accounts || !Object.keys(accounts).length) {
         throw new Error('no_accounts_found');
@@ -126,7 +151,7 @@ export class QuestradeClass extends EE {
       this._account = primaryAccount[0];
       return this._account;
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -134,13 +159,13 @@ export class QuestradeClass extends EE {
   public getAccounts = async () => {
     // !!!
     try {
-      console.log('getAccounts = async () => {');
+      if (introspection) console.log('\n', 'getAccounts = async () => {');
       return this._api('GET', '/accounts', (err: error, response: any) => {
         if (err) throw err;
         return keyBy(response.accounts, 'number');
       });
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -148,10 +173,10 @@ export class QuestradeClass extends EE {
   public getPositions = async () => {
     // !!!
     try {
-      console.log('getPositions = async () => {');
+      if (introspection) console.log('\n', 'getPositions = async () => {');
       return this._accountApi('GET', '/positions');
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -159,10 +184,10 @@ export class QuestradeClass extends EE {
   public getBalances = async () => {
     // !!!
     try {
-      console.log('getBalances = async () => {');
+      if (introspection) console.log('\n', 'getBalances = async () => {');
       return this._accountApi('GET', '/balances');
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -170,10 +195,10 @@ export class QuestradeClass extends EE {
   public getExecutions = async () => {
     // !!!
     try {
-      console.log('getExecutions = async () => {');
+      if (introspection) console.log('\n', 'getExecutions = async () => {');
       return this._accountApi('GET', '/executions');
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -181,14 +206,14 @@ export class QuestradeClass extends EE {
   public getOrder = async (id: any) => {
     // !!!
     try {
-      console.log('getOrder = async (id: any) => {');
+      if (introspection) console.log('\n', 'getOrder = async (id: any) => {');
       const response: any = await this._accountApi('GET', `/orders/${id}`);
       if (!response.orders.length) {
         throw Error('order_not_found');
       }
       return response.orders[0];
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -196,7 +221,7 @@ export class QuestradeClass extends EE {
   public getOrders = async (ids: any) => {
     // !!!
     try {
-      console.log('getOrders = async (ids: any) => {');
+      if (introspection) console.log('\n', 'getOrders = async (ids: any) => {');
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
@@ -206,7 +231,7 @@ export class QuestradeClass extends EE {
       });
       return keyBy(response.orders, 'id');
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -214,13 +239,13 @@ export class QuestradeClass extends EE {
   public getOpenOrders = async () => {
     // !!!
     try {
-      console.log('getOpenOrders = async () => {');
+      if (introspection) console.log('\n', 'getOpenOrders = async () => {');
       const response: any = await this._accountApi('GET', '/orders', {
         stateFilter: 'Open',
       });
       keyBy(response.orders, 'id');
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -228,13 +253,13 @@ export class QuestradeClass extends EE {
   public getAllOrders = async () => {
     // !!!
     try {
-      console.log('getAllOrders = async () => {');
+      if (introspection) console.log('\n', 'getAllOrders = async () => {');
       const acountResponse: any = await this._accountApi('GET', '/orders', {
         stateFilter: 'All',
       });
       return keyBy(acountResponse.orders, 'id');
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     } // ? ---
   };
@@ -242,13 +267,13 @@ export class QuestradeClass extends EE {
   public getClosedOrders = async () => {
     // !!!
     try {
-      console.log('getClosedOrders = async () => {');
+      if (introspection) console.log('\n', 'getClosedOrders = async () => {');
       const response: any = await this._accountApi('GET', '/orders', {
         stateFilter: 'Closed',
       });
       return keyBy(response.orders, 'id');
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -256,7 +281,9 @@ export class QuestradeClass extends EE {
   public getActivities = async (opts_: any) => {
     // !!!
     try {
-      console.log('getActivities = async (opts_: any) => {');
+      if (introspection) {
+        console.log('\n', 'getActivities = async (opts_: any) => {');
+      }
       const opts = opts_ || {};
       if (opts.startTime && !moment(opts.startTime).isValid()) {
         throw new Error('start_time_invalid');
@@ -278,7 +305,7 @@ export class QuestradeClass extends EE {
         startTime,
       });
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -286,7 +313,7 @@ export class QuestradeClass extends EE {
   public getSymbol = async (id: any) => {
     // !!!
     try {
-      console.log('getSymbol = async (id: any) => {');
+      if (introspection) console.log('\n', 'getSymbol = async (id: any) => {');
       let params: any = false;
       if (typeof id === 'number') {
         params = {
@@ -303,7 +330,7 @@ export class QuestradeClass extends EE {
       const response: any = this._api('GET', '/symbols', params);
       return response.symbols[0];
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -311,7 +338,9 @@ export class QuestradeClass extends EE {
   public getSymbols = async (ids: any) => {
     // !!!
     try {
-      console.log('getSymbols = async (ids: any) => {');
+      if (introspection) {
+        console.log('\n', 'getSymbols = async (ids: any) => {');
+      }
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
@@ -335,7 +364,7 @@ export class QuestradeClass extends EE {
       }
       return keyBy(response.symbols, params.names ? 'symbol' : 'symbolId');
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -343,7 +372,9 @@ export class QuestradeClass extends EE {
   public search = async (query: any, offset: any) => {
     // !!!
     try {
-      console.log('search = async (query: any, offset: any) => {');
+      if (introspection) {
+        console.log('\n', 'search = async (query: any, offset: any) => {');
+      }
       if (typeof query !== 'string') {
         throw new Error('missing_query');
       }
@@ -353,7 +384,7 @@ export class QuestradeClass extends EE {
       });
       return response.symbols;
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -361,7 +392,9 @@ export class QuestradeClass extends EE {
   public getOptionChain = async (symbolId: any) => {
     // !!!
     try {
-      console.log('getOptionChain = async (symbolId: any) => {');
+      if (introspection) {
+        console.log('\n', 'getOptionChain = async (symbolId: any) => {');
+      }
       const response: any = await this._api(
         'GET',
         `/symbols/${symbolId}/options`
@@ -376,7 +409,7 @@ export class QuestradeClass extends EE {
         })
         .value();
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -384,11 +417,11 @@ export class QuestradeClass extends EE {
   public getMarkets = async () => {
     // !!!
     try {
-      console.log('getMarkets = async () => {');
+      if (introspection) console.log('\n', 'getMarkets = async () => {');
       const response: any = await this._api('GET', '/markets');
       return keyBy(response.markets, 'name');
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     } // ? ---
   };
@@ -396,7 +429,9 @@ export class QuestradeClass extends EE {
   public getQuote = async (id: string) => {
     // !!!
     try {
-      console.log('getQuote = async (id: string) => {');
+      if (introspection) {
+        console.log('\n', 'getQuote = async (id: string) => {');
+      }
       const response: any = await this._api('GET', `/markets/quotes/${id}`);
       if (!response.quotes) {
         return {
@@ -406,7 +441,7 @@ export class QuestradeClass extends EE {
       }
       return response.quotes[0];
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -414,7 +449,7 @@ export class QuestradeClass extends EE {
   public getQuotes = async (ids: any) => {
     // !!!
     try {
-      console.log('getQuotes = async (ids: any) => {');
+      if (introspection) console.log('\n', 'getQuotes = async (ids: any) => {');
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
@@ -424,7 +459,7 @@ export class QuestradeClass extends EE {
       });
       return keyBy(response.quotes, 'symbolId');
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -432,7 +467,9 @@ export class QuestradeClass extends EE {
   public getOptionQuote = async (filters_: any[]) => {
     // !!!
     try {
-      console.log('getOptionQuote = async (filters_: any[]) => {');
+      if (introspection) {
+        console.log('\n', 'getOptionQuote = async (filters_: any[]) => {');
+      }
       let filters = filters_;
       if (!Array.isArray(filters) && typeof filters === 'object') {
         filters = [filters];
@@ -442,7 +479,7 @@ export class QuestradeClass extends EE {
       });
       return response.optionQuotes;
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -450,7 +487,9 @@ export class QuestradeClass extends EE {
   public getOptionQuoteSimplified = async (filters: any) => {
     // !!!
     try {
-      console.log('getOptionQuoteSimplified = async (filters: any) => {');
+      if (introspection) {
+        console.log('\n', 'getOptionQuoteSimplified = async (...) => {');
+      }
       const optionsQuotes = await this.getOptionQuote(filters);
       return chain(optionsQuotes)
         .map(optionQuote => {
@@ -502,7 +541,7 @@ export class QuestradeClass extends EE {
         })
         .value();
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -510,7 +549,7 @@ export class QuestradeClass extends EE {
   public getCandles = async (id: string, opts?: any) => {
     // !!!
     try {
-      console.log('getCandles = async (id: string, opts?: any) => {');
+      if (introspection) console.log('\n', 'getCandles = async (...) => {');
       const opt: any = opts || {};
       if (opt.startTime && !moment(opt.startTime).isValid()) {
         throw new Error('start_time_invalid');
@@ -535,7 +574,7 @@ export class QuestradeClass extends EE {
       });
       return response.candles;
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -543,10 +582,12 @@ export class QuestradeClass extends EE {
   public createOrder = async (opts: any) => {
     // !!!
     try {
-      console.log('createOrder = async (opts: any) => {');
+      if (introspection) {
+        console.log('\n', 'createOrder = async (opts: any) => {');
+      }
       return this._accountApi('POST', '/orders', opts);
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -554,10 +595,10 @@ export class QuestradeClass extends EE {
   public updateOrder = async (id: string, opts: any) => {
     // !!!
     try {
-      console.log('updateOrder = async (id: string, opts: any) => {');
+      if (introspection) console.log('\n', 'updateOrder = async (...) => {');
       return this._accountApi('POST', `/orders/${id}`, opts);
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -565,10 +606,12 @@ export class QuestradeClass extends EE {
   public testOrder = async (opts: any) => {
     // !!!
     try {
-      console.log('testOrder = async (opts: any) => {');
+      if (introspection) {
+        console.log('\n', 'testOrder = async (opts: any) => {');
+      }
       return this._accountApi('POST', '/orders/impact', opts);
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -576,10 +619,12 @@ export class QuestradeClass extends EE {
   public removeOrder = async (id: string) => {
     // !!!
     try {
-      console.log('removeOrder = async (id: string) => {');
+      if (introspection) {
+        console.log('\n', 'removeOrder = async (id: string) => {');
+      }
       return this._accountApi('DELETE', `/orders/${id}`);
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -587,10 +632,12 @@ export class QuestradeClass extends EE {
   public createStrategy = async (opts: any) => {
     // !!!
     try {
-      console.log('createStrategy = async (opts: any) => {');
+      if (introspection) {
+        console.log('\n', 'createStrategy = async (opts: any) => {');
+      }
       return this._accountApi('POST', '/orders/strategy', opts);
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -598,10 +645,12 @@ export class QuestradeClass extends EE {
   public testStrategy = async (opts: any) => {
     // !!!
     try {
-      console.log('testStrategy = async (opts: any) => {');
+      if (introspection) {
+        console.log('\n', 'testStrategy = async (opts: any) => {');
+      }
       return this._accountApi('POST', '/orders/strategy/impact', opts);
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       throw error;
     }
   };
@@ -609,7 +658,7 @@ export class QuestradeClass extends EE {
   private _saveKey = async () => {
     // !!!
     try {
-      console.log('_saveKey = async () => {');
+      if (introspection) console.log('\n', '_saveKey = async () => {');
       const writeFile_ = promisify(writeFile);
       try {
         writeFile_(this._getKeyFile(), this._refreshToken, 'utf8');
@@ -618,7 +667,7 @@ export class QuestradeClass extends EE {
       }
       return this._refreshToken;
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       throw error;
     }
   };
@@ -627,11 +676,11 @@ export class QuestradeClass extends EE {
   private _getKeyFile = () => {
     // !!!
     try {
-      console.log('_getKeyFile = () => {');
+      if (introspection) console.log('\n', '_getKeyFile = () => {');
       return this._keyFile || `${this._keyDir}/${this.seedToken}`;
     } catch (error) {
-      console.log(error.message);
-      console.log('ERROR : _getKeyFile = () => {');
+      if (introspection) console.log('\n', error.message);
+      if (introspection) console.log('\n', 'ERROR : _getKeyFile = () => {');
       throw error;
     }
   };
@@ -641,16 +690,16 @@ export class QuestradeClass extends EE {
   private _loadKey = async () => {
     // !!!
     try {
-      console.log('_loadKey = async () => {');
+      if (introspection) console.log('\n', '_loadKey = async () => {');
       if (this._keyFile) {
         sync(dirname(this._keyFile)); // Synchronously create a new directory
       } else {
         sync(this._keyDir);
       }
       const readFile_ = promisify(readFile);
-      console.log('will read');
+      if (introspection) console.log('\n', 'will read');
       const refreshToken: any = await readFile_(this._getKeyFile(), 'utf8');
-      console.log('did read');
+      if (introspection) console.log('\n', 'did read');
       if (!refreshToken) {
         this._refreshToken = this.seedToken;
         this._saveKey();
@@ -658,8 +707,8 @@ export class QuestradeClass extends EE {
       this._refreshToken = refreshToken;
       return refreshToken;
     } catch (error) {
-      console.log('ERROR: _loadKey = async () => {');
-      console.log(error.message);
+      if (introspection) console.log('\n', 'ERROR: _loadKey = async () => {');
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -669,7 +718,7 @@ export class QuestradeClass extends EE {
   private _refreshKey = async () => {
     // !!!
     try {
-      console.log('_refreshKey = async () => {');
+      if (introspection) console.log('\n', '_refreshKey = async () => {');
       const data = {
         grant_type: 'refresh_token',
         refresh_token: this._refreshToken,
@@ -680,12 +729,12 @@ export class QuestradeClass extends EE {
         url: `${this._authUrl}/oauth2/token`,
       });
       const creds = await JSON.parse(res.body);
-      console.log('creds');
-      console.dir(creds);
-      console.log('creds.api_server');
-      console.dir(creds.api_server);
-      console.log('creds.api_server');
-      console.log('creds.api_server');
+      if (introspection) console.log('\n', 'creds');
+      if (introspection) console.dir(creds);
+      if (introspection) console.log('\n', 'creds.api_server');
+      if (introspection) console.dir(creds.api_server);
+      if (introspection) console.log('\n', 'creds.api_server');
+      if (introspection) console.log('\n', 'creds.api_server');
       this._apiServer = creds.api_server;
       this._apiUrl = creds.api_server + this._apiVersion;
       this._accessToken = creds.access_token;
@@ -693,7 +742,7 @@ export class QuestradeClass extends EE {
       this._saveKey();
       this.emit('refresh', this._refreshToken);
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -706,7 +755,7 @@ export class QuestradeClass extends EE {
   ) => {
     // !!!
     try {
-      console.log('_api = async (');
+      if (introspection) console.log('\n', '_api = async (...) => {');
       const url: string = this._apiUrl + endpoint;
       const opts: any = {
         auth: {
@@ -723,7 +772,7 @@ export class QuestradeClass extends EE {
       }
       return request(opts);
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };
@@ -733,13 +782,13 @@ export class QuestradeClass extends EE {
   private _accountApi = async (method?: any, endpoint?: any, params?: any) => {
     // !!!
     try {
-      console.log('_accountApi =  => {');
+      if (introspection) console.log('\n', '_accountApi = (...) => {');
       if (!this._account) {
         throw new Error('no_account_selected');
       }
       return this._api(method, `/accounts/${this._account}${endpoint}`, params);
     } catch (error) {
-      console.log(error.message);
+      if (introspection) console.log('\n', error.message);
       // throw error;
     }
   };

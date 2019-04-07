@@ -12,7 +12,7 @@
   "prettier.requireConfig": true,
   "editor.fontLigatures": true,
   "javascript.format.enable": false,
-  "typescript.format.enable": true,
+  "typescript.format.enable": false,
   // On save, run both fixAll and organizeImports source actions
   "editor.codeActionsOnSave": {
     "source.fixAll": true,
