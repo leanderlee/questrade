@@ -92,38 +92,38 @@ export class QuestradeClass extends EE {
       }
       if (!!this._account) this.emit('ready');
       try {
-        if (introspection) {
-          console.log('\n', 'IN: constructor AT: setPrimaryAccount');
-        }
-        this.setPrimaryAccount().then(() => {
-          if (introspection) console.log('\n', 'IN: constructor AT: _loadKey');
-          this._loadKey().then(() => {
-            try {
-              if (introspection) {
-                console.log('\n', 'IN: constructor AT: _refreshKey');
-              }
-              this._refreshKey().then(() => {
-                try {
-                  this.emit('ready');
-                } catch (refreshKeyError) {
-                  this.emit('error', {
-                    details: refreshKeyError,
-                    message: 'failed_to_refresh_key',
-                  });
-                }
-              });
-            } catch (loadKeyError) {
-              this.emit('error', {
-                details: loadKeyError,
-                message: 'failed_to_load_key',
-              });
+        if (introspection) console.log('\n', 'IN: constructor AT: _loadKey');
+        this._loadKey().then(() => {
+          try {
+            if (introspection) {
+              console.log('\n', 'IN: constructor AT: _refreshKey');
             }
-          });
+            this._refreshKey().then(() => {
+              try {
+                if (introspection) {
+                  console.log('\n', 'IN: constructor AT: setPrimaryAccount');
+                }
+                this.setPrimaryAccount().then(() => {
+                  this.emit('ready');
+                });
+              } catch (setPrimaryAccountError) {
+                this.emit('error', {
+                  details: setPrimaryAccountError,
+                  message: 'failed_to_set_account',
+                });
+              }
+            });
+          } catch (refreshKeyError) {
+            this.emit('error', {
+              details: refreshKeyError,
+              message: 'failed_to_refresh_key',
+            });
+          }
         });
-      } catch (setPrimaryAccountError) {
+      } catch (loadKeyError) {
         this.emit('error', {
-          details: setPrimaryAccountError,
-          message: 'failed_to_set_account',
+          details: loadKeyError,
+          message: 'failed_to_load_key',
         });
       }
     } catch (error) {
