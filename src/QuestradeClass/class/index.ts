@@ -1,5 +1,4 @@
 /** @format */
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 import * as axios from 'axios';
 import { EventEmitter as EE } from 'events';
 import { readFileSync, writeFileSync } from 'fs';
@@ -100,6 +99,8 @@ export class QuestradeClass extends EE {
       }
       if (!!this._account) this.emit('ready');
       try {
+        // tslint:disable-next-line: no-debugger
+
         if (introspection) console.log('\n', 'IN: constructor AT: _loadKey');
         this._loadKey().then(() => {
           try {
@@ -1097,6 +1098,4 @@ Questrade.prototype._accountApi = function(method, endpoint, params, cb) {
   // * Method that actually mades the GET/POST request to Questrade
   // * Method that appends the set account to the API calls so all calls
   // * are made to that account. Chage account to change the account used
-
-  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
