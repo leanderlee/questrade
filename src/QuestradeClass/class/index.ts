@@ -11,14 +11,14 @@ import { dirname } from 'path';
 import { default as request } from 'request-promise-native';
 // import { promisify } from 'util';
 type seedToken = string;
-type keyFile = any;
+type keyFile = string;
 interface IQuestradeOpts {
   test?: boolean;
   keyDir?: string;
   apiVersion: string;
   keyFile?: string;
-  seedToken?: string;
-  account?: any;
+  seedToken?: seedToken;
+  account?: string | number;
 }
 type QuestradeClassOptions = IQuestradeOpts | seedToken | keyFile;
 type error = Error | null;
@@ -26,7 +26,6 @@ type error = Error | null;
 const introspection = true;
 export class QuestradeClass extends EE {
   public seedToken: string;
-
   private _accessToken: string;
   private _test: boolean;
   private _keyDir: string;
@@ -52,6 +51,7 @@ export class QuestradeClass extends EE {
     console.log(this._readFileSync);
     this._writeFileSync = writeFileSync;
     console.log(this._writeFileSync);
+
     try {
       if (introspection) console.log('constructor(...) {');
       if (typeof opts === 'undefined' || opts === undefined) {
@@ -79,7 +79,7 @@ export class QuestradeClass extends EE {
         this.seedToken = opts.seedToken || '';
         // The default Account agains wich the API are made.
         // GetAccounts() will return the possible values
-        this._account = opts.account || '';
+        this._account = `${opts.account}` || '';
       }
       // The refresh token used to login and get the new accessToken,
       // the new refreshToken (next time to log in) and the api_server
