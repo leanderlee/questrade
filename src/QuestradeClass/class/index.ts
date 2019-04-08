@@ -1,13 +1,12 @@
 /** @format */
 import * as axios from 'axios';
-import { EventEmitter as EE } from 'events';
+// import { EventEmitter as EE } from 'events';
 import { readFileSync, writeFileSync } from 'fs';
 import { chain, keyBy, pick } from 'lodash';
 import { sync } from 'mkdirp';
 import { default as moment } from 'moment';
 import { dirname } from 'path';
-import { ICreds } from './auth/ICreds';
-// import { promisify } from 'util';
+import { ICreds } from './ICreds';
 type seedToken = string;
 type keyFile = string;
 interface IQuestradeOpts {
@@ -22,7 +21,7 @@ type QuestradeClassOptions = IQuestradeOpts | seedToken | keyFile;
 type error = Error | null;
 
 const introspection = true;
-export class QuestradeClass extends EE {
+export class QuestradeClass/*  extends EE */ {
   public seedToken: string;
   private _accessToken: string;
   private _test: boolean;
@@ -34,21 +33,15 @@ export class QuestradeClass extends EE {
   private _refreshToken: string;
   private _apiUrl: string;
   private _authUrl: string;
-  private _readFileSync: any;
-  private _writeFileSync: any;
 
   public constructor(opts?: QuestradeClassOptions) {
-    super();
+    // super();
     this._test = false;
     this._keyDir = './keys';
     this._apiVersion = 'v1';
     this._keyFile = '';
     this.seedToken = '';
     this._account = '';
-    this._readFileSync = readFileSync;
-    console.log(this._readFileSync);
-    this._writeFileSync = writeFileSync;
-    console.log(this._writeFileSync);
 
     try {
       if (introspection) console.log('constructor(...) {');
@@ -97,7 +90,7 @@ export class QuestradeClass extends EE {
       if (introspection) {
         console.log('\n', 'this._apiServer: ', this._apiServer);
       }
-      if (!!this._account) this.emit('ready');
+      // if (!!this._account) this.emit('ready');
       try {
         // tslint:disable-next-line: no-debugger
 
@@ -113,27 +106,32 @@ export class QuestradeClass extends EE {
                   console.log('\n', 'IN: constructor AT: setPrimaryAccount');
                 }
                 this.setPrimaryAccount().then(() => {
-                  this.emit('ready');
+                  // this.emit('ready');
                 });
               } catch (setPrimaryAccountError) {
-                this.emit('error', {
-                  details: setPrimaryAccountError,
-                  message: 'failed_to_set_account',
-                });
+                console.error(setPrimaryAccountError)
+
+                // this.emit('error', {
+                //   details: setPrimaryAccountError,
+                //   message: 'failed_to_set_account',
+                // });
               }
             });
           } catch (refreshKeyError) {
-            this.emit('error', {
-              details: refreshKeyError,
-              message: 'failed_to_refresh_key',
-            });
+        console.error(refreshKeyError)
+
+            // this.emit('error', {
+            //   details: refreshKeyError,
+            //   message: 'failed_to_refresh_key',
+            // });
           }
         });
       } catch (loadKeyError) {
-        this.emit('error', {
-          details: loadKeyError,
-          message: 'failed_to_load_key',
-        });
+        console.error(loadKeyError)
+        // this.emit('error', {
+        //   details: loadKeyError,
+        //   message: 'failed_to_load_key',
+        // });
       }
     } catch (error) {
       if (introspection) console.log('\n', 'error.message', error.message);
@@ -900,13 +898,15 @@ Questrade.prototype._loadKey = function(cb) {
   });
 };
 */
-  private _loadKey = () => {
+  private _loadKey = async () => {
     if (this._keyFile) {
       sync(dirname(this._keyFile));
     } else {
       sync(this._keyDir);
     }
-    const refreshToken: any = readFileSync(this._getKeyFile(), 'utf8');
+    console.log('will read')
+    const refreshToken: any = await readFileSync(this._getKeyFile(), 'utf8');
+    console.log('did read')
     if (!refreshToken) {
       this._refreshToken = this.seedToken;
       this._saveKey();
@@ -1060,42 +1060,4 @@ Questrade.prototype._accountApi = function(method, endpoint, params, cb) {
     }
     return this._api(method, `/accounts/${this._account}${endpoint}`, params);
   };
-
-  // console.log('_account', this._account);
-  // console.log('_apiVersion', this._apiVersion);
-  // console.log('_authUrl', this._authUrl);
-  // console.log('_keyDir', this._keyDir);
-  // console.log('_keyFile', this._keyFile);
-  // console.log('seedToken', seedToken);
-
-  // console.log('_getKeyFile():', this._getKeyFile());
-  // console.log('_accessToken:', this._accessToken);
-  // console.log('_apiServer:', this._apiServer);
-  // console.log('_apiUrl:', this._apiUrl);
-  // console.log('_refreshToken:', this._refreshToken);
-  // console.log('_apiServer:', this._apiServer);
-
-  // console.log('_loadKey:', this._loadKey());
-  // console.log('_accessToken:', this._accessToken);
-  // console.log('_apiServer:', this._apiServer);
-  // console.log('_apiUrl:', this._apiUrl);
-  // console.log('_refreshToken:', this._refreshToken);
-  // console.log('_apiServer:', this._apiServer);
-
-  // console.log('_refreshKey:', this._refreshKey());
-  // console.log('_accessToken:', this._accessToken);
-  // console.log('_apiServer:', this._apiServer);
-  // console.log('_apiUrl:', this._apiUrl);
-  // console.log('_refreshToken:', this._refreshToken);
-  // console.log('_apiServer:', this._apiServer);
-  // * Gets name of the file where the refreshToken is stored
-  // * Reads the refreshToken stored in the file (if it exist)
-  // * otherwise uses the seedToken
-  // * Synchronously create a new directory
-  // * Refreshed the tokem (aka Logs in) using the latest RefreshToken
-  // * (or the SeedToken if no previous saved file)
-  // *   emit('refresh', this._refreshToken);
-  // * Method that actually mades the GET/POST request to Questrade
-  // * Method that appends the set account to the API calls so all calls
-  // * are made to that account. Chage account to change the account used
 }
