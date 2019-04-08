@@ -1,12 +1,15 @@
 /** @format */
 import { EventEmitter as EE } from 'events';
-import { readFile, writeFile } from 'fs';
+import {
+  /* readFile, */ readFileSync,
+  /*  writeFile, */ writeFileSync,
+} from 'fs';
 import { chain, keyBy, pick } from 'lodash';
 import { sync } from 'mkdirp';
 import { default as moment } from 'moment';
 import { dirname } from 'path';
 import { default as request } from 'request-promise-native';
-import { promisify } from 'util';
+// import { promisify } from 'util';
 type seedToken = string;
 type keyFile = any;
 interface IQuestradeOpts {
@@ -34,6 +37,8 @@ export class QuestradeClass extends EE {
   private _refreshToken: string;
   private _apiUrl: string;
   private _authUrl: string;
+  private _readFileSync: any;
+  private _writeFileSync: any;
 
   public constructor(opts?: QuestradeClassOptions) {
     super();
@@ -43,6 +48,10 @@ export class QuestradeClass extends EE {
     this._keyFile = '';
     this.seedToken = '';
     this._account = '';
+    this._readFileSync = readFileSync;
+    console.log(this._readFileSync);
+    this._writeFileSync = writeFileSync;
+    console.log(this._writeFileSync);
     try {
       if (introspection) console.log('constructor(...) {');
       if (typeof opts === 'undefined' || opts === undefined) {
@@ -659,9 +668,8 @@ export class QuestradeClass extends EE {
     // !!!
     try {
       if (introspection) console.log('\n', '_saveKey = async () => {');
-      const writeFile_ = promisify(writeFile);
       try {
-        writeFile_(this._getKeyFile(), this._refreshToken, 'utf8');
+        this._writeFileSync(this._getKeyFile(), this._refreshToken, 'utf8');
       } catch (error) {
         throw new Error('failed_to_write');
       }
@@ -687,7 +695,7 @@ export class QuestradeClass extends EE {
 
   // Reads the refreshToken stored in the file (if it exist)
   // otherwise uses the seedToken
-  private _loadKey = async () => {
+  private _loadKey = () => {
     // !!!
     try {
       if (introspection) console.log('\n', '_loadKey = async () => {');
@@ -696,9 +704,9 @@ export class QuestradeClass extends EE {
       } else {
         sync(this._keyDir);
       }
-      const readFile_ = promisify(readFile);
+
       if (introspection) console.log('\n', 'will read');
-      const refreshToken: any = await readFile_(this._getKeyFile(), 'utf8');
+      const refreshToken: any = this._readFileSync(this._getKeyFile(), 'utf8');
       if (introspection) console.log('\n', 'did read');
       if (!refreshToken) {
         this._refreshToken = this.seedToken;
@@ -707,7 +715,7 @@ export class QuestradeClass extends EE {
       this._refreshToken = refreshToken;
       return refreshToken;
     } catch (error) {
-      if (introspection) console.log('\n', 'ERROR: _loadKey = async () => {');
+      if (introspection) console.log('\n', 'ERROR: _loadKey = () => {');
       if (introspection) console.log('\n', error.message);
       // throw error;
     }
@@ -733,13 +741,11 @@ export class QuestradeClass extends EE {
       if (introspection) console.dir(creds);
       if (introspection) console.log('\n', 'creds.api_server');
       if (introspection) console.dir(creds.api_server);
-      if (introspection) console.log('\n', 'creds.api_server');
-      if (introspection) console.log('\n', 'creds.api_server');
-      this._apiServer = creds.api_server;
-      this._apiUrl = creds.api_server + this._apiVersion;
-      this._accessToken = creds.access_token;
-      this._refreshToken = creds.refresh_token;
-      this._saveKey();
+      this._apiServer = await creds.api_server;
+      this._apiUrl = (await creds.api_server) + this._apiVersion;
+      this._accessToken = await creds.access_token;
+      this._refreshToken = await creds.refresh_token;
+      await this._saveKey();
       this.emit('refresh', this._refreshToken);
     } catch (error) {
       if (introspection) console.log('\n', error.message);
