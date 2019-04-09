@@ -12,20 +12,61 @@
     },
     {
       "type": "node",
-      "request": "launch",
-      "name": "Launch Program",
-      "program": "${workspaceFolder}/build/index.js",
-      "outFiles": ["${workspaceFolder}/**/*.js"]
+      "request": "attach",
+      "name": "Attach",
+      "port": 9922
     },
+
+    /*     {
+      "type": "node",
+      "request": "launch",
+      "protocol": "inspector",
+      "name": "old TS-Node Debug Launch",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/src/main.ts"],
+      "cwd": "${workspaceFolder}"
+    }, */
     {
       "type": "node",
       "request": "launch",
-      "name": "Debug TypeScript in Node.js",
-      "runtimeArgs": ["-r", "ts-node/register"],
-      "args": ["${workspaceFolder}src/main.ts"],
+      "name": "TS-Node Debug Launch",
       "protocol": "inspector",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/src/main.ts"],
       "cwd": "${workspaceFolder}",
-      "outFiles": ["${workspaceFolder}/bin/**/*.js"]
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "stopOnEntry": true,
+      "autoAttachChildProcesses": false,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
     }
   ]
 }
+/*    {
+      "type": "",
+      "request": "attach",
+      "name": "Attach to Chrome-Devtools"
+    },
+
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program",
+      "program": "${workspaceFolder}/build/index.js",
+      "outFiles": ["${workspaceFolder}/ ** / *.js"]
+       {
+
+      "name": "Debug TypeScript",
+      "type": "node",
+      "request": "launch",
+      "name": "Debug TypeScript in Node.js",
+      "runtimeArgs": ["-r", "ts-node/register", "--inspect-brk=9292"],
+      "args": ["${workspaceFolder}/src/main.ts"],
+      "protocol": "inspector",
+      "cwd": "${workspaceFolder}",
+      "outFiles": ["${workspaceFolder}/bin/** /*.js"]
+    }
+    }, */
