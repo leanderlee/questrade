@@ -7,13 +7,13 @@
     {
       "type": "node",
       "request": "attach",
-      "name": "Attach by Process ID",
+      "name": "ID Attach (by Process ID)",
       "processId": "${command:PickProcess}"
     },
     {
       "type": "node",
       "request": "attach",
-      "name": "Attach",
+      "name": "Attach (Port: 9922)",
       "port": 9922
     },
 
@@ -45,28 +45,3 @@
     }
   ]
 }
-/*    {
-      "type": "",
-      "request": "attach",
-      "name": "Attach to Chrome-Devtools"
-    },
-
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Launch Program",
-      "program": "${workspaceFolder}/build/index.js",
-      "outFiles": ["${workspaceFolder}/ ** / *.js"]
-       {
-
-      "name": "Debug TypeScript",
-      "type": "node",
-      "request": "launch",
-      "name": "Debug TypeScript in Node.js",
-      "runtimeArgs": ["-r", "ts-node/register", "--inspect-brk=9292"],
-      "args": ["${workspaceFolder}/src/main.ts"],
-      "protocol": "inspector",
-      "cwd": "${workspaceFolder}",
-      "outFiles": ["${workspaceFolder}/bin/** /*.js"]
-    }
-    }, */
