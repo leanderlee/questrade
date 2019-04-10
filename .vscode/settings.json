@@ -1,10 +1,10 @@
 {
-  "json.schemas": [
-    {
-      "fileMatch": ["/tsconfig.json"],
-      "url": "./tsconfig.schema.json"
-    }
-  ],
+  // "json.schemas": [
+  //   {
+  //     "fileMatch": ["/tsconfig.json"],
+  //     "url": "./tsconfig.schema.json"
+  //   }
+  // ],
   "editor.formatOnSave": true,
   "prettier.singleQuote": true,
   "prettier.tslintIntegration": true,

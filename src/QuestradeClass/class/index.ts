@@ -20,8 +20,7 @@ interface IQuestradeOpts {
 type QuestradeClassOptions = IQuestradeOpts | seedToken | keyFile;
 type error = Error | null;
 
-const introspection = true;
-export class QuestradeClass/*  extends EE */ {
+export class QuestradeClass /*  extends EE */ {
   public seedToken: string;
   private _accessToken: string;
   private _test: boolean;
@@ -44,7 +43,6 @@ export class QuestradeClass/*  extends EE */ {
     this._account = '';
 
     try {
-      if (introspection) console.log('constructor(...) {');
       if (typeof opts === 'undefined' || opts === undefined) {
         throw new Error('questrade_missing_api_key or options');
       }
@@ -87,62 +85,42 @@ export class QuestradeClass/*  extends EE */ {
         ? 'https://practicelogin.q.com'
         : 'https://login.questrade.com';
       // Running the Authentification process and emit 'ready' when done
-      if (introspection) {
-        console.log('\n', 'this._apiServer: ', this._apiServer);
-      }
       // if (!!this._account) this.emit('ready');
-      try {
-        // tslint:disable-next-line: no-debugger
-
-        if (introspection) console.log('\n', 'IN: constructor AT: _loadKey');
-        this._loadKey().then(() => {
-          try {
-            if (introspection) {
-              console.log('\n', 'IN: constructor AT: _refreshKey');
-            }
-            this._refreshKey().then(() => {
-              try {
-                if (introspection) {
-                  console.log('\n', 'IN: constructor AT: setPrimaryAccount');
-                }
-                this.setPrimaryAccount().then(() => {
+      this._loadKey()
+        .then(() => {
+          this._refreshKey()
+            .then(() => {
+              this.setPrimaryAccount()
+                .then(() => {
                   // this.emit('ready');
+                })
+                .catch((/* setPrimaryAccountError */) => {
+                  // this.emit('error', {
+                  //   details: setPrimaryAccountError,
+                  //   message: 'failed_to_set_account',
+                  // });
                 });
-              } catch (setPrimaryAccountError) {
-                console.error(setPrimaryAccountError)
-
-                // this.emit('error', {
-                //   details: setPrimaryAccountError,
-                //   message: 'failed_to_set_account',
-                // });
-              }
+            })
+            .catch((/* refreshKeyError */) => {
+              // this.emit('error', {
+              //   details: refreshKeyError,
+              //   message: 'failed_to_refresh_key',
+              // });
             });
-          } catch (refreshKeyError) {
-        console.error(refreshKeyError)
-
-            // this.emit('error', {
-            //   details: refreshKeyError,
-            //   message: 'failed_to_refresh_key',
-            // });
-          }
+        })
+        .catch((/* loadKeyError */) => {
+          // this.emit('error', {
+          //   details: loadKeyError,
+          //   message: 'failed_to_load_key',
+          // });
         });
-      } catch (loadKeyError) {
-        console.error(loadKeyError)
-        // this.emit('error', {
-        //   details: loadKeyError,
-        //   message: 'failed_to_load_key',
-        // });
-      }
     } catch (error) {
-      if (introspection) console.log('\n', 'error.message', error.message);
       throw new Error(error.message);
     }
   }
 
   public setPrimaryAccount = async () => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'setPrimaryAccount = async () => {');
       const accounts: any = await this.getAccounts();
       if (!accounts || !Object.keys(accounts).length) {
         throw new Error('no_accounts_found');
@@ -158,77 +136,59 @@ export class QuestradeClass/*  extends EE */ {
       this._account = primaryAccount[0];
       return this._account;
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getAccounts = async () => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'getAccounts = async () => {');
       return this._api('GET', '/accounts', (err: error, response: any) => {
         if (err) throw err;
         return keyBy(response.accounts, 'number');
       });
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getPositions = async () => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'getPositions = async () => {');
       return this._accountApi('GET', '/positions');
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getBalances = async () => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'getBalances = async () => {');
       return this._accountApi('GET', '/balances');
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getExecutions = async () => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'getExecutions = async () => {');
       return this._accountApi('GET', '/executions');
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getOrder = async (id: any) => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'getOrder = async (id: any) => {');
       const response: any = await this._accountApi('GET', `/orders/${id}`);
       if (!response.orders.length) {
         throw Error('order_not_found');
       }
       return response.orders[0];
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getOrders = async (ids: any) => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'getOrders = async (ids: any) => {');
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
@@ -238,59 +198,45 @@ export class QuestradeClass/*  extends EE */ {
       });
       return keyBy(response.orders, 'id');
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getOpenOrders = async () => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'getOpenOrders = async () => {');
       const response: any = await this._accountApi('GET', '/orders', {
         stateFilter: 'Open',
       });
       keyBy(response.orders, 'id');
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getAllOrders = async () => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'getAllOrders = async () => {');
       const acountResponse: any = await this._accountApi('GET', '/orders', {
         stateFilter: 'All',
       });
       return keyBy(acountResponse.orders, 'id');
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     } // ? ---
   };
 
   public getClosedOrders = async () => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'getClosedOrders = async () => {');
       const response: any = await this._accountApi('GET', '/orders', {
         stateFilter: 'Closed',
       });
       return keyBy(response.orders, 'id');
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getActivities = async (opts_: any) => {
-    // !!!
     try {
-      if (introspection) {
-        console.log('\n', 'getActivities = async (opts_: any) => {');
-      }
       const opts = opts_ || {};
       if (opts.startTime && !moment(opts.startTime).isValid()) {
         throw new Error('start_time_invalid');
@@ -312,15 +258,12 @@ export class QuestradeClass/*  extends EE */ {
         startTime,
       });
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getSymbol = async (id: any) => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'getSymbol = async (id: any) => {');
       let params: any = false;
       if (typeof id === 'number') {
         params = {
@@ -337,17 +280,12 @@ export class QuestradeClass/*  extends EE */ {
       const response: any = this._api('GET', '/symbols', params);
       return response.symbols[0];
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getSymbols = async (ids: any) => {
-    // !!!
     try {
-      if (introspection) {
-        console.log('\n', 'getSymbols = async (ids: any) => {');
-      }
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
@@ -371,17 +309,12 @@ export class QuestradeClass/*  extends EE */ {
       }
       return keyBy(response.symbols, params.names ? 'symbol' : 'symbolId');
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public search = async (query: any, offset: any) => {
-    // !!!
     try {
-      if (introspection) {
-        console.log('\n', 'search = async (query: any, offset: any) => {');
-      }
       if (typeof query !== 'string') {
         throw new Error('missing_query');
       }
@@ -391,17 +324,12 @@ export class QuestradeClass/*  extends EE */ {
       });
       return response.symbols;
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getOptionChain = async (symbolId: any) => {
-    // !!!
     try {
-      if (introspection) {
-        console.log('\n', 'getOptionChain = async (symbolId: any) => {');
-      }
       const response: any = await this._api(
         'GET',
         `/symbols/${symbolId}/options`
@@ -416,29 +344,21 @@ export class QuestradeClass/*  extends EE */ {
         })
         .value();
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getMarkets = async () => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'getMarkets = async () => {');
       const response: any = await this._api('GET', '/markets');
       return keyBy(response.markets, 'name');
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     } // ? ---
   };
 
   public getQuote = async (id: string) => {
-    // !!!
     try {
-      if (introspection) {
-        console.log('\n', 'getQuote = async (id: string) => {');
-      }
       const response: any = await this._api('GET', `/markets/quotes/${id}`);
       if (!response.quotes) {
         return {
@@ -448,15 +368,12 @@ export class QuestradeClass/*  extends EE */ {
       }
       return response.quotes[0];
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getQuotes = async (ids: any) => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'getQuotes = async (ids: any) => {');
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
@@ -466,17 +383,12 @@ export class QuestradeClass/*  extends EE */ {
       });
       return keyBy(response.quotes, 'symbolId');
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getOptionQuote = async (filters_: any[]) => {
-    // !!!
     try {
-      if (introspection) {
-        console.log('\n', 'getOptionQuote = async (filters_: any[]) => {');
-      }
       let filters = filters_;
       if (!Array.isArray(filters) && typeof filters === 'object') {
         filters = [filters];
@@ -486,17 +398,12 @@ export class QuestradeClass/*  extends EE */ {
       });
       return response.optionQuotes;
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getOptionQuoteSimplified = async (filters: any) => {
-    // !!!
     try {
-      if (introspection) {
-        console.log('\n', 'getOptionQuoteSimplified = async (...) => {');
-      }
       const optionsQuotes = await this.getOptionQuote(filters);
       return chain(optionsQuotes)
         .map(optionQuote => {
@@ -548,15 +455,12 @@ export class QuestradeClass/*  extends EE */ {
         })
         .value();
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public getCandles = async (id: string, opts?: any) => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'getCandles = async (...) => {');
       const opt: any = opts || {};
       if (opt.startTime && !moment(opt.startTime).isValid()) {
         throw new Error('start_time_invalid');
@@ -581,91 +485,60 @@ export class QuestradeClass/*  extends EE */ {
       });
       return response.candles;
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public createOrder = async (opts: any) => {
-    // !!!
     try {
-      if (introspection) {
-        console.log('\n', 'createOrder = async (opts: any) => {');
-      }
       return this._accountApi('POST', '/orders', opts);
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public updateOrder = async (id: string, opts: any) => {
-    // !!!
     try {
-      if (introspection) console.log('\n', 'updateOrder = async (...) => {');
       return this._accountApi('POST', `/orders/${id}`, opts);
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public testOrder = async (opts: any) => {
-    // !!!
     try {
-      if (introspection) {
-        console.log('\n', 'testOrder = async (opts: any) => {');
-      }
       return this._accountApi('POST', '/orders/impact', opts);
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public removeOrder = async (id: string) => {
-    // !!!
     try {
-      if (introspection) {
-        console.log('\n', 'removeOrder = async (id: string) => {');
-      }
       return this._accountApi('DELETE', `/orders/${id}`);
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public createStrategy = async (opts: any) => {
-    // !!!
     try {
-      if (introspection) {
-        console.log('\n', 'createStrategy = async (opts: any) => {');
-      }
       return this._accountApi('POST', '/orders/strategy', opts);
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      // throw error;
+      throw new Error(error.message);
     }
   };
 
   public testStrategy = async (opts: any) => {
-    // !!!
     try {
-      if (introspection) {
-        console.log('\n', 'testStrategy = async (opts: any) => {');
-      }
       return this._accountApi('POST', '/orders/strategy/impact', opts);
     } catch (error) {
-      if (introspection) console.log('\n', error.message);
-      throw error;
+      throw new Error(error.message);
     }
   };
 
   //   private saveKey = async () => {
-  //     // !!!
   //     try {
-  //       if (introspection) console.log('\n', '_saveKey = async () => {');
   //       try {
   //         this._writeFileSync(this._getKeyFile(), this.
   //         _refreshToken, 'utf8');
@@ -674,19 +547,15 @@ export class QuestradeClass/*  extends EE */ {
   //       }
   //       return this._refreshToken;
   //     } catch (error) {
-  //       if (introspection) console.log('\n', error.message);
   //       throw error;
   //     }
   //   };
 
   //   // Gets name of the file where the refreshToken is stored
   //   private getKeyFile = () => {
-  //     // !!!
   //     try {
-  //       if (introspection) console.log('\n', '_getKeyFile = () => {');
   //       return this._keyFile || `${this._keyDir}/${this.seedToken}`;
   //     } catch (error) {
-  //       if (introspection) console.log('\n', error.message);
   //       throw error;
   //     }
   //   };
@@ -694,19 +563,15 @@ export class QuestradeClass/*  extends EE */ {
   //   // Reads the refreshToken stored in the file (if it exist)
   //   // otherwise uses the seedToken
   //   private loadKey = () => {
-  //     // !!!
   //     try {
-  //       if (introspection) console.log('\n', '_loadKey = async () => {');
   //       if (this._keyFile) {
   //         sync(dirname(this._keyFile));
   //       } else {
   //         sync(this._keyDir);
   //       }
 
-  //       if (introspection) console.log('\n', 'will read');
   //       const refreshToken: any =
   //               this._readFileSync(this._getKeyFile(), 'utf8');
-  //       if (introspection) console.log('\n', 'did read');
   //       if (!refreshToken) {
   //         this._refreshToken = this.seedToken;
   //         this._saveKey();
@@ -714,18 +579,14 @@ export class QuestradeClass/*  extends EE */ {
   //       this._refreshToken = refreshToken;
   //       return refreshToken;
   //     } catch (error) {
-  //       if (introspection) console.log('\n', 'ERROR: _loadKey = () => {');
-  //       if (introspection) console.log('\n', error.message);
-  //       // throw error;
+  //
   //     }
   //   };
 
   //   // Refreshed the tokem (aka Logs in) using the latest RefreshToken
   //   // (or the SeedToken if no previous saved file)
   //   private refreshKey = async () => {
-  //     // !!!
   //     try {
-  //       if (introspection) console.log('\n', '_refreshKey = async () => {');
   //       const data = {
   //         grant_type: 'refresh_token',
   //         refresh_token: this._refreshToken,
@@ -736,10 +597,6 @@ export class QuestradeClass/*  extends EE */ {
   //         url: `${this._authUrl}/oauth2/token`,
   //       });
   //       const creds = await JSON.parse(res.body);
-  //       if (introspection) console.log('\n', 'creds');
-  //       if (introspection) console.dir(creds);
-  //       if (introspection) console.log('\n', 'creds.api_server');
-  //       if (introspection) console.dir(creds.api_server);
   //       this._apiServer = await creds.api_server;
   //       this._apiUrl = (await creds.api_server) + this._apiVersion;
   //       this._accessToken = await creds.access_token;
@@ -747,8 +604,7 @@ export class QuestradeClass/*  extends EE */ {
   //       await this._saveKey();
   //       this.emit('refresh', this._refreshToken);
   //     } catch (error) {
-  //       if (introspection) console.log('\n', error.message);
-  //       // throw error;
+  //
   //     }
   //   };
 
@@ -758,9 +614,7 @@ export class QuestradeClass/*  extends EE */ {
   //     endpoint?: string | number,
   //     params?: any
   //   ) => {
-  //     // !!!
   //     try {
-  //       if (introspection) console.log('\n', '_api = async (...) => {');
   //       const url: string = this._apiUrl + endpoint;
   //       const opts: any = {
   //         auth: {
@@ -777,8 +631,7 @@ export class QuestradeClass/*  extends EE */ {
   //       }
   //       return request(opts);
   //     } catch (error) {
-  //       if (introspection) console.log('\n', error.message);
-  //       // throw error;
+  //
   //     }
   //   };
 
@@ -787,16 +640,13 @@ export class QuestradeClass/*  extends EE */ {
   // account to change the account used
   //   private accountApi = async
   // (method?: any, endpoint?: any, params?: any) => {
-  //     // !!!
   //     try {
-  //       if (introspection) console.log('\n', '_accountApi = (...) => {');
   //       if (!this._account) {
   //         throw new Error('no_account_selected');
   //       }
   // return this._api(method, `/accounts/${this._account}${endpoint}`, params);
   //     } catch (error) {
-  //       if (introspection) console.log('\n', error.message);
-  //       // throw error;
+  //
   //     }
   //   };
   // private getUnused(){
@@ -904,12 +754,16 @@ Questrade.prototype._loadKey = function(cb) {
     } else {
       sync(this._keyDir);
     }
-    console.log('will read')
-    const refreshToken: any = await readFileSync(this._getKeyFile(), 'utf8');
-    console.log('did read')
-    if (!refreshToken) {
-      this._refreshToken = this.seedToken;
-      this._saveKey();
+    let refreshToken: any;
+    try {
+      refreshToken = await readFileSync(this._getKeyFile(), 'utf8');
+    } catch (error) {
+      console.error('_loadKey:ERROR:', error.message);
+    } finally {
+      if (!refreshToken) {
+        this._refreshToken = this.seedToken;
+        this._saveKey();
+      }
     }
     this._refreshToken = refreshToken;
     return refreshToken;
@@ -974,16 +828,12 @@ Questrade.prototype._refreshKey = function(cb) {
 
       const creds: ICreds = response.data;
       this._apiServer = creds.api_server;
-      console.log('creds.api_server:', creds.api_server);
       this._apiUrl = `${this._apiServer}${this._apiVersion}`;
       this._accessToken = creds.access_token;
-      console.log('creds.access_token:', creds.access_token);
       this._refreshToken = creds.refresh_token;
-      console.log('creds.refresh_token:', creds.refresh_token);
       await this._saveKey();
     } catch (error) {
-      console.log('response:', response);
-      console.error('ERROR:', error.message);
+      throw new Error(error.message);
     }
   };
   /*
