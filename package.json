@@ -6,6 +6,7 @@
   "types": "./build/lib/index.d.ts",
   "scripts": {
     "smoke:test": "jest --silent --detectOpenHandles --forceExit --config ./src/__tests__/smoketest/jest.config.js",
+    "debug": "debug",
     "prebuild": "rimraf build",
     "build": "tsc -b ./tsconfig.json",
     "gitcheck": "git diff-index origin/ts-class",
