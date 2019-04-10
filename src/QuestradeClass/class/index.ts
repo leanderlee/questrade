@@ -119,7 +119,7 @@ export class QuestradeClass /*  extends EE */ {
     }
   }
 
-  public setPrimaryAccount = async () => {
+  public async setPrimaryAccount() {
     try {
       const accounts: any = await this.getAccounts();
       if (!accounts || !Object.keys(accounts).length) {
@@ -138,9 +138,9 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getAccounts = async () => {
+  public async getAccounts() {
     try {
       return this._api('GET', '/accounts', (err: error, response: any) => {
         if (err) throw err;
@@ -149,33 +149,33 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getPositions = async () => {
+  public async getPositions() {
     try {
       return this._accountApi('GET', '/positions');
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getBalances = async () => {
+  public async getBalances() {
     try {
       return this._accountApi('GET', '/balances');
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getExecutions = async () => {
+  public async getExecutions() {
     try {
       return this._accountApi('GET', '/executions');
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getOrder = async (id: any) => {
+  public async getOrder(id: any) {
     try {
       const response: any = await this._accountApi('GET', `/orders/${id}`);
       if (!response.orders.length) {
@@ -185,9 +185,9 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getOrders = async (ids: any) => {
+  public async getOrders(ids: any) {
     try {
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
@@ -200,9 +200,9 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getOpenOrders = async () => {
+  public async getOpenOrders() {
     try {
       const response: any = await this._accountApi('GET', '/orders', {
         stateFilter: 'Open',
@@ -211,9 +211,9 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getAllOrders = async () => {
+  public async getAllOrders() {
     try {
       const acountResponse: any = await this._accountApi('GET', '/orders', {
         stateFilter: 'All',
@@ -221,10 +221,10 @@ export class QuestradeClass /*  extends EE */ {
       return keyBy(acountResponse.orders, 'id');
     } catch (error) {
       throw new Error(error.message);
-    } // ? ---
-  };
+    }
+  }
 
-  public getClosedOrders = async () => {
+  public async getClosedOrders() {
     try {
       const response: any = await this._accountApi('GET', '/orders', {
         stateFilter: 'Closed',
@@ -233,9 +233,9 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getActivities = async (opts_: any) => {
+  public async getActivities(opts_: any) {
     try {
       const opts = opts_ || {};
       if (opts.startTime && !moment(opts.startTime).isValid()) {
@@ -260,9 +260,9 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getSymbol = async (id: any) => {
+  public async getSymbol(id: any) {
     try {
       let params: any = false;
       if (typeof id === 'number') {
@@ -282,9 +282,9 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getSymbols = async (ids: any) => {
+  public async getSymbols(ids: any) {
     try {
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
@@ -311,9 +311,9 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public search = async (query: any, offset: any) => {
+  public async search(query: any, offset: any) {
     try {
       if (typeof query !== 'string') {
         throw new Error('missing_query');
@@ -326,9 +326,9 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getOptionChain = async (symbolId: any) => {
+  public async getOptionChain(symbolId: any) {
     try {
       const response: any = await this._api(
         'GET',
@@ -346,18 +346,18 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getMarkets = async () => {
+  public async getMarkets() {
     try {
       const response: any = await this._api('GET', '/markets');
       return keyBy(response.markets, 'name');
     } catch (error) {
       throw new Error(error.message);
-    } // ? ---
-  };
+    }
+  }
 
-  public getQuote = async (id: string) => {
+  public async getQuote(id: string) {
     try {
       const response: any = await this._api('GET', `/markets/quotes/${id}`);
       if (!response.quotes) {
@@ -370,9 +370,9 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getQuotes = async (ids: any) => {
+  public async getQuotes(ids: any) {
     try {
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
@@ -385,9 +385,9 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getOptionQuote = async (filters_: any[]) => {
+  public async getOptionQuote(filters_: any[]) {
     try {
       let filters = filters_;
       if (!Array.isArray(filters) && typeof filters === 'object') {
@@ -400,9 +400,9 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getOptionQuoteSimplified = async (filters: any) => {
+  public async getOptionQuoteSimplified(filters: any) {
     try {
       const optionsQuotes = await this.getOptionQuote(filters);
       return chain(optionsQuotes)
@@ -457,9 +457,9 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public getCandles = async (id: string, opts?: any) => {
+  public async getCandles(id: string, opts?: any) {
     try {
       const opt: any = opts || {};
       if (opt.startTime && !moment(opt.startTime).isValid()) {
@@ -487,276 +487,78 @@ export class QuestradeClass /*  extends EE */ {
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public createOrder = async (opts: any) => {
+  public async createOrder(opts: any) {
     try {
       return this._accountApi('POST', '/orders', opts);
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public updateOrder = async (id: string, opts: any) => {
+  public async updateOrder(id: string, opts: any) {
     try {
       return this._accountApi('POST', `/orders/${id}`, opts);
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public testOrder = async (opts: any) => {
+  public async testOrder(opts: any) {
     try {
       return this._accountApi('POST', '/orders/impact', opts);
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public removeOrder = async (id: string) => {
+  public async removeOrder(id: string) {
     try {
       return this._accountApi('DELETE', `/orders/${id}`);
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public createStrategy = async (opts: any) => {
+  public async createStrategy(opts: any) {
     try {
       return this._accountApi('POST', '/orders/strategy', opts);
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  public testStrategy = async (opts: any) => {
+  public async testStrategy(opts: any) {
     try {
       return this._accountApi('POST', '/orders/strategy/impact', opts);
     } catch (error) {
       throw new Error(error.message);
     }
-  };
+  }
 
-  //   private saveKey = async () => {
-  //     try {
-  //       try {
-  //         this._writeFileSync(this._getKeyFile(), this.
-  //         _refreshToken, 'utf8');
-  //       } catch (error) {
-  //         throw new Error('failed_to_write');
-  //       }
-  //       return this._refreshToken;
-  //     } catch (error) {
-  //       throw error;
-  //     }
-  //   };
-
-  //   // Gets name of the file where the refreshToken is stored
-  //   private getKeyFile = () => {
-  //     try {
-  //       return this._keyFile || `${this._keyDir}/${this.seedToken}`;
-  //     } catch (error) {
-  //       throw error;
-  //     }
-  //   };
-
-  //   // Reads the refreshToken stored in the file (if it exist)
-  //   // otherwise uses the seedToken
-  //   private loadKey = () => {
-  //     try {
-  //       if (this._keyFile) {
-  //         sync(dirname(this._keyFile));
-  //       } else {
-  //         sync(this._keyDir);
-  //       }
-
-  //       const refreshToken: any =
-  //               this._readFileSync(this._getKeyFile(), 'utf8');
-  //       if (!refreshToken) {
-  //         this._refreshToken = this.seedToken;
-  //         this._saveKey();
-  //       }
-  //       this._refreshToken = refreshToken;
-  //       return refreshToken;
-  //     } catch (error) {
-  //
-  //     }
-  //   };
-
-  //   // Refreshed the tokem (aka Logs in) using the latest RefreshToken
-  //   // (or the SeedToken if no previous saved file)
-  //   private refreshKey = async () => {
-  //     try {
-  //       const data = {
-  //         grant_type: 'refresh_token',
-  //         refresh_token: this._refreshToken,
-  //       };
-  //       const res = await request({
-  //         method: 'POST',
-  //         qs: data,
-  //         url: `${this._authUrl}/oauth2/token`,
-  //       });
-  //       const creds = await JSON.parse(res.body);
-  //       this._apiServer = await creds.api_server;
-  //       this._apiUrl = (await creds.api_server) + this._apiVersion;
-  //       this._accessToken = await creds.access_token;
-  //       this._refreshToken = await creds.refresh_token;
-  //       await this._saveKey();
-  //       this.emit('refresh', this._refreshToken);
-  //     } catch (error) {
-  //
-  //     }
-  //   };
-
-  //   // Method that actually mades the GET/POST request to Questrade
-  //   private api = async (
-  //     method?: string,
-  //     endpoint?: string | number,
-  //     params?: any
-  //   ) => {
-  //     try {
-  //       const url: string = this._apiUrl + endpoint;
-  //       const opts: any = {
-  //         auth: {
-  //           bearer: this._accessToken,
-  //         },
-  //         method,
-  //         url,
-  //       };
-  //       if (method === 'GET') {
-  //         opts.qs = params || {};
-  //         opts.json = true;
-  //       } else {
-  //         opts.json = params || true;
-  //       }
-  //       return request(opts);
-  //     } catch (error) {
-  //
-  //     }
-  //   };
-
-  //   // Method that appends the set account to the API calls so all calls
-  //   // are made to that account. Chage this.
-  // account to change the account used
-  //   private accountApi = async
-  // (method?: any, endpoint?: any, params?: any) => {
-  //     try {
-  //       if (!this._account) {
-  //         throw new Error('no_account_selected');
-  //       }
-  // return this._api(method, `/accounts/${this._account}${endpoint}`, params);
-  //     } catch (error) {
-  //
-  //     }
-  //   };
-  // private getUnused(){
-  //    this._saveKey();
-  //      this._getKeyFile();
-  //      this._loadKey();
-  //      this._refreshKey();
-  //      this._api();
-  //      this._accountApi();
-  // }
-  // Running the Authentification process and emit 'ready' when done
-  // function constructor(){
-  // !!  self._loadKey(function(err) {
-  //     if (err)
-  //       return self.emit('error', {
-  //         message: 'failed_to_load_key',
-  //         details: err,
-  //       });
-  // !!    self._refreshKey(function(err) {
-  //       if (err)
-  //         return self.emit('error', {
-  //           message: 'failed_to_refresh_key',
-  //           details: err,
-  //         });
-  //       if (self.account) return self.emit('ready');
-  // !!      self.setPrimaryAccount(function(err) {
-  //         if (err)
-  //           return self.emit('error', {
-  //             message: 'failed_to_set_account',
-  //             details: err,
-  //           });
-  //         self.emit('ready');
-  //       });
-  //     });
-  //   });
-  // }
-
-  // const this._account = '';
-  // const this._apiVersion = '';
-  // const this._authUrl = 'https://login.questrade.com';
-  // const this._keyDir = './keys';
-  // const this._keyFile = '';
-  // const seedToken = 'FADh7OnO_gBUXkeg3WLhZGKosAac6IbF0';
-
-  // let this._accessToken = '';
-  // let this._apiServer = '';
-  // let this._apiUrl = '';
-  // let this._refreshToken = '';
-
-  /*
-Saves the latest refreshToken in the file name after the seedToken
-Questrade.prototype._saveKey = function(cb) {
-  cb = cb || function() {};
-  var self = this;
-  fs.writeFile(self._getKeyFile(), self.refreshToken, 'utf8', function(err) {
-    if (err)
-      return cb({
-        message: 'failed_to_write',
-        details: err,
-      });
-    cb(null, self.refreshToken);
-  });
-};
-*/
+  // Saves the latest refreshToken in the file name after the seedToken
   private _saveKey = async () => {
-    writeFileSync(this._getKeyFile(), this._refreshToken, 'utf8');
+    writeFileSync(this.keyFile, this._refreshToken, 'utf8');
     return this._refreshToken;
   };
 
-  /*
-Gets name of the file where the refreshToken is stored
-Questrade.prototype._getKeyFile = function() {
-  return this.keyFile || this.keyDir + '/' + this.seedToken;
-};
-
-*/
-  private _getKeyFile = () => {
+  // Gets name of the file where the refreshToken is stored
+  public get keyFile() {
     return this._keyFile || `${this._keyDir}/${this.seedToken}`;
-  };
-  /*
-Reads the refreshToken stored in the file (if it exist),
-otherwise uses the seedToken
-Questrade.prototype._loadKey = function(cb) {
-  cb = cb || function() {};
-  var self = this;
-  if (self.keyFile) {
-    mkdirp.sync(path.dirname(self.keyFile));
-    Synchronously create a new directory
-  } else {
-    mkdirp.sync(self.keyDir);
   }
-  fs.readFile(self._getKeyFile(), 'utf8', function(err, refreshToken) {
-    if (err || !refreshToken) {
-      self.refreshToken = self.seedToken;
-      return self._saveKey(cb);
-    }
-    self.refreshToken = refreshToken;
-    cb(null, refreshToken);
-  });
-};
-*/
+
+  // Reads the refreshToken stored in the file (if it exist),
+  // otherwise uses the seedToken
   private _loadKey = async () => {
-    if (this._keyFile) {
+    if (!!this._keyFile) {
       sync(dirname(this._keyFile));
     } else {
       sync(this._keyDir);
     }
     let refreshToken: any;
     try {
-      refreshToken = await readFileSync(this._getKeyFile(), 'utf8');
+      refreshToken = await readFileSync(this.keyFile, 'utf8');
     } catch (error) {
       console.error('_loadKey:ERROR:', error.message);
     } finally {
@@ -768,43 +570,9 @@ Questrade.prototype._loadKey = function(cb) {
     this._refreshToken = refreshToken;
     return refreshToken;
   };
-  /*
-Refreshed the tokem (aka Logs in) using the latest RefreshToken
-(or the SeedToken if no previous saved file)
-Questrade.prototype._refreshKey = function(cb) {
-  var self = this;
-  var data = {
-    grant_type: 'refresh_token',
-    refresh_token: self.refreshToken,
-  };
-  request(
-    {
-      method: 'POST',
-      url: self.authUrl + '/oauth2/token',
-      qs: data,
-      data: data,
-    },
-    function(err, http, body) {
-      try {
-        var creds = JSON.parse(body);
-        self.api_server = creds.api_server;
-        self.apiUrl = creds.api_server + self.apiVersion;
-        self.accessToken = creds.access_token;
-        self.refreshToken = creds.refresh_token;
-        self._saveKey();
-        self.emit('refresh', self.refreshToken);
-      } catch (e) {
-        return cb({
-          message: 'login_failed',
-          token: self.refreshToken,
-          details: body,
-        });
-      }
-      cb();
-    }
-  );
-};
-*/
+
+  // Refreshed the tokem (aka Logs in) using the latest RefreshToken
+  // (or the SeedToken if no previous saved file)
   private _refreshKey = async () => {
     let response: axios.AxiosResponse = {
       data: null,
@@ -813,6 +581,7 @@ Questrade.prototype._refreshKey = function(cb) {
       headers: { Null: null },
       config: {},
     };
+    const client = axios.default;
     try {
       const url = `${this._authUrl}/oauth2/token`;
       const params = {
@@ -824,7 +593,9 @@ Questrade.prototype._refreshKey = function(cb) {
         params,
         url,
       };
-      response = await axios.default(axiosConfig);
+
+      // ?-- using axios as client
+      response = await client(axiosConfig);
 
       const creds: ICreds = response.data;
       this._apiServer = creds.api_server;
@@ -836,74 +607,35 @@ Questrade.prototype._refreshKey = function(cb) {
       throw new Error(error.message);
     }
   };
-  /*
-Method that actually mades the GET/POST request to Questrade
-Questrade.prototype._api = function(method, endpoint, params, cb) {
-  cb = cb || function() {};
-  var self = this;
-  if (typeof params === 'function') {
-    cb = params;
-    params = undefined;
-  }
-  var opts = {
-    method: method,
-    url: self.apiUrl + endpoint,
-    auth: {
-      bearer: self.accessToken,
-    },
-  };
-  if (method === 'GET') {
-    opts.qs = params || {};
-    opts.json = true;
-  } else {
-    opts.json = params || true;
-  }
-  request(opts, function(err, http, response) {
-    if (err) {
-      return cb({
-        message: 'api_call_failed',
-        url: self.apiUrl + endpoint,
-        method: method,
-        details: e,
-      });
-    }
-    cb(null, response);
-  });
-};
-*/
+
+  // Method that actually mades the GET/POST request to Questrade
   private _api = async (
     method?: string,
     endpoint?: string | number,
-    params?: any
+    options?: any
   ) => {
-    let computeParams: any = {};
-    if (typeof params !== 'undefined' && typeof params === 'object') {
-      computeParams = params;
+    const client = axios.default;
+    let params: any = {};
+    if (typeof options !== 'undefined' && typeof options === 'object') {
+      params = options;
     }
-    computeParams.bearer = this._accessToken;
-
+    params.bearer = this._accessToken;
     const url: string = this._apiUrl + endpoint;
     const config: axios.AxiosRequestConfig = {
-      params: computeParams,
+      params,
       method,
       url,
     };
     //   if (method === 'GET') {
     //     opts.params = params || {};
     //   }
-    return axios.default(config);
+
+    // ?-- using axios as client
+    const response = await client(config);
+    return response.data;
   };
-  /*
-Method that appends the set account to the API calls so all calls are made
-to that account. Chage self.account to change the account used
-Questrade.prototype._accountApi = function(method, endpoint, params, cb) {
-  if (!this.account)
-    return cb({
-      message: 'no_account_selected',
-    });
-  this._api(method, '/accounts/' + this.account + endpoint, params, cb);
-};
-*/
+
+  // Method that appends the set account to the API calls so all calls are made
   private _accountApi = async (method?: any, endpoint?: any, params?: any) => {
     if (!this._account) {
       throw new Error('no_account_selected');
