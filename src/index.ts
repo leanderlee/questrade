@@ -21,4 +21,4 @@ export {
   StrategyTypes,
   TickType,
 } from './enums';
-export { QuestradeClass } from './QuestradeClass/class';
+export { questrade, QuestradeClass } from './QuestradeClass/class';

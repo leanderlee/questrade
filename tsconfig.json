@@ -4,7 +4,6 @@
     "target": "es5",
     "lib": ["dom", "esnext"],
     "module": "commonjs",
-    "importHelpers": true,
     "pretty": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -15,6 +14,7 @@
     "tsBuildInfoFile": "./build/tmp/tsbuildinfo",
 
     /* Source Map Options */
+    "importHelpers": false,
     "composite": true,
     "incremental": true,
     "declaration": true,

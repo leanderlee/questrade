@@ -6,7 +6,8 @@
   "types": "./build/lib/index.d.ts",
   "scripts": {
     "smoke:test": "jest --silent --detectOpenHandles --forceExit --config ./src/__tests__/smoketest/jest.config.js",
-    "debug": "cd /Users/neb_401/Developer/neb401corp/LuxciumProject/questrade ; env NODE_ENV=development /Users/neb_401/.nvm/versions/node/v10.15.3/bin/node -r ts-node/register --inspect-brk=9922 /Users/neb_401/Developer/neb401corp/LuxciumProject/questrade/src/main.ts",
+    "start": "cd /Users/neb_401/Developer/neb401corp/LuxciumProject/questrade ; env NODE_ENV=development /Users/neb_401/.nvm/versions/node/v10.15.3/bin/node -r ts-node/register /Users/neb_401/Developer/neb401corp/LuxciumProject/questrade/src/main.ts",
+    "debug": "cd /Users/neb_401/Developer/neb401corp/LuxciumProject/questrade ; env NODE_ENV=development /Users/neb_401/.nvm/versions/node/v10.15.3/bin/node -r ts-node/register --inspect=9922 /Users/neb_401/Developer/neb401corp/LuxciumProject/questrade/src/main.ts",
     "prebuild": "rimraf build",
     "build": "tsc -b ./tsconfig.json",
     "gitcheck": "git diff-index origin/ts-class",

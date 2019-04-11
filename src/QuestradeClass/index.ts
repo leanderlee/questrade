@@ -1,3 +1,3 @@
 /** @format */
 
-export { QuestradeClass } from './class';
+export { questrade, QuestradeClass } from './class';

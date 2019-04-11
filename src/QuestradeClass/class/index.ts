@@ -1,6 +1,6 @@
 /** @format */
-import * as axios from 'axios';
-// import { EventEmitter as EE } from 'events';
+import { AxiosRequestConfig, AxiosResponse, default as axios } from 'axios';
+import { EventEmitter as EE } from 'events';
 import { readFileSync, writeFileSync } from 'fs';
 import { chain, keyBy, pick } from 'lodash';
 import { sync } from 'mkdirp';
@@ -17,10 +17,19 @@ interface IQuestradeOpts {
   seedToken?: seedToken;
   account?: string | number;
 }
-type QuestradeClassOptions = IQuestradeOpts | seedToken | keyFile;
+type QuestradeOptions = IQuestradeOpts | seedToken | keyFile;
 type error = Error | null;
 
-export class QuestradeClass /*  extends EE */ {
+export const questrade = async (opts: QuestradeOptions, cb?: any) => {
+  const qt = await new QuestradeClass(opts);
+  qt.on('ready', () => {
+    if (typeof cb === 'function') {
+      cb(qt);
+    }
+  });
+  return qt;
+};
+export class QuestradeClass extends EE {
   public seedToken: string;
   private _accessToken: string;
   private _test: boolean;
@@ -33,8 +42,9 @@ export class QuestradeClass /*  extends EE */ {
   private _apiUrl: string;
   private _authUrl: string;
 
-  public constructor(opts?: QuestradeClassOptions) {
-    // super();
+  public constructor(opts?: QuestradeOptions) {
+    super();
+
     this._test = false;
     this._keyDir = './keys';
     this._apiVersion = 'v1';
@@ -86,35 +96,72 @@ export class QuestradeClass /*  extends EE */ {
         : 'https://login.questrade.com';
       // Running the Authentification process and emit 'ready' when done
       // if (!!this._account) this.emit('ready');
-      this._loadKey()
-        .then(() => {
-          this._refreshKey()
-            .then(() => {
-              this.setPrimaryAccount()
-                .then(() => {
-                  // this.emit('ready');
-                })
-                .catch((/* setPrimaryAccountError */) => {
-                  // this.emit('error', {
-                  //   details: setPrimaryAccountError,
-                  //   message: 'failed_to_set_account',
-                  // });
-                });
-            })
-            .catch((/* refreshKeyError */) => {
-              // this.emit('error', {
-              //   details: refreshKeyError,
-              //   message: 'failed_to_refresh_key',
-              // });
+
+      const loadKey = async () => {
+        try {
+          this._loadKey();
+          this.emit('keyLoaded');
+        } catch (error) {
+          console.log('#    ## loadKey error', error);
+          this.emit('loadKeyError');
+          this.emit('error');
+        } finally {
+          console.log('#    ## loadKey finally');
+        }
+      };
+      const refreshKey = async () => {
+        try {
+          this._refreshKey();
+          this.emit('keyRefreshed');
+        } catch (error) {
+          console.log('#    ## refreshKey error', error);
+          this.emit('refreshKeyError');
+          this.emit('error');
+        } finally {
+          console.log('#    ## refreshKey finally');
+        }
+      };
+      const setPrimaryAccount = async () => {
+        try {
+          this.setPrimaryAccount();
+          this.emit('accountSeted');
+        } catch (error) {
+          console.log('#    ## setPrimaryAccount error', error);
+          this.emit('setPrimaryAccountError');
+          this.emit('error');
+        } finally {
+          console.log('#    ## setPrimaryAccount finally');
+        }
+      };
+      // loadKey();
+      // refreshKey();
+      // setPrimaryAccount();
+
+      const main = async () => {
+        try {
+          loadKey().then(() => {
+            refreshKey().then(() => {
+              setPrimaryAccount().then(() => {
+                this.emit('ready');
+              });
             });
+          });
+        } catch (error) {
+          console.log('#    ## IN MAIN -> error', error);
+        } finally {
+          console.log('#    ## finally -> IN MAIN ');
+        }
+      };
+
+      main()
+        .then(() => {
+          //
         })
-        .catch((/* loadKeyError */) => {
-          // this.emit('error', {
-          //   details: loadKeyError,
-          //   message: 'failed_to_load_key',
-          // });
+        .catch(err => {
+          throw err;
         });
     } catch (error) {
+      console.log('IN CONSTRUCTOR:', error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -136,6 +183,7 @@ export class QuestradeClass /*  extends EE */ {
       this._account = primaryAccount[0];
       return this._account;
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -147,6 +195,7 @@ export class QuestradeClass /*  extends EE */ {
         return keyBy(response.accounts, 'number');
       });
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -155,6 +204,7 @@ export class QuestradeClass /*  extends EE */ {
     try {
       return this._accountApi('GET', '/positions');
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -163,6 +213,7 @@ export class QuestradeClass /*  extends EE */ {
     try {
       return this._accountApi('GET', '/balances');
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -171,6 +222,7 @@ export class QuestradeClass /*  extends EE */ {
     try {
       return this._accountApi('GET', '/executions');
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -183,6 +235,7 @@ export class QuestradeClass /*  extends EE */ {
       }
       return response.orders[0];
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -198,6 +251,7 @@ export class QuestradeClass /*  extends EE */ {
       });
       return keyBy(response.orders, 'id');
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -209,6 +263,7 @@ export class QuestradeClass /*  extends EE */ {
       });
       keyBy(response.orders, 'id');
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -220,6 +275,7 @@ export class QuestradeClass /*  extends EE */ {
       });
       return keyBy(acountResponse.orders, 'id');
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -231,6 +287,7 @@ export class QuestradeClass /*  extends EE */ {
       });
       return keyBy(response.orders, 'id');
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -258,6 +315,7 @@ export class QuestradeClass /*  extends EE */ {
         startTime,
       });
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -280,6 +338,7 @@ export class QuestradeClass /*  extends EE */ {
       const response: any = this._api('GET', '/symbols', params);
       return response.symbols[0];
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -309,22 +368,25 @@ export class QuestradeClass /*  extends EE */ {
       }
       return keyBy(response.symbols, params.names ? 'symbol' : 'symbolId');
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
 
-  public async search(query: any, offset: any) {
+  public async search(prefix: string, offset: number = 0) {
     try {
-      if (typeof query !== 'string') {
-        throw new Error('missing_query');
-      }
+      console.log('\n', 'SEARCH START', '\n');
       const response: any = await this._api('GET', '/symbols/search', {
         offset,
-        prefix: query,
+        prefix,
       });
+      console.log('\n', 'SEARCH END', '\n');
       return response.symbols;
     } catch (error) {
-      throw new Error(error.message);
+      console.log('\n', 'SEARCH ERROR', '\n');
+
+      console.log('search', error.message); // * !!!!!!
+      // throw new Error(error.message);
     }
   }
 
@@ -344,6 +406,7 @@ export class QuestradeClass /*  extends EE */ {
         })
         .value();
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -353,6 +416,7 @@ export class QuestradeClass /*  extends EE */ {
       const response: any = await this._api('GET', '/markets');
       return keyBy(response.markets, 'name');
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -368,6 +432,7 @@ export class QuestradeClass /*  extends EE */ {
       }
       return response.quotes[0];
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -383,6 +448,7 @@ export class QuestradeClass /*  extends EE */ {
       });
       return keyBy(response.quotes, 'symbolId');
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -398,6 +464,7 @@ export class QuestradeClass /*  extends EE */ {
       });
       return response.optionQuotes;
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -455,6 +522,7 @@ export class QuestradeClass /*  extends EE */ {
         })
         .value();
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -485,6 +553,7 @@ export class QuestradeClass /*  extends EE */ {
       });
       return response.candles;
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -493,6 +562,7 @@ export class QuestradeClass /*  extends EE */ {
     try {
       return this._accountApi('POST', '/orders', opts);
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -501,6 +571,7 @@ export class QuestradeClass /*  extends EE */ {
     try {
       return this._accountApi('POST', `/orders/${id}`, opts);
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -509,6 +580,7 @@ export class QuestradeClass /*  extends EE */ {
     try {
       return this._accountApi('POST', '/orders/impact', opts);
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -517,6 +589,7 @@ export class QuestradeClass /*  extends EE */ {
     try {
       return this._accountApi('DELETE', `/orders/${id}`);
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -525,6 +598,7 @@ export class QuestradeClass /*  extends EE */ {
     try {
       return this._accountApi('POST', '/orders/strategy', opts);
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
@@ -533,15 +607,17 @@ export class QuestradeClass /*  extends EE */ {
     try {
       return this._accountApi('POST', '/orders/strategy/impact', opts);
     } catch (error) {
+      console.log(error.message); // * !!!!!!
       throw new Error(error.message);
     }
   }
 
   // Saves the latest refreshToken in the file name after the seedToken
-  private _saveKey = async () => {
+  private async _saveKey() {
+    // ! WRITE ############################
     writeFileSync(this.keyFile, this._refreshToken, 'utf8');
     return this._refreshToken;
-  };
+  }
 
   // Gets name of the file where the refreshToken is stored
   public get keyFile() {
@@ -550,14 +626,16 @@ export class QuestradeClass /*  extends EE */ {
 
   // Reads the refreshToken stored in the file (if it exist),
   // otherwise uses the seedToken
-  private _loadKey = async () => {
-    if (!!this._keyFile) {
-      sync(dirname(this._keyFile));
-    } else {
-      sync(this._keyDir);
-    }
+  private async _loadKey() {
+    // ! READ ############################
     let refreshToken: any;
     try {
+      if (!!this._keyFile) {
+        sync(dirname(this._keyFile));
+      } else {
+        sync(this._keyDir);
+      }
+
       refreshToken = await readFileSync(this.keyFile, 'utf8');
     } catch (error) {
       console.error('_loadKey:ERROR:', error.message);
@@ -569,59 +647,67 @@ export class QuestradeClass /*  extends EE */ {
     }
     this._refreshToken = refreshToken;
     return refreshToken;
-  };
+  }
 
   // Refreshed the tokem (aka Logs in) using the latest RefreshToken
   // (or the SeedToken if no previous saved file)
-  private _refreshKey = async () => {
-    let response: axios.AxiosResponse = {
+  private async _refreshKey() {
+    // ! REFRESH ############################
+    let response: AxiosResponse = {
       data: null,
       status: 0,
       statusText: '',
       headers: { Null: null },
       config: {},
     };
-    const client = axios.default;
+    const client = axios;
     try {
       const url = `${this._authUrl}/oauth2/token`;
       const params = {
         grant_type: 'refresh_token',
         refresh_token: this._refreshToken,
       };
-      const axiosConfig: axios.AxiosRequestConfig = {
+      const axiosConfig: AxiosRequestConfig = {
         method: 'POST',
         params,
         url,
       };
-
+      // ! ############################
       // ?-- using axios as client
       response = await client(axiosConfig);
 
-      const creds: ICreds = response.data;
+      const creds: ICreds = await response.data;
+      console.log('in _refreshKey creds.api_server:', creds.api_server);
+
       this._apiServer = creds.api_server;
       this._apiUrl = `${this._apiServer}${this._apiVersion}`;
       this._accessToken = creds.access_token;
       this._refreshToken = creds.refresh_token;
+      console.log('this._apiUrl', this._apiUrl);
       await this._saveKey();
     } catch (error) {
+      console.log('in _refreshKey:', error.message); // * !!!!!!
       throw new Error(error.message);
     }
-  };
+  }
 
+  /*
+       this._api('GET', '/symbols/search', {
+        offset,
+        prefix,
+      });
+   */
   // Method that actually mades the GET/POST request to Questrade
-  private _api = async (
-    method?: string,
-    endpoint?: string | number,
-    options?: any
-  ) => {
-    const client = axios.default;
+  private async _api(method?: string, endpoint?: string, options?: any) {
+    // !!! !!! !!! !!!
+    const client = axios;
     let params: any = {};
     if (typeof options !== 'undefined' && typeof options === 'object') {
       params = options;
     }
     params.bearer = this._accessToken;
     const url: string = this._apiUrl + endpoint;
-    const config: axios.AxiosRequestConfig = {
+    const config: AxiosRequestConfig = {
       params,
       method,
       url,
@@ -631,15 +717,34 @@ export class QuestradeClass /*  extends EE */ {
     //   }
 
     // ?-- using axios as client
-    const response = await client(config);
+    let response: AxiosResponse<any>;
+    response = {
+      data: 0,
+      status: 0,
+      statusText: 'string',
+      headers: 'any',
+      config,
+    };
+    try {
+      response = await client(config); // TODO -- DEBUG HERE
+    } catch (error) {
+      console.log('#### in _api:', error.message); // * !!!!!!
+      console.log('#### config:', config);
+      if (typeof response !== 'undefined') {
+        console.log('#### response:', response);
+      }
+      throw error;
+    } finally {
+      //
+    }
     return response.data;
-  };
+  }
 
   // Method that appends the set account to the API calls so all calls are made
-  private _accountApi = async (method?: any, endpoint?: any, params?: any) => {
+  private async _accountApi(method?: any, endpoint?: any, options?: any) {
     if (!this._account) {
       throw new Error('no_account_selected');
     }
-    return this._api(method, `/accounts/${this._account}${endpoint}`, params);
-  };
+    return this._api(method, `/accounts/${this._account}${endpoint}`, options);
+  }
 }

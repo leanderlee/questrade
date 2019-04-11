@@ -4,10 +4,13 @@
     "tslint-config-airbnb",
     "tslint-config-prettier"
   ],
-
+  "linterOptions": {
+    "exclude": ["./build", "./node_modules/**/*"]
+  },
   "defaultSeverity": "warning",
   "rulesDirectory": [],
   "rules": {
+    // ?-- TYPESCRIPT RULES
     "import-name": true,
     "max-line-length": [true, 80],
     "no-boolean-literal-compare": false,
@@ -25,16 +28,18 @@
         "requireForBlockBody": false
       }
     ],
+    "promise-function-async": true,
+    "function-name": false,
     "variable-name": [
       true,
       "ban-keywords",
       "check-format",
-      "allow-pascal-case",
       "allow-leading-underscore",
       "allow-trailing-underscore"
     ]
   },
   "jsRules": {
+    // ?-- JAVASCRIPT RULES
     "import-name": false,
     "max-line-length": [true, 80],
     "no-console": false,
@@ -48,6 +53,8 @@
         "requireForBlockBody": false
       }
     ],
+    "promise-function-async": true,
+    "function-name": false,
     "variable-name": [
       true,
       "check-format",
