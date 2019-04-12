@@ -1,4 +1,5 @@
 /** @format */
+
 import { AxiosRequestConfig, AxiosResponse, default as axios } from 'axios';
 import { EventEmitter as EE } from 'events';
 import { readFileSync, writeFileSync } from 'fs';
@@ -6,31 +7,9 @@ import { chain, keyBy, pick } from 'lodash';
 import { sync } from 'mkdirp';
 import { default as moment } from 'moment';
 import { dirname } from 'path';
-import { ICreds } from './ICreds';
-type seedToken = string;
-type keyFile = string;
-interface IQuestradeOpts {
-  test?: boolean;
-  keyDir?: string;
-  apiVersion?: string;
-  keyFile?: string;
-  seedToken?: seedToken;
-  account?: string | number;
-}
-type QuestradeOptions = IQuestradeOpts | seedToken | keyFile;
-
-interface IStockSymbol {
-  symbol: string;
-  symbolId: number;
-  description: string;
-  securityType: string;
-  listingExchange: string;
-  isTradable: boolean;
-  isQuotable: boolean;
-  currency: string;
-}
-
-export type StockSymbol = IStockSymbol | string;
+import { ICreds } from '../ICreds';
+import { QuestradeOptions } from '../IQuestradeOptions';
+import { IStockSymbol } from '../IStockSymbol';
 
 export const questrade = async (opts: QuestradeOptions, cb?: any) => {
   const qt = await new QuestradeClass(opts);
@@ -397,7 +376,9 @@ export class QuestradeClass extends EE {
         offset,
         prefix: stockSymbol,
       });
-      return keyBy(response.symbols, 'symbol')[stockSymbol.toUpperCase()];
+      return keyBy<IStockSymbol>(response.symbols, 'symbol')[
+        stockSymbol.toUpperCase()
+      ];
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
@@ -459,7 +440,7 @@ export class QuestradeClass extends EE {
         throw new Error('missing_ids');
       }
       if (!ids.length) return {};
-      const response: any = await this._api('GET', '/markets/quotes', {
+      const response = await this._api('GET', '/markets/quotes', {
         ids: ids.join(','),
       });
       return keyBy(response.quotes, 'symbolId');
@@ -709,7 +690,11 @@ export class QuestradeClass extends EE {
       });
    */
   // Method that actually mades the GET/POST request to Questrade
-  private async _api(method?: string, endpoint?: string, options?: any) {
+  private async _api<T = any>(
+    method?: string,
+    endpoint?: string,
+    options?: any
+  ): Promise<T> {
     const client = axios;
     let params: any = {};
     if (typeof options !== 'undefined' && typeof options === 'object') {
@@ -725,7 +710,7 @@ export class QuestradeClass extends EE {
       headers,
       url,
     };
-    let response: AxiosResponse<any>;
+    let response: AxiosResponse<T>;
     try {
       response = await client(config);
     } catch (error) {
@@ -736,10 +721,18 @@ export class QuestradeClass extends EE {
   }
 
   // Method that appends the set account to the API calls so all calls are made
-  private async _accountApi(method?: any, endpoint?: any, options?: any) {
+  private async _accountApi<T = any>(
+    method?: any,
+    endpoint?: any,
+    options?: any
+  ) {
     if (!this._account) {
       throw new Error('no_account_selected');
     }
-    return this._api(method, `/accounts/${this._account}${endpoint}`, options);
+    return this._api<T>(
+      method,
+      `/accounts/${this._account}${endpoint}`,
+      options
+    );
   }
 }

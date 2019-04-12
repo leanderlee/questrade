@@ -1,6 +1,6 @@
 /** @format */
 
-export { questrade, QuestradeClass } from './QuestradeClass/core';
+export { questrade, QuestradeClass } from './core/classes/QuestradeClass';
 export {
   AccountStatus,
   AccountType,
@@ -21,4 +21,4 @@ export {
   SecurityType,
   StrategyTypes,
   TickType,
-} from './QuestradeClass/core/enums';
+} from './core/enums';
