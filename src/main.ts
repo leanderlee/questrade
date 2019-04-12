@@ -6,8 +6,18 @@ const seedToken = 'CRH816JW-HhW6oyBZABJL1xn4mTHZUN40';
 const testApp = async () => {
   try {
     await QuestradeHelperFunction({ seedToken }, async (qt: QuestradeClass) => {
-      // const data = await qt.searchSymbol('aapl');
-      console.dir(await qt.getServerTimeObjects());
+      const data = await qt.searchSymbol('aapl');
+      console.log(data.symbolId);
+      console.log('\n\n\nqt.seedToken', await qt.seedToken);
+      console.log(
+        '\n\n\nqt.getPrimaryAccount()',
+        await qt.getPrimaryAccountNumber()
+      );
+      console.log('\n\n\nqt.getAccounts()', await qt.getAccounts());
+      console.log('\n\n\nqt.getPositions()', await qt.getPositions());
+      console.log('\n\n\nqt.getBalances()', await qt.getBalances());
+      console.log('\n\n\nqt.getExecutions()', await qt.getExecutions());
+      console.log('\n\n\nqt.getOrder(data.symbolId)');
     });
     return true;
   } catch (error) {
@@ -18,6 +28,9 @@ const testApp = async () => {
 testApp();
 
 /*
+    const data = await qt.searchSymbol('aapl');
+      console.dir(await qt.getServerTimeObjects());
+      console.log('\n\n\nqt.getTime', await qt.getServerTimeObject());
 
 const data = await qt.searchSymbol('aapl');
       console.log('\n\n\nqt.getTime', await qt.getServerTimeObject());

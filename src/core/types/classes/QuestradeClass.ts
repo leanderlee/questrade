@@ -15,6 +15,7 @@ import {
   QuestradeAPIOptions,
   Time,
 } from '..';
+import { IAccount, IAccounts } from '../IAccounts';
 
 export class QuestradeClass extends EE {
   public get getServerTime(): Promise<string> {
@@ -115,7 +116,7 @@ export class QuestradeClass extends EE {
       };
       const setPrimaryAccount = async () => {
         try {
-          await this.getPrimaryAccount();
+          await this.getPrimaryAccountNumber();
           this.emit('accountSeted');
         } catch (error) {
           console.error(error.message);
@@ -189,35 +190,57 @@ export class QuestradeClass extends EE {
     };
     return returnDate;
   }
-
-  public async getPrimaryAccount() {
-    try {
-      const accounts: any = await this.getAccounts();
-      if (!accounts || !Object.keys(accounts).length) {
-        throw new Error('no_accounts_found');
-      }
-      const allAccountsNumber: string[] = [];
-      let primaryAccount: string[] = await Object.keys(accounts).filter(
-        (accountNumber: any) => {
-          allAccountsNumber.push(accountNumber);
-          return accounts[accountNumber].isPrimary;
-        }
-      );
-      if (!primaryAccount.length) {
-        primaryAccount = allAccountsNumber;
-      }
-      this._account = primaryAccount[0];
+  public async getPrimaryAccountNumber(
+    reset: boolean = false
+  ): Promise<string> {
+    if (!reset && this._account.length === 8) {
       return this._account;
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
     }
+    // if zero throw if only one retur the only one ...
+    const accounts = await this.getAccounts();
+    if (accounts.length < 1) {
+      throw new Error('No account number found');
+    }
+    if (accounts.length === 1) {
+      this._account = accounts[0].number;
+      return this._account;
+    }
+    // if more then one return the first one marked primary
+    const primary = await accounts.filter(account => account.isPrimary);
+    if (primary.length > 0) {
+      this._account = primary[0].number;
+      return this._account;
+    }
+    this._account = accounts[0].number;
+    return this._account;
   }
-
-  public async getAccounts() {
+  // public async getPrimaryAccountNumber2() {
+  //   try {
+  //     const accounts: any = await this._getAccounts();
+  //     if (!accounts || !Object.keys(accounts).length) {
+  //       throw new Error('no_accounts_found');
+  //     }
+  //     const allAccountsNumber: string[] = [];
+  //     let primaryAccount: string[] = await Object.keys(accounts).filter(
+  //       (accountNumber: any) => {
+  //         allAccountsNumber.push(accountNumber);
+  //         return accounts[accountNumber].isPrimary;
+  //       }
+  //     );
+  //     if (!primaryAccount.length) {
+  //       primaryAccount = allAccountsNumber;
+  //     }
+  //     this._account = primaryAccount[0];
+  //     return this._account;
+  //   } catch (error) {
+  //     console.error(error.message);
+  //     throw new Error(error.message);
+  //   }
+  // }
+  public async getAccounts(): Promise<IAccount[]> {
     try {
-      const response = await this._api('GET', '/accounts');
-      return keyBy(response.accounts, 'number');
+      const response = await this._api<IAccounts>('GET', '/accounts');
+      return response.accounts;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
@@ -650,6 +673,15 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
+  // private async _getAccounts() {
+  //   try {
+  // const response = await this._api('GET', '/accounts');
+  //     return keyBy(response.accounts, 'number');“¢
+  //   } catch (error) {
+  //     console.error(error.message);
+  //     throw new Error(error.message);
+  //   }
+  // }
   private async _getTime(): Promise<string> {
     const time = await this._api<Time>('GET', '/time');
     return time.time;
