@@ -21,4 +21,4 @@ export {
   SecurityType,
   StrategyTypes,
   TickType,
-} from './core/enums';
+} from './core/types/enums';

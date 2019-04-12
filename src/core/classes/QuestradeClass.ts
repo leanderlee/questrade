@@ -7,9 +7,7 @@ import { chain, keyBy, pick } from 'lodash';
 import { sync } from 'mkdirp';
 import { default as moment } from 'moment';
 import { dirname } from 'path';
-import { ICreds } from '../ICreds';
-import { QuestradeOptions } from '../IQuestradeOptions';
-import { IStockSymbol } from '../IStockSymbol';
+import { ICreds, IStockSymbol, QuestradeOptions } from '../types';
 
 export const questrade = async (opts: QuestradeOptions, cb?: any) => {
   const qt = await new QuestradeClass(opts);
@@ -185,7 +183,8 @@ export class QuestradeClass extends EE {
 
   public async getPositions() {
     try {
-      return this._accountApi('GET', '/positions');
+      const positions = await this._accountApi('GET', '/positions');
+      return positions;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
