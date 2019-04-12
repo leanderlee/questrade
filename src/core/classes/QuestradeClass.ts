@@ -7,18 +7,23 @@ import { chain, keyBy, pick } from 'lodash';
 import { sync } from 'mkdirp';
 import { default as moment } from 'moment';
 import { dirname } from 'path';
-import { ICreds, IStockSymbol, QuestradeOptions } from '../types';
+import { testApp } from '../../main';
+import {
+  IBalances,
+  ICreds,
+  IStockSymbol,
+  QuestradeOptions,
+  Time,
+} from '../types';
 
-export const questrade = async (opts: QuestradeOptions, cb?: any) => {
-  const qt = await new QuestradeClass(opts);
-  qt.on('ready', () => {
-    if (typeof cb === 'function') {
-      cb(qt);
-    }
-  });
-  return qt;
-};
 export class QuestradeClass extends EE {
+  public get getServerTime(): Promise<string> {
+    return this._getTime();
+  }
+  // Gets name of the file where the refreshToken is stored
+  public get keyFile() {
+    return this._keyFile || `${this._keyDir}/${this.seedToken}`;
+  }
   public seedToken: string;
   private _accessToken: string;
   private _test: boolean;
@@ -146,6 +151,15 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
+  public async getServerTimeObject(ofset: string = ''): Promise<any> {
+    const serverTime = (await this._getTime()) || ofset;
+    const timeMoment = moment(serverTime);
+    return {
+      serverTime,
+      timeObject: timeMoment.toObject(),
+      zone: timeMoment.zone(),
+    };
+  }
 
   public async getPrimaryAccount() {
     try {
@@ -191,9 +205,10 @@ export class QuestradeClass extends EE {
     }
   }
 
-  public async getBalances() {
+  public async getBalances(): Promise<IBalances> {
     try {
-      return this._accountApi('GET', '/balances');
+      const balances = await this._accountApi<IBalances>('GET', '/balances');
+      return balances;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
@@ -522,7 +537,6 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-
   public async getCandles(id: string, opts?: any) {
     try {
       const opt: any = opts || {};
@@ -607,16 +621,15 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
+  private async _getTime(): Promise<string> {
+    const time = await this._api<Time>('GET', '/time');
+    return time.time;
+  }
 
   // Saves the latest refreshToken in the file name after the seedToken
   private async _saveKey() {
     writeFileSync(this.keyFile, this._refreshToken, 'utf8');
     return this._refreshToken;
-  }
-
-  // Gets name of the file where the refreshToken is stored
-  public get keyFile() {
-    return this._keyFile || `${this._keyDir}/${this.seedToken}`;
   }
 
   // Reads the refreshToken stored in the file (if it exist),
@@ -735,3 +748,12 @@ export class QuestradeClass extends EE {
     );
   }
 }
+
+export const main = () => {
+  const testing = testApp;
+  // to be able to run this page or main.ts and get the start of testing
+  // during developpment only will be removed prior to ship for production
+
+  return testing();
+};
+console.log(main());

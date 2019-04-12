@@ -14,7 +14,7 @@
     "tsBuildInfoFile": "./build/tmp/tsbuildinfo",
 
     /* Source Map Options */
-    "importHelpers": false,
+    "importHelpers": true,
     "composite": true,
     "incremental": true,
     "declaration": true,
