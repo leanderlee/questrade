@@ -1,0 +1,29 @@
+{
+  // "json.schemas": [
+  //   {
+  //     "fileMatch": ["/tsconfig.json"],
+  //     "url": "./tsconfig.schema.json"
+  //   }
+  // ],
+  "editor.formatOnSave": true,
+  "prettier.singleQuote": true,
+  "prettier.tslintIntegration": true,
+  "prettier.trailingComma": "es5",
+  "prettier.requireConfig": true,
+  "editor.fontLigatures": true,
+  "javascript.format.enable": false,
+  "typescript.format.enable": false,
+  // On save, run both fixAll and organizeImports source actions
+  "editor.codeActionsOnSave": {
+    "source.fixAll": true,
+    "source.organizeImports": true
+  },
+  "editor.wordWrapColumn": 80,
+  "prettier.eslintIntegration": true,
+  "prettier.printWidth": 80,
+  "coverage-gutters.coverageReportFileName": "**/coverage/**/index.html",
+  "npm-scripts.showStartNotification": true,
+  "bracket-pair-colorizer-2.showBracketsInRuler": true,
+  "coverage-gutters.showRulerCoverage": true,
+  "bracket-pair-colorizer-2.rulerPosition": "Full"
+}

@@ -1,33 +1,71 @@
 {
-  "name": "questrade",
-  "version": "1.1.4",
-  "description": "Questrade API",
-  "main": "index.js",
+  "name": "questrade-ts",
+  "version": "1.0.0",
+  "description": "Unofficial Questrade API wraper with typescript support by Luxcium.",
+  "main": "./build/index.js",
+  "types": "./build/lib/index.d.ts",
   "scripts": {
-    "test": "mocha"
+    "smoke:test": "jest --silent --detectOpenHandles --forceExit --config ./src/__tests__/smoketest/jest.config.js",
+    "start": "cd /Users/neb_401/Developer/neb401corp/LuxciumProject/questrade ; env NODE_ENV=development /Users/neb_401/.nvm/versions/node/v10.15.3/bin/node -r ts-node/register /Users/neb_401/Developer/neb401corp/LuxciumProject/questrade/src/main.ts",
+    "debug": "cd /Users/neb_401/Developer/neb401corp/LuxciumProject/questrade ; env NODE_ENV=development /Users/neb_401/.nvm/versions/node/v10.15.3/bin/node -r ts-node/register --inspect=9922 /Users/neb_401/Developer/neb401corp/LuxciumProject/questrade/src/main.ts",
+    "prebuild": "rimraf build",
+    "build": "tsc -b ./tsconfig.json",
+    "gitcheck": "git diff-index origin/ts-class",
+    "copy:package:json": "cp-cli package.json ./build/package.json",
+    "copy:npmignore": "cp-cli .npmignore ./build/.npmignore && npm run copy:package:json",
+    "copy:LICENSE": "cp-cli LICENSE ./build/LICENSE && npm run copy:npmignore",
+    "copy:readme": "cp-cli README.md build/README.md && npm run copy:LICENSE",
+    "copy:static:files": "npm run copy:readme",
+    "predist": "npm run test && npm run build && npm run copy:static:files && npm run gitcheck",
+    "dist": "npm run build",
+    "predist:clean": "npm install && npm run test && npm run build && npm run copy:static:files && npm run gitcheck",
+    "dist:clean": "npm run build",
+    "lint": "tslint --project . --format stylish",
+    "pretest": "tsc --noEmit --pretty && npm run lint && npm run smoke:test",
+    "test": "jest --detectOpenHandles"
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:leanderlee/questrade.git"
+    "url": "git@github.com/luxcium/questrade.git"
   },
   "keywords": [
     "Questrade",
     "stocks",
-    "trading"
+    "trading",
+    "typescript"
   ],
-  "author": "Leander Lee <me@leander.ca>",
+  "author": "Luxcium <luxcium@neb401.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/leanderlee/questrade/issues"
+    "url": "https://github.com/luxcium/questrade/issues"
   },
-  "homepage": "https://github.com/leanderlee/questrade",
-  "devDependencies": {
-    "mocha": "^2.5.3"
-  },
+  "homepage": "https://github.com/luxcium/questrade",
   "dependencies": {
-    "lodash": "^4.17.5",
+    "axios": "^0.18.0",
+    "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
-    "moment": "^2.20.1",
-    "request": "^2.83.0"
+    "moment": "^2.24.0",
+    "request": "^2.88.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.11",
+    "@types/lodash": "^4.14.123",
+    "@types/mkdirp": "^0.5.2",
+    "@types/node": "^11.13.0",
+    "@types/node-fetch": "^2.3.0",
+    "@types/request": "^2.48.1",
+    "@types/request-promise-native": "^1.0.15",
+    "cp-cli": "^2.0.0",
+    "jest": "^24.7.1",
+    "prettier": "^1.16.4",
+    "rimraf": "^2.6.3",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.0.3",
+    "tslib": "^1.9.3",
+    "tslint": "^5.15.0",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.4.2",
+    "typescript-tslint-plugin": "^0.3.1"
   }
 }
