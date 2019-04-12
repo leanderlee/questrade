@@ -50,6 +50,8 @@ By default, if you instantiate the `Questrade` class without passing in an accou
 qt.account = '123456'; // Switch to account 123456 -- All future calls will use this account.
 ```
 
+# MIT LICENSE
+
 Copyright (c) 2019 Benjamin Vincent Kasapoglu (Luxcium)
 Copyright (c) 2016-2019 Leander Lee
 
