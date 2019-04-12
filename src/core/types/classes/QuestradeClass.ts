@@ -114,13 +114,13 @@ export class QuestradeClass extends EE {
           throw new Error(error.message);
         }
       };
-      const setPrimaryAccount = async () => {
+      const getPrimaryAccountNumber = async () => {
         try {
           await this.getPrimaryAccountNumber();
           this.emit('accountSeted');
         } catch (error) {
           console.error(error.message);
-          this.emit('setPrimaryAccountError');
+          this.emit('getPrimaryAccountNumberError');
           this.emit('error');
           throw new Error(error.message);
         }
@@ -130,7 +130,7 @@ export class QuestradeClass extends EE {
         try {
           await loadKey();
           await refreshKey();
-          await setPrimaryAccount();
+          await getPrimaryAccountNumber();
 
           this.emit('ready');
         } catch (error) {

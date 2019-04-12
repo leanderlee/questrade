@@ -14,6 +14,11 @@ const testApp = async () => {
         await qt.getPrimaryAccountNumber()
       );
       console.log('\n\n\nqt.getAccounts()', await qt.getAccounts());
+      console.log(
+        '\n\n\nqt.getPrimaryAccountNumber()',
+        await qt.getPrimaryAccountNumber()
+      );
+
       console.log('\n\n\nqt.getPositions()', await qt.getPositions());
       console.log('\n\n\nqt.getBalances()', await qt.getBalances());
       console.log('\n\n\nqt.getExecutions()', await qt.getExecutions());
