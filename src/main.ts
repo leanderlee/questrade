@@ -2,11 +2,11 @@
 import { questrade, QuestradeClass } from '.';
 
 let qt: Promise<QuestradeClass>;
-const seed = 'ZzzCWOrTwAiOssxp3pZE6Ug9mbmikgDg0';
+const seedToken = 'qmlxoVqRa2rAtJ13YSOi2QDHNJSTF5gn0';
 
 try {
-  qt = questrade(seed, (qtObj: QuestradeClass) => {
-    qtObj.search('aapl').then((data: any) => {
+  qt = questrade({ seedToken }, (qtObj: QuestradeClass) => {
+    qtObj.searchSymbol('aapl').then((data: any) => {
       console.log(data);
     });
   });
