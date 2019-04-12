@@ -7,14 +7,29 @@ import { chain, keyBy, pick } from 'lodash';
 import { sync } from 'mkdirp';
 import { default as moment } from 'moment';
 import { dirname } from 'path';
-import { testApp } from '../../main';
 import {
   IBalances,
   ICreds,
+  IDateObject,
   IStockSymbol,
   QuestradeOptions,
   Time,
 } from '../types';
+
+// // to be able to run this page or main.ts and get the start of testing
+// // during developpment only will be removed prior to ship for production
+// export const main = async () => {
+//   const testing = testApp;
+//   return testing();
+// };
+
+// main()
+//   .then(result => {
+//     console.log(result);
+//   })
+//   .catch(error => {
+//     console.log('#    ## error', error.message);
+//   });
 
 export class QuestradeClass extends EE {
   public get getServerTime(): Promise<string> {
@@ -151,14 +166,43 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  public async getServerTimeObject(ofset: string = ''): Promise<any> {
+  public async getServerTimeObjects(ofset: string = ''): Promise<IDateObject> {
     const serverTime = (await this._getTime()) || ofset;
     const timeMoment = moment(serverTime);
-    return {
+    // const timeNow = new Date(serverTime);
+    const weekDay = timeMoment.localeData().weekdays()[timeMoment.weekday()];
+    const returnDate = {
       serverTime,
+      UTC: timeMoment.toJSON(),
       timeObject: timeMoment.toObject(),
-      zone: timeMoment.zone(),
+      toUTCDate: timeMoment.toDate(),
+      toArray: timeMoment.toArray(),
+      date: {
+        day: weekDay,
+        date: timeMoment.date(),
+        month: timeMoment.month() + 1,
+        year: timeMoment.year(),
+      },
+      time: {
+        hour: timeMoment.hour(),
+        minute: timeMoment.minute(),
+        second: timeMoment.second(),
+        milliseconds: timeMoment.milliseconds(),
+        unixmilliseconds: timeMoment.valueOf(),
+        unix: timeMoment.unix(),
+        utcOffset: timeMoment.utcOffset(),
+      },
+      isValid: timeMoment.isValid(),
+      dayOfYear: timeMoment.dayOfYear(),
+      weekOfTheYeay: timeMoment.isoWeek(),
+      weekday: timeMoment.weekday(),
+      isLeapYear: timeMoment.isLeapYear(),
+      daysInMonth: timeMoment.daysInMonth(),
+      weeksInYear: timeMoment.isoWeeksInYear(),
+      quarter: timeMoment.quarter(),
+      locale: timeMoment.locale(),
     };
+    return returnDate;
   }
 
   public async getPrimaryAccount() {
@@ -748,12 +792,3 @@ export class QuestradeClass extends EE {
     );
   }
 }
-
-export const main = () => {
-  const testing = testApp;
-  // to be able to run this page or main.ts and get the start of testing
-  // during developpment only will be removed prior to ship for production
-
-  return testing();
-};
-console.log(main());

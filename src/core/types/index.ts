@@ -21,6 +21,7 @@ export { StrategyTypes } from './enums/StrategyTypes';
 export { TickType } from './enums/TickType';
 export { IBalance, IBalances } from './IBalances';
 export { ICreds } from './ICreds';
+export { IDateObject } from './IDateObject';
 export { IPosition } from './IPosition';
 export { IQuestradeOptions, QuestradeOptions } from './IQuestradeOptions';
 export { IStockSymbol } from './IStockSymbol';
