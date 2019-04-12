@@ -190,6 +190,9 @@ export class QuestradeClass extends EE {
     };
     return returnDate;
   }
+  public set account(accountNumber: string | number) {
+    this._account = accountNumber.toString();
+  }
   public async getPrimaryAccountNumber(
     reset: boolean = false
   ): Promise<string> {
@@ -462,13 +465,17 @@ export class QuestradeClass extends EE {
     }
   }
 
-  public async getQuote(id: string) {
+  public async getQuote(id: string | number) {
     try {
-      const response: any = await this._api('GET', `/markets/quotes/${id}`);
+      let symID = '';
+      if (typeof id === 'number') {
+        symID = id.toString();
+      }
+      const response: any = await this._api('GET', `/markets/quotes/${symID}`);
       if (!response.quotes) {
         return {
           message: 'quote_not_found',
-          symbol: id,
+          symbol: symID,
         };
       }
       return response.quotes[0];
