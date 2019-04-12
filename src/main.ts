@@ -1,11 +1,18 @@
 /** @format */
 import { QuestradeClass, QuestradeHelperFunction } from '.';
 
-const seedToken = 'CRH816JW-HhW6oyBZABJL1xn4mTHZUN40';
+const seedToken = 'R0TFhgiWFjKi1YCwCjAMJFPgwD4A8cgb0';
 
-const testApp = async () => {
-  try {
-    await QuestradeHelperFunction({ seedToken }, async (qt: QuestradeClass) => {
+(async () => {
+  await QuestradeHelperFunction({ seedToken }, async (qt: QuestradeClass) => {
+    const symb = await qt.searchSymbol('aapl');
+    console.log(symb);
+    console.log(await qt.getQuote(symb.symbolId));
+  });
+})().catch(error => console.log(error));
+
+/*
+
       const data = await qt.searchSymbol('aapl');
       console.log(data.symbolId);
       console.log('\n\n\nqt.seedToken', await qt.seedToken);
@@ -23,16 +30,7 @@ const testApp = async () => {
       console.log('\n\n\nqt.getBalances()', await qt.getBalances());
       console.log('\n\n\nqt.getExecutions()', await qt.getExecutions());
       console.log('\n\n\nqt.getOrder(data.symbolId)');
-    });
-    return true;
-  } catch (error) {
-    await console.log(error);
-    return false;
-  }
-};
-testApp();
 
-/*
     const data = await qt.searchSymbol('aapl');
       console.dir(await qt.getServerTimeObjects());
       console.log('\n\n\nqt.getTime', await qt.getServerTimeObject());
