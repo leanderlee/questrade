@@ -1,5 +1,6 @@
 /** @format */
 
+export { QuestradeClass } from './classes/QuestradeClass';
 export { AccountStatus } from './enums/AccountStatus';
 export { AccountType } from './enums/AccountType';
 export { ClientAccountType } from './enums/ClientAccountType';
@@ -23,6 +24,9 @@ export { IBalance, IBalances } from './IBalances';
 export { ICreds } from './ICreds';
 export { IDateObject } from './IDateObject';
 export { IPosition } from './IPosition';
-export { IQuestradeOptions, QuestradeOptions } from './IQuestradeOptions';
+export {
+  IQuestradeAPIOptions,
+  QuestradeAPIOptions,
+} from './IQuestradeAPIOptions';
 export { IStockSymbol } from './IStockSymbol';
 export { Time } from './Time';

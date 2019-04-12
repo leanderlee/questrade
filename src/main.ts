@@ -1,22 +1,11 @@
 /** @format */
-import { QuestradeClass } from '.';
-import { IQuestradeOptions } from './core/types';
+import { QuestradeClass, QuestradeHelperFunction } from '.';
 
-const seedToken = 'qmlxoVqRa2rAtJ13YSOi2QDHNJSTF5gn0';
-
-const questrade = async (opts: IQuestradeOptions, cb?: any) => {
-  const qt = await new QuestradeClass(opts);
-  qt.on('ready', () => {
-    if (typeof cb === 'function') {
-      cb(qt);
-    }
-  });
-  return qt;
-};
+const seedToken = 'CRH816JW-HhW6oyBZABJL1xn4mTHZUN40';
 
 const testApp = async () => {
   try {
-    await questrade({ seedToken }, async (qt: QuestradeClass) => {
+    await QuestradeHelperFunction({ seedToken }, async (qt: QuestradeClass) => {
       // const data = await qt.searchSymbol('aapl');
       console.dir(await qt.getServerTimeObjects());
     });
@@ -27,7 +16,6 @@ const testApp = async () => {
   }
 };
 testApp();
-export { testApp };
 
 /*
 

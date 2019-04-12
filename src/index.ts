@@ -1,6 +1,5 @@
 /** @format */
 
-export { QuestradeClass } from './core/classes/QuestradeClass';
 export {
   AccountStatus,
   AccountType,
@@ -22,3 +21,9 @@ export {
   StrategyTypes,
   TickType,
 } from './core/types';
+export { QuestradeClass } from './core/types/classes/QuestradeClass';
+export {
+  IQuestradeAPIOptions,
+  QuestradeAPIOptions,
+} from './core/types/IQuestradeAPIOptions';
+export { QuestradeHelperFunction } from './utils/QuestradeHelperFunction';

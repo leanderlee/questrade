@@ -1,6 +1,6 @@
 /** @format */
 
-export interface IQuestradeOptions {
+export interface IQuestradeAPIOptions {
   test?: boolean;
   keyDir?: string;
   apiVersion?: string;
@@ -13,4 +13,4 @@ type seedToken = string;
 
 type keyFile = string;
 
-export type QuestradeOptions = IQuestradeOptions | seedToken | keyFile;
+export type QuestradeAPIOptions = IQuestradeAPIOptions | seedToken | keyFile;

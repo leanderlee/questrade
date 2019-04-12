@@ -12,24 +12,9 @@ import {
   ICreds,
   IDateObject,
   IStockSymbol,
-  QuestradeOptions,
+  QuestradeAPIOptions,
   Time,
-} from '../types';
-
-// // to be able to run this page or main.ts and get the start of testing
-// // during developpment only will be removed prior to ship for production
-// export const main = async () => {
-//   const testing = testApp;
-//   return testing();
-// };
-
-// main()
-//   .then(result => {
-//     console.log(result);
-//   })
-//   .catch(error => {
-//     console.log('#    ## error', error.message);
-//   });
+} from '..';
 
 export class QuestradeClass extends EE {
   public get getServerTime(): Promise<string> {
@@ -51,7 +36,7 @@ export class QuestradeClass extends EE {
   private _apiUrl: string;
   private _authUrl: string;
 
-  public constructor(opts?: QuestradeOptions) {
+  public constructor(opts?: QuestradeAPIOptions) {
     super();
 
     this._test = false;
