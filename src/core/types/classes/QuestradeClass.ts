@@ -25,27 +25,30 @@ export class QuestradeClass extends EE {
   public get keyFile() {
     return this._keyFile || `${this._keyDir}/${this.seedToken}`;
   }
+  public set account(accountNumber: string | number) {
+    this._account = accountNumber.toString();
+  }
   public seedToken: string;
   private _accessToken: string;
-  private _test: boolean;
-  private _keyDir: string;
-  private _apiVersion: string;
-  private _keyFile: string;
   private _account: string;
   private _apiServer: string;
-  private _refreshToken: string;
   private _apiUrl: string;
+  private _apiVersion: string;
   private _authUrl: string;
+  private _keyDir: string;
+  private _keyFile: string;
+  private _refreshToken: string;
+  private _test: boolean;
 
   public constructor(opts?: QuestradeAPIOptions) {
     super();
 
-    this._test = false;
-    this._keyDir = './keys';
-    this._apiVersion = 'v1';
-    this._keyFile = '';
-    this.seedToken = '';
     this._account = '';
+    this._apiVersion = 'v1';
+    this._keyDir = './keys';
+    this._keyFile = '';
+    this._test = false;
+    this.seedToken = '';
 
     try {
       if (typeof opts === 'undefined' || opts === undefined) {
@@ -152,72 +155,25 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  public async getServerTimeObjects(ofset: string = ''): Promise<IDateObject> {
-    const serverTime = (await this._getTime()) || ofset;
-    const timeMoment = moment(serverTime);
-    // const timeNow = new Date(serverTime);
-    const weekDay = timeMoment.localeData().weekdays()[timeMoment.weekday()];
-    const returnDate = {
-      serverTime,
-      UTC: timeMoment.toJSON(),
-      timeObject: timeMoment.toObject(),
-      toUTCDate: timeMoment.toDate(),
-      toArray: timeMoment.toArray(),
-      date: {
-        day: weekDay,
-        date: timeMoment.date(),
-        month: timeMoment.month() + 1,
-        year: timeMoment.year(),
-      },
-      time: {
-        hour: timeMoment.hour(),
-        minute: timeMoment.minute(),
-        second: timeMoment.second(),
-        milliseconds: timeMoment.milliseconds(),
-        unixmilliseconds: timeMoment.valueOf(),
-        unix: timeMoment.unix(),
-        utcOffset: timeMoment.utcOffset(),
-      },
-      isValid: timeMoment.isValid(),
-      dayOfYear: timeMoment.dayOfYear(),
-      weekOfTheYeay: timeMoment.isoWeek(),
-      weekday: timeMoment.weekday(),
-      isLeapYear: timeMoment.isLeapYear(),
-      daysInMonth: timeMoment.daysInMonth(),
-      weeksInYear: timeMoment.isoWeeksInYear(),
-      quarter: timeMoment.quarter(),
-      locale: timeMoment.locale(),
-    };
-    return returnDate;
+  // ! async createOrder(opts: any)
+  public async createOrder(opts: any) {
+    try {
+      return this._accountApi('POST', '/orders', opts);
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
   }
-  public set account(accountNumber: string | number) {
-    this._account = accountNumber.toString();
+  // ! async createStrategy(opts: any)
+  public async createStrategy(opts: any) {
+    try {
+      return this._accountApi('POST', '/orders/strategy', opts);
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
   }
-  public async getPrimaryAccountNumber(
-    reset: boolean = false
-  ): Promise<string> {
-    if (!reset && this._account.length === 8) {
-      return this._account;
-    }
-    // if zero throw if only one retur the only one ...
-    const accounts = await this.getAccounts();
-    if (accounts.length < 1) {
-      throw new Error('No account number found');
-    }
-    if (accounts.length === 1) {
-      this._account = accounts[0].number;
-      return this._account;
-    }
-    // if more then one return the first one marked primary
-    const primary = await accounts.filter(account => account.isPrimary);
-    if (primary.length > 0) {
-      this._account = primary[0].number;
-      return this._account;
-    }
-    this._account = accounts[0].number;
-    return this._account;
-  }
-
+  // ! async getAccounts(): Promise<IAccount[]>
   public async getAccounts(): Promise<IAccount[]> {
     try {
       const response = await this._api<IAccounts>('GET', '/accounts');
@@ -227,101 +183,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-
-  public async getPositions() {
-    try {
-      const positions = await this._accountApi('GET', '/positions');
-      return positions;
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-
-  public async getBalances(): Promise<IBalances> {
-    try {
-      const balances = await this._accountApi<IBalances>('GET', '/balances');
-      return balances;
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-
-  public async getExecutions() {
-    try {
-      return this._accountApi('GET', '/executions');
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-
-  public async getOrder(id: any) {
-    try {
-      const response: any = await this._accountApi('GET', `/orders/${id}`);
-      if (!response.orders.length) {
-        throw Error('order_not_found');
-      }
-      return response.orders[0];
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-
-  public async getOrders(ids: any) {
-    try {
-      if (!Array.isArray(ids)) {
-        throw new Error('missing_ids');
-      }
-      if (!ids.length) return {};
-      const response: any = await this._accountApi('GET', '/orders', {
-        ids: ids.join(','),
-      });
-      return keyBy(response.orders, 'id');
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-
-  public async getOpenOrders() {
-    try {
-      const response: any = await this._accountApi('GET', '/orders', {
-        stateFilter: 'Open',
-      });
-      keyBy(response.orders, 'id');
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-
-  public async getAllOrders() {
-    try {
-      const acountResponse: any = await this._accountApi('GET', '/orders', {
-        stateFilter: 'All',
-      });
-      return keyBy(acountResponse.orders, 'id');
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-
-  public async getClosedOrders() {
-    try {
-      const response: any = await this._accountApi('GET', '/orders', {
-        stateFilter: 'Closed',
-      });
-      return keyBy(response.orders, 'id');
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-
+  // ! async getActivities(opts_: any)
   public async getActivities(opts_: any) {
     try {
       const opts = opts_ || {};
@@ -349,91 +211,103 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-
-  public async getSymbol(id: any) {
+  // ! async getAllOrders()
+  public async getAllOrders() {
     try {
-      let params: any = false;
-      if (typeof id === 'number') {
-        params = {
-          id,
-        };
-      } else if (typeof id === 'string') {
-        params = {
-          names: id,
-        };
-      }
-      if (params === false) {
-        throw new Error('missing_id');
-      }
-      const response: any = this._api('GET', '/symbols', params);
-      return response.symbols[0];
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-
-  public async getSymbols(ids: any) {
-    try {
-      if (!Array.isArray(ids)) {
-        throw new Error('missing_ids');
-      }
-      if (!ids.length) return {};
-      let params: any = false;
-      if (typeof ids[0] === 'number') {
-        params = {
-          ids: ids.join(','),
-        };
-      } else if (typeof ids[0] === 'string') {
-        params = {
-          names: ids.join(','),
-        };
-      }
-      if (params === false) {
-        throw new Error('missing_id');
-      }
-      const response: any = await this._api('GET', '/symbols', params);
-      if (!response.symbols.length) {
-        throw new Error('symbols_not_found');
-      }
-      return keyBy(response.symbols, params.names ? 'symbol' : 'symbolId');
-    } catch (error) {
-      console.error(error.message);
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-
-  public async search(prefix: string, offset: number = 0) {
-    try {
-      const response: any = await this._api('GET', '/symbols/search', {
-        offset,
-        prefix,
+      const acountResponse: any = await this._accountApi('GET', '/orders', {
+        stateFilter: 'All',
       });
-      return keyBy(response.symbols, 'symbol');
+      return keyBy(acountResponse.orders, 'id');
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-  public async searchSymbol(stockSymbol: string): Promise<IStockSymbol> {
+  // ! async getBalances(): Promise<IBalances>
+  public async getBalances(): Promise<IBalances> {
     try {
-      const offset: number = 0;
-      const response: any = await this._api('GET', '/symbols/search', {
-        offset,
-        prefix: stockSymbol,
-      });
-      return keyBy<IStockSymbol>(response.symbols, 'symbol')[
-        stockSymbol.toUpperCase()
-      ];
+      const balances = await this._accountApi<IBalances>('GET', '/balances');
+      return balances;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-  public async getstockSymbolId(stockSymbol: string): Promise<number> {
-    return (await this.searchSymbol(stockSymbol)).symbolId;
+  // ! async getCandles(id: string, opts?: any)
+  public async getCandles(id: string, opts?: any) {
+    try {
+      const opt: any = opts || {};
+      if (opt.startTime && !moment(opt.startTime).isValid()) {
+        throw new Error('start_time_invalid');
+      }
+      // details: opt.startTime,
+      if (opt.endTime && !moment(opt.endTime).isValid()) {
+        throw new Error('end_time_invalid');
+      }
+      const startTime = opt.startTime
+        ? moment(opt.startTime).toISOString()
+        : moment()
+            .startOf('day')
+            .subtract(30, 'days')
+            .toISOString();
+      const endTime = opt.endTime
+        ? moment(opt.endTime).toISOString()
+        : moment().toISOString();
+      const response: any = this._api('GET', `/markets/candles/${id}`, {
+        endTime,
+        interval: opt.interval || 'OneDay',
+        startTime,
+      });
+      return response.candles;
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
   }
+  // ! async getClosedOrders()
+  public async getClosedOrders() {
+    try {
+      const response: any = await this._accountApi('GET', '/orders', {
+        stateFilter: 'Closed',
+      });
+      return keyBy(response.orders, 'id');
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+  // ! async getExecutions()
+  public async getExecutions() {
+    try {
+      return this._accountApi('GET', '/executions');
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+  // ! async getMarkets()
+  public async getMarkets() {
+    try {
+      const response: any = await this._api('GET', '/markets');
+      return keyBy(response.markets, 'name');
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+  // ! async getOpenOrders()
+  public async getOpenOrders() {
+    try {
+      const response: any = await this._accountApi('GET', '/orders', {
+        stateFilter: 'Open',
+      });
+      keyBy(response.orders, 'id');
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+  // ! async getOptionChain(symbolId: any)
   public async getOptionChain(symbolId: any) {
     try {
       const response: any = await this._api(
@@ -454,53 +328,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-
-  public async getMarkets() {
-    try {
-      const response: any = await this._api('GET', '/markets');
-      return keyBy(response.markets, 'name');
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-
-  public async getQuote(id: string | number) {
-    try {
-      let symID = '';
-      if (typeof id === 'number') {
-        symID = id.toString();
-      }
-      const response: any = await this._api('GET', `/markets/quotes/${symID}`);
-      if (!response.quotes) {
-        return {
-          message: 'quote_not_found',
-          symbol: symID,
-        };
-      }
-      return response.quotes[0];
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-
-  public async getQuotes(ids: any) {
-    try {
-      if (!Array.isArray(ids)) {
-        throw new Error('missing_ids');
-      }
-      if (!ids.length) return {};
-      const response = await this._api('GET', '/markets/quotes', {
-        ids: ids.join(','),
-      });
-      return keyBy(response.quotes, 'symbolId');
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-
+  // ! async getOptionQuote(filters_: any[])
   public async getOptionQuote(filters_: any[]) {
     try {
       let filters = filters_;
@@ -516,7 +344,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-
+  // ! async getOptionQuoteSimplified(filters: any)
   public async getOptionQuoteSimplified(filters: any) {
     try {
       const optionsQuotes = await this.getOptionQuote(filters);
@@ -574,64 +402,204 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  public async getCandles(id: string, opts?: any) {
+  // ! async getOrder(id: any)
+  public async getOrder(id: any) {
     try {
-      const opt: any = opts || {};
-      if (opt.startTime && !moment(opt.startTime).isValid()) {
-        throw new Error('start_time_invalid');
+      const response: any = await this._accountApi('GET', `/orders/${id}`);
+      if (!response.orders.length) {
+        throw Error('order_not_found');
       }
-      // details: opt.startTime,
-      if (opt.endTime && !moment(opt.endTime).isValid()) {
-        throw new Error('end_time_invalid');
+      return response.orders[0];
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+  // ! async getOrders(ids: any)
+  public async getOrders(ids: any) {
+    try {
+      if (!Array.isArray(ids)) {
+        throw new Error('missing_ids');
       }
-      const startTime = opt.startTime
-        ? moment(opt.startTime).toISOString()
-        : moment()
-            .startOf('day')
-            .subtract(30, 'days')
-            .toISOString();
-      const endTime = opt.endTime
-        ? moment(opt.endTime).toISOString()
-        : moment().toISOString();
-      const response: any = this._api('GET', `/markets/candles/${id}`, {
-        endTime,
-        interval: opt.interval || 'OneDay',
-        startTime,
+      if (!ids.length) return {};
+      const response: any = await this._accountApi('GET', '/orders', {
+        ids: ids.join(','),
       });
-      return response.candles;
+      return keyBy(response.orders, 'id');
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-
-  public async createOrder(opts: any) {
+  // ! async getPositions()
+  public async getPositions() {
     try {
-      return this._accountApi('POST', '/orders', opts);
+      const positions = await this._accountApi('GET', '/positions');
+      return positions;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-
-  public async updateOrder(id: string, opts: any) {
+  // ! async getPrimaryAccountNumber(
+  public async getPrimaryAccountNumber(
+    reset: boolean = false
+  ): Promise<string> {
+    if (!reset && this._account.length === 8) {
+      return this._account;
+    }
+    // if zero throw if only one retur the only one ...
+    const accounts = await this.getAccounts();
+    if (accounts.length < 1) {
+      throw new Error('No account number found');
+    }
+    if (accounts.length === 1) {
+      this._account = accounts[0].number;
+      return this._account;
+    }
+    // if more then one return the first one marked primary
+    const primary = await accounts.filter(account => account.isPrimary);
+    if (primary.length > 0) {
+      this._account = primary[0].number;
+      return this._account;
+    }
+    this._account = accounts[0].number;
+    return this._account;
+  }
+  // ! async getQuote(id: string | number)
+  public async getQuote(id: string | number) {
     try {
-      return this._accountApi('POST', `/orders/${id}`, opts);
+      let symID = '';
+      if (typeof id === 'number') {
+        symID = id.toString();
+      }
+      const response: any = await this._api('GET', `/markets/quotes/${symID}`);
+      if (!response.quotes) {
+        return {
+          message: 'quote_not_found',
+          symbol: symID,
+        };
+      }
+      return response.quotes[0];
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-
-  public async testOrder(opts: any) {
+  // ! async getQuotes(ids: any)
+  public async getQuotes(ids: any) {
     try {
-      return this._accountApi('POST', '/orders/impact', opts);
+      if (!Array.isArray(ids)) {
+        throw new Error('missing_ids');
+      }
+      if (!ids.length) return {};
+      const response = await this._api('GET', '/markets/quotes', {
+        ids: ids.join(','),
+      });
+      return keyBy(response.quotes, 'symbolId');
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-
+  // ! async getServerTimeObjects(ofset: string = ''): Promise<IDateObject>
+  public async getServerTimeObjects(ofset: string = ''): Promise<IDateObject> {
+    const serverTime = (await this._getTime()) || ofset;
+    const timeMoment = moment(serverTime);
+    // const timeNow = new Date(serverTime);
+    const weekDay = timeMoment.localeData().weekdays()[timeMoment.weekday()];
+    const returnDate = {
+      serverTime,
+      UTC: timeMoment.toJSON(),
+      timeObject: timeMoment.toObject(),
+      toUTCDate: timeMoment.toDate(),
+      toArray: timeMoment.toArray(),
+      date: {
+        day: weekDay,
+        date: timeMoment.date(),
+        month: timeMoment.month() + 1,
+        year: timeMoment.year(),
+      },
+      time: {
+        hour: timeMoment.hour(),
+        minute: timeMoment.minute(),
+        second: timeMoment.second(),
+        milliseconds: timeMoment.milliseconds(),
+        unixmilliseconds: timeMoment.valueOf(),
+        unix: timeMoment.unix(),
+        utcOffset: timeMoment.utcOffset(),
+      },
+      isValid: timeMoment.isValid(),
+      dayOfYear: timeMoment.dayOfYear(),
+      weekOfTheYeay: timeMoment.isoWeek(),
+      weekday: timeMoment.weekday(),
+      isLeapYear: timeMoment.isLeapYear(),
+      daysInMonth: timeMoment.daysInMonth(),
+      weeksInYear: timeMoment.isoWeeksInYear(),
+      quarter: timeMoment.quarter(),
+      locale: timeMoment.locale(),
+    };
+    return returnDate;
+  }
+  // ! async getstockSymbolId(stockSymbol: string): Promise<number>
+  public async getstockSymbolId(stockSymbol: string): Promise<number> {
+    return (await this.searchSymbol(stockSymbol)).symbolId;
+  }
+  // ! async getSymbol(id: any)
+  public async getSymbol(id: any) {
+    try {
+      let params: any = false;
+      if (typeof id === 'number') {
+        params = {
+          id,
+        };
+      } else if (typeof id === 'string') {
+        params = {
+          names: id,
+        };
+      }
+      if (params === false) {
+        throw new Error('missing_id');
+      }
+      const response: any = this._api('GET', '/symbols', params);
+      return response.symbols[0];
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+  // ! async getSymbols(ids: any)
+  public async getSymbols(ids: any) {
+    try {
+      if (!Array.isArray(ids)) {
+        throw new Error('missing_ids');
+      }
+      if (!ids.length) return {};
+      let params: any = false;
+      if (typeof ids[0] === 'number') {
+        params = {
+          ids: ids.join(','),
+        };
+      } else if (typeof ids[0] === 'string') {
+        params = {
+          names: ids.join(','),
+        };
+      }
+      if (params === false) {
+        throw new Error('missing_id');
+      }
+      const response: any = await this._api('GET', '/symbols', params);
+      if (!response.symbols.length) {
+        throw new Error('symbols_not_found');
+      }
+      return keyBy(response.symbols, params.names ? 'symbol' : 'symbolId');
+    } catch (error) {
+      console.error(error.message);
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+  // ! async removeOrder(id: string)
   public async removeOrder(id: string) {
     try {
       return this._accountApi('DELETE', `/orders/${id}`);
@@ -640,16 +608,45 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-
-  public async createStrategy(opts: any) {
+  // ! async search(prefix: string, offset: number = 0)
+  public async search(prefix: string, offset: number = 0) {
     try {
-      return this._accountApi('POST', '/orders/strategy', opts);
+      const response: any = await this._api('GET', '/symbols/search', {
+        offset,
+        prefix,
+      });
+      return keyBy(response.symbols, 'symbol');
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-
+  // ! async searchSymbol(stockSymbol: string): Promise<IStockSymbol>
+  public async searchSymbol(stockSymbol: string): Promise<IStockSymbol> {
+    try {
+      const offset: number = 0;
+      const response: any = await this._api('GET', '/symbols/search', {
+        offset,
+        prefix: stockSymbol,
+      });
+      return keyBy<IStockSymbol>(response.symbols, 'symbol')[
+        stockSymbol.toUpperCase()
+      ];
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+  // ! async testOrder(opts: any)
+  public async testOrder(opts: any) {
+    try {
+      return this._accountApi('POST', '/orders/impact', opts);
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+  // ! async testStrategy(opts: any)
   public async testStrategy(opts: any) {
     try {
       return this._accountApi('POST', '/orders/strategy/impact', opts);
@@ -658,18 +655,68 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
+  // ! async updateOrder(id: string, opts: any)
+  public async updateOrder(id: string, opts: any) {
+    try {
+      return this._accountApi('POST', `/orders/${id}`, opts);
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+  // ! private async _accountApi<T = any>
+  // Method that appends the set account to the API calls so all calls are made
+  private async _accountApi<T = any>(
+    method?: any,
+    endpoint?: any,
+    options?: any
+  ) {
+    if (!this._account) {
+      throw new Error('no_account_selected');
+    }
+    return this._api<T>(
+      method,
+      `/accounts/${this._account}${endpoint}`,
+      options
+    );
+  }
+  // ! private async _api<T = any>
+  // Method that actually mades the GET/POST request to Questrade
+  private async _api<T = any>(
+    method?: string,
+    endpoint?: string,
+    options?: any
+  ): Promise<T> {
+    const client = axios;
+    let params: any = {};
+    if (typeof options !== 'undefined' && typeof options === 'object') {
+      params = options;
+    }
 
+    const auth = `Bearer ${this._accessToken}`;
+    const url: string = this._apiUrl + endpoint;
+    const headers: any = { Authorization: auth };
+    const config: AxiosRequestConfig = {
+      params,
+      method,
+      headers,
+      url,
+    };
+    let response: AxiosResponse<T>;
+    try {
+      response = await client(config);
+    } catch (error) {
+      console.error(error.message);
+      throw error;
+    }
+    return response.data;
+  }
+  // ! private async _getTime(): Promise<string>
   private async _getTime(): Promise<string> {
     const time = await this._api<Time>('GET', '/time');
     return time.time;
   }
-
-  // Saves the latest refreshToken in the file name after the seedToken
-  private async _saveKey() {
-    writeFileSync(this.keyFile, this._refreshToken, 'utf8');
-    return this._refreshToken;
-  }
-
+  // ! private async _loadKey()
   // Reads the refreshToken stored in the file (if it exist),
   // otherwise uses the seedToken
   private async _loadKey() {
@@ -694,7 +741,7 @@ export class QuestradeClass extends EE {
     this._refreshToken = refreshToken;
     return refreshToken;
   }
-
+  // ! private async _refreshKey()
   // Refreshed the tokem (aka Logs in) using the latest RefreshToken
   // (or the SeedToken if no previous saved file)
   private async _refreshKey() {
@@ -732,57 +779,10 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-
-  /*
-       this._api('GET', '/symbols/search', {
-        offset,
-        prefix,
-      });
-   */
-  // Method that actually mades the GET/POST request to Questrade
-  private async _api<T = any>(
-    method?: string,
-    endpoint?: string,
-    options?: any
-  ): Promise<T> {
-    const client = axios;
-    let params: any = {};
-    if (typeof options !== 'undefined' && typeof options === 'object') {
-      params = options;
-    }
-
-    const auth = `Bearer ${this._accessToken}`;
-    const url: string = this._apiUrl + endpoint;
-    const headers: any = { Authorization: auth };
-    const config: AxiosRequestConfig = {
-      params,
-      method,
-      headers,
-      url,
-    };
-    let response: AxiosResponse<T>;
-    try {
-      response = await client(config);
-    } catch (error) {
-      console.error(error.message);
-      throw error;
-    }
-    return response.data;
-  }
-
-  // Method that appends the set account to the API calls so all calls are made
-  private async _accountApi<T = any>(
-    method?: any,
-    endpoint?: any,
-    options?: any
-  ) {
-    if (!this._account) {
-      throw new Error('no_account_selected');
-    }
-    return this._api<T>(
-      method,
-      `/accounts/${this._account}${endpoint}`,
-      options
-    );
+  // ! private async _saveKey()
+  // Saves the latest refreshToken in the file name after the seedToken
+  private async _saveKey() {
+    writeFileSync(this.keyFile, this._refreshToken, 'utf8');
+    return this._refreshToken;
   }
 }
