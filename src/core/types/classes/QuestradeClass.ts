@@ -7,7 +7,14 @@ import { chain, keyBy, pick } from 'lodash';
 import { sync } from 'mkdirp';
 import { default as moment } from 'moment';
 import { dirname } from 'path';
-import { IBalances, ICreds, IDateObject, IStockSymbol, QuestradeAPIOptions, Time } from '..';
+import {
+  IBalances,
+  ICreds,
+  IDateObject,
+  IStockSymbol,
+  QuestradeAPIOptions,
+  Time,
+} from '..';
 import { IAccount, IAccounts } from '../IAccounts';
 
 export class QuestradeClass extends EE {
