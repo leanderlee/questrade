@@ -1,6 +1,23 @@
 /**
  * /*
  *
+ * private _accessToken: string;
+private _account: string;
+private _apiServer: string;
+private _apiUrl: string;
+private _apiVersion: string;
+private _authUrl: string;
+private _keyDir: string;
+private _keyFile: string;
+private _refreshToken: string;
+private _test: boolean;
+// // ! constructor(opts?: QuestradeAPIOptions)
+// ! get getServerTime(): Promise<string>
+// ! get keyFile()
+// ! seedToken: string;
+// ! set account(accountNumber: string | number)
+
+
  * getOrder(id: any)
  * getSymbol(id: any)
  * getOptionChain(symbolId: any)
