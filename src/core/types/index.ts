@@ -23,6 +23,7 @@ export { TickType } from './enums/TickType';
 export { IBalance, IBalances } from './IBalances';
 export { ICreds } from './ICreds';
 export { IDateObject } from './IDateObject';
+export { IMarketsResponse } from './IMarketsResponse';
 export { IPosition } from './IPosition';
 export {
   IQuestradeAPIOptions,
