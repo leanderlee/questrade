@@ -10,12 +10,17 @@ import { dirname } from 'path';
 import {
   IBalances,
   ICreds,
-  IDateObject,
+  IMarket,
+  IMarketsResponse,
   IStockSymbol,
   QuestradeAPIOptions,
   Time,
 } from '..';
-import { IAccount, IAccounts } from '../IAccounts';
+import { AcountNumber, IAccount, IAccounts } from '../IAccounts';
+import { IAccountActivity, IActivities } from '../IActivities';
+import { IDateObject } from '../IDateObject';
+import { IHeaders } from '../IHeaders';
+import { IPosition, IPositions } from '../IPositions';
 
 export class QuestradeClass extends EE {
   public get getServerTime(): Promise<string> {
@@ -26,11 +31,11 @@ export class QuestradeClass extends EE {
     return this._keyFile || `${this._keyDir}/${this.seedToken}`;
   }
   public set account(accountNumber: string | number) {
-    this._account = accountNumber.toString();
+    this._accountNumber = accountNumber.toString();
   }
   public seedToken: string;
   private _accessToken: string;
-  private _account: string;
+  private _accountNumber: AcountNumber;
   private _apiServer: string;
   private _apiUrl: string;
   private _apiVersion: string;
@@ -43,7 +48,7 @@ export class QuestradeClass extends EE {
   public constructor(opts?: QuestradeAPIOptions) {
     super();
 
-    this._account = '';
+    this._accountNumber = '';
     this._apiVersion = 'v1';
     this._keyDir = './keys';
     this._keyFile = '';
@@ -76,7 +81,7 @@ export class QuestradeClass extends EE {
         this.seedToken = opts.seedToken || '';
         // The default Account agains wich the API are made.
         // GetAccounts() will return the possible values
-        this._account = `${opts.account}` || '';
+        this._accountNumber = `${opts.account}` || '';
       }
       // The refresh token used to login and get the new accessToken,
       // the new refreshToken (next time to log in) and the api_server
@@ -155,7 +160,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async createOrder(opts: any)
+  // ! async method createOrder(opts: any)
   public async createOrder(opts: any) {
     try {
       return this._accountApi('POST', '/orders', opts);
@@ -164,7 +169,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async createStrategy(opts: any)
+  // ! async method createStrategy(opts: any)
   public async createStrategy(opts: any) {
     try {
       return this._accountApi('POST', '/orders/strategy', opts);
@@ -173,7 +178,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getAccounts(): Promise<IAccount[]>
+  // ! async method getAccounts(): Promise<IAccount[]>
   public async getAccounts(): Promise<IAccount[]> {
     try {
       const response = await this._api<IAccounts>('GET', '/accounts');
@@ -183,35 +188,39 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getActivities(opts_: any)
-  public async getActivities(opts_: any) {
+  // ! async method getActivities(opts_: any)
+  public async getActivities(opts?: any): Promise<IAccountActivity[]> {
     try {
-      const opts = opts_ || {};
-      if (opts.startTime && !moment(opts.startTime).isValid()) {
-        throw new Error('start_time_invalid');
+      let startTime;
+      let endTime;
+      if (!!opts) {
+        if (opts.startTime && !moment(opts.startTime).isValid()) {
+          throw new Error('start_time_invalid');
+        }
+        if (opts.endTime && !moment(opts.endTime).isValid()) {
+          throw new Error('end_time_invalid');
+        }
+        opts.startTime
+          ? (startTime = moment(opts.startTime).toISOString())
+          : (startTime = moment()
+              .startOf('day')
+              .subtract(30, 'days')
+              .toISOString());
+        opts.endTime
+          ? (endTime = moment(opts.endTime).toISOString())
+          : (endTime = moment().toISOString());
       }
-      if (opts.endTime && !moment(opts.endTime).isValid()) {
-        throw new Error('end_time_invalid');
-      }
-      const startTime = opts.startTime
-        ? moment(opts.startTime).toISOString()
-        : moment()
-            .startOf('day')
-            .subtract(30, 'days')
-            .toISOString();
-      const endTime = opts.endTime
-        ? moment(opts.endTime).toISOString()
-        : moment().toISOString();
-      this._accountApi('GET', '/activities', {
+      const some = await this._accountApi<IActivities>('GET', '/activities', {
         endTime,
         startTime,
       });
+      return some.activities;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-  // ! async getAllOrders()
+  // ! async method getAllOrders()
   public async getAllOrders() {
     try {
       const acountResponse: any = await this._accountApi('GET', '/orders', {
@@ -223,7 +232,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getBalances(): Promise<IBalances>
+  // ! async method getBalances(): Promise<IBalances>
   public async getBalances(): Promise<IBalances> {
     try {
       const balances = await this._accountApi<IBalances>('GET', '/balances');
@@ -233,7 +242,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getCandles(id: string, opts?: any)
+  // ! async method getCandles(id: string, opts?: any)
   public async getCandles(id: string, opts?: any) {
     try {
       const opt: any = opts || {};
@@ -264,7 +273,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getClosedOrders()
+  // ! async method getClosedOrders()
   public async getClosedOrders() {
     try {
       const response: any = await this._accountApi('GET', '/orders', {
@@ -276,7 +285,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getExecutions()
+  // ! async method getExecutions()
   public async getExecutions() {
     try {
       return this._accountApi('GET', '/executions');
@@ -285,17 +294,17 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getMarkets()
-  public async getMarkets() {
+  // ! async method getMarkets()
+  public async getMarkets(): Promise<IMarket[]> {
     try {
-      const response: any = await this._api('GET', '/markets');
-      return keyBy(response.markets, 'name');
+      const response = await this._api<IMarketsResponse>('GET', '/markets');
+      return response.markets; // keyBy(response.markets, 'name');
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-  // ! async getOpenOrders()
+  // ! async method getOpenOrders()
   public async getOpenOrders() {
     try {
       const response: any = await this._accountApi('GET', '/orders', {
@@ -307,7 +316,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getOptionChain(symbolId: any)
+  // ! async method getOptionChain(symbolId: any)
   public async getOptionChain(symbolId: any) {
     try {
       const response: any = await this._api(
@@ -328,7 +337,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getOptionQuote(filters_: any[])
+  // ! async method getOptionQuote(filters_: any[])
   public async getOptionQuote(filters_: any[]) {
     try {
       let filters = filters_;
@@ -344,7 +353,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getOptionQuoteSimplified(filters: any)
+  // ! async method getOptionQuoteSimplified(filters: any)
   public async getOptionQuoteSimplified(filters: any) {
     try {
       const optionsQuotes = await this.getOptionQuote(filters);
@@ -402,7 +411,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getOrder(id: any)
+  // ! async method getOrder(id: any)
   public async getOrder(id: any) {
     try {
       const response: any = await this._accountApi('GET', `/orders/${id}`);
@@ -415,7 +424,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getOrders(ids: any)
+  // ! async method getOrders(ids: any)
   public async getOrders(ids: any) {
     try {
       if (!Array.isArray(ids)) {
@@ -431,22 +440,22 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getPositions()
-  public async getPositions() {
+  // ! async method getPositions()
+  public async getPositions(): Promise<IPosition[]> {
     try {
-      const positions = await this._accountApi('GET', '/positions');
-      return positions;
+      const positions = await this._accountApi<IPositions>('GET', '/positions');
+      return positions.positions;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-  // ! async getPrimaryAccountNumber(
+  // ! async method getPrimaryAccountNumber(
   public async getPrimaryAccountNumber(
     reset: boolean = false
-  ): Promise<string> {
-    if (!reset && this._account.length === 8) {
-      return this._account;
+  ): Promise<AcountNumber> {
+    if (!reset && this._accountNumber.toString().length === 8) {
+      return this._accountNumber;
     }
     // if zero throw if only one retur the only one ...
     const accounts = await this.getAccounts();
@@ -454,19 +463,19 @@ export class QuestradeClass extends EE {
       throw new Error('No account number found');
     }
     if (accounts.length === 1) {
-      this._account = accounts[0].number;
-      return this._account;
+      this._accountNumber = accounts[0].number;
+      return this._accountNumber;
     }
     // if more then one return the first one marked primary
     const primary = await accounts.filter(account => account.isPrimary);
     if (primary.length > 0) {
-      this._account = primary[0].number;
-      return this._account;
+      this._accountNumber = primary[0].number;
+      return this._accountNumber;
     }
-    this._account = accounts[0].number;
-    return this._account;
+    this._accountNumber = accounts[0].number;
+    return this._accountNumber;
   }
-  // ! async getQuote(id: string | number)
+  // ! async method getQuote(id: string | number)
   public async getQuote(id: string | number) {
     try {
       let symID = '';
@@ -486,7 +495,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getQuotes(ids: any)
+  // ! async method getQuotes(ids: any)
   public async getQuotes(ids: any) {
     try {
       if (!Array.isArray(ids)) {
@@ -502,11 +511,10 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getServerTimeObjects(ofset: string = ''): Promise<IDateObject>
-  public async getServerTimeObjects(ofset: string = ''): Promise<IDateObject> {
-    const serverTime = (await this._getTime()) || ofset;
+  // ! async method getServerTimeObjects()
+  public async getServerTimeObject(): Promise<IDateObject> {
+    const serverTime = await this._getTime();
     const timeMoment = moment(serverTime);
-    // const timeNow = new Date(serverTime);
     const weekDay = timeMoment.localeData().weekdays()[timeMoment.weekday()];
     const returnDate = {
       serverTime,
@@ -541,11 +549,11 @@ export class QuestradeClass extends EE {
     };
     return returnDate;
   }
-  // ! async getstockSymbolId(stockSymbol: string): Promise<number>
+  // ! async method getstockSymbolId(stockSymbol: string)
   public async getstockSymbolId(stockSymbol: string): Promise<number> {
     return (await this.searchSymbol(stockSymbol)).symbolId;
   }
-  // ! async getSymbol(id: any)
+  // ! async method getSymbol(id: any)
   public async getSymbol(id: any) {
     try {
       let params: any = false;
@@ -568,7 +576,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async getSymbols(ids: any)
+  // ! async method getSymbols(ids: any)
   public async getSymbols(ids: any) {
     try {
       if (!Array.isArray(ids)) {
@@ -599,7 +607,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async removeOrder(id: string)
+  // ! async method removeOrder(id: string)
   public async removeOrder(id: string) {
     try {
       return this._accountApi('DELETE', `/orders/${id}`);
@@ -608,7 +616,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async search(prefix: string, offset: number = 0)
+  // ! async method search(prefix: string, offset: number = 0)
   public async search(prefix: string, offset: number = 0) {
     try {
       const response: any = await this._api('GET', '/symbols/search', {
@@ -621,7 +629,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async searchSymbol(stockSymbol: string): Promise<IStockSymbol>
+  // ! async method searchSymbol(stockSymbol: string): Promise<IStockSymbol>
   public async searchSymbol(stockSymbol: string): Promise<IStockSymbol> {
     try {
       const offset: number = 0;
@@ -637,7 +645,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async testOrder(opts: any)
+  // ! async method testOrder(opts: any)
   public async testOrder(opts: any) {
     try {
       return this._accountApi('POST', '/orders/impact', opts);
@@ -646,7 +654,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async testStrategy(opts: any)
+  // ! async method testStrategy(opts: any)
   public async testStrategy(opts: any) {
     try {
       return this._accountApi('POST', '/orders/strategy/impact', opts);
@@ -655,7 +663,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async updateOrder(id: string, opts: any)
+  // ! async method updateOrder(id: string, opts: any)
   public async updateOrder(id: string, opts: any) {
     try {
       return this._accountApi('POST', `/orders/${id}`, opts);
@@ -664,28 +672,30 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! private async _accountApi<T = any>
+  // ? async method _accountApi<T = any>
   // Method that appends the set account to the API calls so all calls are made
   private async _accountApi<T = any>(
     method?: any,
     endpoint?: any,
     options?: any
   ) {
-    if (!this._account) {
+    if (!this._accountNumber) {
       throw new Error('no_account_selected');
     }
     return this._api<T>(
       method,
-      `/accounts/${this._account}${endpoint}`,
-      options
+      `/accounts/${this._accountNumber}${endpoint}`,
+      options,
+      { location: this._accountNumber }
     );
   }
-  // ! private async _api<T = any>
+  // ? async method _api<T = any>
   // Method that actually mades the GET/POST request to Questrade
   private async _api<T = any>(
     method?: string,
     endpoint?: string,
-    options?: any
+    options?: any,
+    additionalHeaders?: IHeaders
   ): Promise<T> {
     const client = axios;
     let params: any = {};
@@ -695,7 +705,7 @@ export class QuestradeClass extends EE {
 
     const auth = `Bearer ${this._accessToken}`;
     const url: string = this._apiUrl + endpoint;
-    const headers: any = { Authorization: auth };
+    const headers: IHeaders = { Authorization: auth, ...additionalHeaders };
     const config: AxiosRequestConfig = {
       params,
       method,
@@ -711,13 +721,13 @@ export class QuestradeClass extends EE {
     }
     return response.data;
   }
-  // ! private async _getTime(): Promise<string>
+  // ? async method getTime(): Promise <string>
   private async _getTime(): Promise<string> {
     const time = await this._api<Time>('GET', '/time');
     return time.time;
   }
-  // ! private async _loadKey()
-  // Reads the refreshToken stored in the file (if it exist),
+  // ? async method _loadKey()
+  //  Reads the refreshToken stored in the file (if it exist),
   // otherwise uses the seedToken
   private async _loadKey() {
     let refreshToken: any;
@@ -741,8 +751,8 @@ export class QuestradeClass extends EE {
     this._refreshToken = refreshToken;
     return refreshToken;
   }
-  // ! private async _refreshKey()
-  // Refreshed the tokem (aka Logs in) using the latest RefreshToken
+  // ? async method _refreshKey()
+  //  Refresh the tokem (aka Logs in) using the latest RefreshToken
   // (or the SeedToken if no previous saved file)
   private async _refreshKey() {
     let response: AxiosResponse = {
@@ -779,7 +789,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! private async _saveKey()
+  // ? async method _saveKey()
   // Saves the latest refreshToken in the file name after the seedToken
   private async _saveKey() {
     writeFileSync(this.keyFile, this._refreshToken, 'utf8');

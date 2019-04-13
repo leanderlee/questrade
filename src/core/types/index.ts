@@ -2,7 +2,6 @@
 
 export { QuestradeClass } from './classes/QuestradeClass';
 export { AccountStatus } from './enums/AccountStatus';
-export { AccountType } from './enums/AccountType';
 export { ClientAccountType } from './enums/ClientAccountType';
 export { Currency } from './enums/Currency';
 export { HistoricalDataGranularity } from './enums/HistoricalDataGranularity';
@@ -20,11 +19,15 @@ export { OrderType } from './enums/OrderType';
 export { SecurityType } from './enums/SecurityType';
 export { StrategyTypes } from './enums/StrategyTypes';
 export { TickType } from './enums/TickType';
+export { UserAccountType } from './enums/UserAccountType';
+export { AcountNumber, IAccount, IAccounts } from './IAccounts';
+export { IAccountActivity, IActivities } from './IActivities';
 export { IBalance, IBalances } from './IBalances';
 export { ICreds } from './ICreds';
 export { IDateObject } from './IDateObject';
-export { IMarketsResponse } from './IMarketsResponse';
-export { IPosition } from './IPosition';
+export { IHeaders } from './IHeaders';
+export { IMarket, IMarketsResponse } from './IMarketsResponse';
+export { IPosition, IPositions } from './IPositions';
 export {
   IQuestradeAPIOptions,
   QuestradeAPIOptions,

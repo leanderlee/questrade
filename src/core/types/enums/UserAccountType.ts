@@ -1,6 +1,6 @@
 /** @format */
 
-export enum AccountType {
+export enum UserAccountType {
   // Cash account.
   Cash = 'Cash',
   // Margin account.

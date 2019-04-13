@@ -2,7 +2,6 @@
 
 export {
   AccountStatus,
-  AccountType,
   ClientAccountType,
   Currency,
   HistoricalDataGranularity,
@@ -20,6 +19,7 @@ export {
   SecurityType,
   StrategyTypes,
   TickType,
+  UserAccountType,
 } from './core/types';
 export { QuestradeClass } from './core/types/classes/QuestradeClass';
 export {
