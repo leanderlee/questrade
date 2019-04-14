@@ -36,6 +36,7 @@ import {
   TimeRangeInterval,
 } from '../../types';
 import { IOrder, IOrders } from '../IOrders';
+import { IQuote, IQuotes } from '../IQuotes';
 export class QuestradeClass extends EE {
   public get getServerTime(): Promise<string> {
     return this._getTime();
@@ -207,12 +208,12 @@ export class QuestradeClass extends EE {
     }
   }
   // ! async method getAllOrders()
-  public async getAllOrders() {
+  public async getAllOrders(): Promise<IOrder[]> {
     try {
-      const acountResponse = await this._accountApi<any>('GET', '/orders', {
+      const { orders } = await this._accountApi<IOrders>('GET', '/orders', {
         stateFilter: 'All',
       });
-      return keyBy(acountResponse.orders, 'id');
+      return orders;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
@@ -288,12 +289,12 @@ export class QuestradeClass extends EE {
     }
   }
   // ! async method getOpenOrders()
-  public async getOpenOrders() {
+  public async getOpenOrders(): Promise<IOrder[]> {
     try {
-      const response = await this._accountApi<any>('GET', '/orders', {
+      const { orders } = await this._accountApi<IOrders>('GET', '/orders', {
         stateFilter: 'Open',
       });
-      keyBy(response.orders, 'id');
+      return orders;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
@@ -413,16 +414,16 @@ export class QuestradeClass extends EE {
     }
   }
   // ! async method getOrders(ids)
-  public async getOrders(ids: idsType) {
+  public async getOrders(ids: idsType): Promise<IOrder[]> {
     try {
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
-      if (!ids.length) return {};
-      const response = await this._accountApi<any>('GET', '/orders', {
+      if (!ids.length) return [];
+      const { orders } = await this._accountApi<IOrders>('GET', '/orders', {
         ids: ids.join(','),
       });
-      return keyBy(response.orders, 'id');
+      return orders;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
@@ -464,20 +465,17 @@ export class QuestradeClass extends EE {
     return this._accountNumber;
   }
   // ! async method getQuote(id)
-  public async getQuote(id: idType) {
+  public async getQuote(id: idType): Promise<IQuote> {
     try {
       let symID = '';
       if (typeof id === 'number') {
         symID = id.toString();
       }
-      const response = await this._api<any>('GET', `/markets/quotes/${symID}`);
-      if (!response.quotes) {
-        return {
-          message: 'quote_not_found',
-          symbol: symID,
-        };
-      }
-      return response.quotes[0];
+      const { quotes } = await this._api<IQuotes>(
+        'GET',
+        `/markets/quotes/${symID}`
+      );
+      return quotes[0];
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);

@@ -34,6 +34,7 @@ export {
   IQuestradeAPIOptions,
   QuestradeAPIOptions,
 } from './IQuestradeAPIOptions';
+export { IQuote, IQuotes } from './IQuotes';
 export { IStockSymbol } from './IStockSymbol';
 export {
   IFilter,
