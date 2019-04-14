@@ -3,7 +3,7 @@
 import { AxiosRequestConfig, AxiosResponse, default as axios } from 'axios';
 import { EventEmitter as EE } from 'events';
 import { readFileSync, writeFileSync } from 'fs';
-import { chain, keyBy, pick } from 'lodash';
+import { /* chain, */ keyBy /* , pick */ } from 'lodash';
 import { sync } from 'mkdirp';
 import { default as moment } from 'moment';
 import { dirname } from 'path';
@@ -28,6 +28,8 @@ import {
   IPosition,
   IPositions,
   IStockSymbol,
+  ISymbol,
+  ISymbols,
   Optionals,
   OrdersOptions,
   QuestradeAPIOptions,
@@ -35,6 +37,9 @@ import {
   TimeRange,
   TimeRangeInterval,
 } from '../../types';
+import { ICandle, ICandles } from '../ICandles';
+import { IEquitySymbol, IEquitySymbols } from '../IEquitySymbols';
+import { IOptionsQuotes } from '../IOptionsQuotes';
 import { IOrder, IOrders } from '../IOrders';
 import { IQuote, IQuotes } from '../IQuotes';
 export class QuestradeClass extends EE {
@@ -235,17 +240,21 @@ export class QuestradeClass extends EE {
     rangeAndInterval: TimeRangeInterval = {
       interval: HistoricalDataGranularity.OneDay,
     }
-  ) {
+  ): Promise<ICandle[]> {
     try {
       const { startTime, endTime, interval } = this._timeValidation(
         rangeAndInterval
       );
-      const response = await this._api<any>('GET', `/markets/candles/${id}`, {
-        endTime,
-        interval,
-        startTime,
-      });
-      return response.candles;
+      const { candles } = await this._api<ICandles>(
+        'GET',
+        `/markets/candles/${id}`,
+        {
+          endTime,
+          interval,
+          startTime,
+        }
+      );
+      return candles;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
@@ -301,26 +310,26 @@ export class QuestradeClass extends EE {
     }
   }
   // ! async method getOptionChain(symbolId)
-  public async getOptionChain(symbolId: number) {
-    try {
-      const response = await this._api<any>(
-        'GET',
-        `/symbols/${symbolId}/options`
-      );
-      return chain(response.optionChain)
-        .keyBy('expiryDate')
-        .mapValues(option => {
-          return keyBy(
-            option.chainPerRoot[0].chainPerStrikePrice,
-            'strikePrice'
-          );
-        })
-        .value();
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
+  // public async getOptionChain(symbolId: number) {
+  //   try {
+  //     const response = await this._api<an!y>(
+  //       'GET',
+  //       `/symbols/${symbolId}/options`
+  //     );
+  //     return chain(response.optionChain)
+  //       .keyBy('expiryDate')
+  //       .mapValues(option => {
+  //         return keyBy(
+  //           option.chainPerRoot[0].chainPerStrikePrice,
+  //           'strikePrice'
+  //         );
+  //       })
+  //       .value();
+  //   } catch (error) {
+  //     console.error(error.message);
+  //     throw new Error(error.message);
+  //   }
+  // }
   // ! async method getOptionQuote(filters_[])
   // % post
   public async getOptionQuote(filters_: IFilter[] | IFilter) {
@@ -329,73 +338,84 @@ export class QuestradeClass extends EE {
       if (!Array.isArray(filters) && typeof filters === 'object') {
         filters = [filters];
       }
-      const response = await this._api<any>('POST', '/markets/quotes/options', {
-        filters,
-      });
-      return response.optionQuotes;
+      const { quotes } = await this._api<IOptionsQuotes>(
+        'GET',
+        '/markets/quotes/options',
+        {
+          filters,
+        }
+      );
+      return quotes;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
   // ! async method getOptionQuoteSimplified(filters)
-  public async getOptionQuoteSimplified(filters: IFilter) {
-    try {
-      const optionsQuotes = await this.getOptionQuote(filters);
-      return chain(optionsQuotes)
-        .map(optionQuote => {
-          const parsedSymbol = optionQuote.symbol.match(
-            /^([a-zA-Z]+)(.+)(C|P)(\d+\.\d+)$/
-          );
-          if (parsedSymbol.length >= 5) {
-            const parsedDate = parsedSymbol[2].match(/^(\d+)([a-zA-Z]+)(\d+)$/);
-            const expiryDate = moment()
-              .utc()
-              .month(parsedDate[2])
-              .date(parsedDate[1])
-              .year(20 + parsedDate[3])
-              .startOf('day');
-            const expiryString = `${expiryDate
-              .toISOString()
-              .slice(0, -1)}000-04:00`;
-            optionQuote.underlying = parsedSymbol[1];
-            optionQuote.expiryDate = expiryString;
-            optionQuote.strikePrice = parseFloat(parsedSymbol[4]);
-            optionQuote.optionType = parsedSymbol[3] === 'P' ? 'Put' : 'Call';
-          }
-          return optionQuote;
-        })
-        .groupBy('underlying')
-        .mapValues(underlyingQuotes => {
-          return chain(underlyingQuotes)
-            .groupBy('optionType')
-            .mapValues(optionTypeQuotes => {
-              return chain(optionTypeQuotes)
-                .groupBy('expiryDate')
-                .mapValues(expiryDateQuotes => {
-                  return chain(expiryDateQuotes)
-                    .keyBy(quote => {
-                      return quote.strikePrice.toFixed(2);
-                    })
-                    .mapValues(quote => {
-                      return pick(quote, [
-                        'symbol',
-                        'symbolId',
-                        'lastTradePrice',
-                      ]);
-                    })
-                    .value();
-                })
-                .value();
-            })
-            .value();
-        })
-        .value();
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
+  // public async getOptionQuoteSimplified(filters: an!y) {
+  //   try {
+  //     const optionsQuotes: an!y = await this.getOptionQuote(filters);
+  //     return chain(optionsQuotes)
+  //       .map(optionQuote => {
+  //         const parsedSymbol = optionQuote.symbol.match(
+  //           /^([a-zA-Z]+)(.+)(C|P)(\d+\.\d+)$/
+  //         );
+  //         if (parsedSymbol !== null) {
+  //           if (parsedSymbol.length >= 5) {
+  //             const parsedDate = parsedSymbol[2].match(
+  //               /^(\d+)([a-zA-Z]+)(\d+)$/
+  //             );
+  //             if (parsedDate !== null) {
+  //               const expiryDate = moment()
+  //                 .utc()
+  //                 .month(parsedDate[2])
+  //                 .date(parsedDate[1])
+  //                 .year(20 + parsedDate[3])
+  //                 .startOf('day');
+  //               const expiryString = `${expiryDate
+  //                 .toISOString()
+  //                 .slice(0, -1)}000-04:00`;
+  //               optionQuote.underlying = parsedSymbol[1];
+  //               optionQuote.expiryDate = expiryString;
+  //               optionQuote.strikePrice = parseFloat(parsedSymbol[4]);
+  //               optionQuote.optionType =
+  //                 parsedSymbol[3] === 'P' ? 'Put' : 'Call';
+  //             }
+  //           }
+  //           return optionQuote;
+  //         }
+  //       })
+  //       .groupBy('underlying')
+  //       .mapValues(underlyingQuotes => {
+  //         return chain(underlyingQuotes)
+  //           .groupBy('optionType')
+  //           .mapValues(optionTypeQuotes => {
+  //             return chain(optionTypeQuotes)
+  //               .groupBy('expiryDate')
+  //               .mapValues(expiryDateQuotes => {
+  //                 return chain(expiryDateQuotes)
+  //                   .keyBy(quote => {
+  //                     return quote.strikePrice.toFixed(2);
+  //                   })
+  //                   .mapValues(quote => {
+  //                     return pick(quote, [
+  //                       'symbol',
+  //                       'symbolId',
+  //                       'lastTradePrice',
+  //                     ]);
+  //                   })
+  //                   .value();
+  //               })
+  //               .value();
+  //           })
+  //           .value();
+  //       })
+  //       .value();
+  //   } catch (error) {
+  //     console.error(error.message);
+  //     throw new Error(error.message);
+  //   }
+  // }
   // ! async method getOrder(id)
   public async getOrder(orderId: idType, orderOptions: OrdersOptions = {}) {
     try {
@@ -482,16 +502,16 @@ export class QuestradeClass extends EE {
     }
   }
   // ! async method getQuotes(ids)
-  public async getQuotes(ids: idsType) {
+  public async getQuotes(ids: idsType): Promise<IQuote[]> {
     try {
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
-      if (!ids.length) return {};
-      const response = await this._api<any>('GET', '/markets/quotes', {
+      if (!ids.length) return [];
+      const { quotes } = await this._api<IQuotes>('GET', '/markets/quotes', {
         ids: ids.join(','),
       });
-      return keyBy(response.quotes, 'symbolId');
+      return quotes;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
@@ -540,7 +560,7 @@ export class QuestradeClass extends EE {
     return (await this.searchSymbol(stockSymbol)).symbolId;
   }
   // ! async method getSymbol(id)
-  public async getSymbol(idOrSymbol: idType) {
+  public async getSymbol(idOrSymbol: idType): Promise<ISymbol[]> {
     try {
       let params;
       if (typeof idOrSymbol === 'number') {
@@ -555,20 +575,20 @@ export class QuestradeClass extends EE {
       if (params === undefined) {
         throw new Error('missing_id');
       }
-      const response = await this._api<any>('GET', '/symbols', params);
-      return response.symbols[0];
+      const { symbols } = await this._api<ISymbols>('GET', '/symbols', params);
+      return symbols;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
   // ! async method getSymbols(ids)
-  public async getSymbols(ids: idsType) {
+  public async getSymbols(ids: idsType): Promise<ISymbol[]> {
     try {
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
-      if (!ids.length) return {};
+      if (!ids.length) return [];
       let params;
       if (typeof ids[0] === 'number') {
         params = {
@@ -582,11 +602,9 @@ export class QuestradeClass extends EE {
       if (params === undefined) {
         throw new Error('missing_id');
       }
-      const response = await this._api<any>('GET', '/symbols', params);
-      if (!response.symbols.length) {
-        throw new Error('symbols_not_found');
-      }
-      return keyBy(response.symbols, params.names ? 'symbol' : 'symbolId');
+      const { symbols } = await this._api<ISymbols>('GET', '/symbols', params);
+
+      return symbols;
     } catch (error) {
       console.error(error.message);
       console.error(error.message);
@@ -595,13 +613,20 @@ export class QuestradeClass extends EE {
   }
 
   // ! async method search(prefix)
-  public async search(prefix: string, offset: number = 0) {
+  public async search(
+    prefix: string,
+    offset: number = 0
+  ): Promise<IEquitySymbol[]> {
     try {
-      const response = await this._api<any>('GET', '/symbols/search', {
-        offset,
-        prefix,
-      });
-      return keyBy(response.symbols, 'symbol');
+      const { equitySymbols } = await this._api<IEquitySymbols>(
+        'GET',
+        '/symbols/search',
+        {
+          offset,
+          prefix,
+        }
+      );
+      return equitySymbols;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
@@ -611,11 +636,15 @@ export class QuestradeClass extends EE {
   public async searchSymbol(stockSymbol: string): Promise<IStockSymbol> {
     try {
       const offset: number = 0;
-      const response = await this._api<any>('GET', '/symbols/search', {
-        offset,
-        prefix: stockSymbol,
-      });
-      return keyBy<IStockSymbol>(response.symbols, 'symbol')[
+      const { equitySymbols } = await this._api<IEquitySymbols>(
+        'GET',
+        '/symbols/search',
+        {
+          offset,
+          prefix: stockSymbol,
+        }
+      );
+      return keyBy<IEquitySymbol>(equitySymbols, 'symbol')[
         stockSymbol.toUpperCase()
       ];
     } catch (error) {

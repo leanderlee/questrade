@@ -1,6 +1,14 @@
 /** @format */
 
 import { DateTime, idType } from '.';
+import {
+  OrderClass,
+  OrderSide,
+  OrderState,
+  OrderTimeInForce,
+  OrderType,
+  StrategyTypes,
+} from './enums';
 
 export interface IOrders {
   orders: IOrder[];
@@ -13,8 +21,8 @@ export interface IOrder {
   openQuantity?: number;
   filledQuantity?: number;
   canceledQuantity?: number;
-  side?: any;
-  orderType?: any;
+  side?: OrderSide;
+  orderType?: OrderType;
   limitPrice?: number;
   stopPrice?: number;
   isAllOrNone?: boolean;
@@ -23,19 +31,19 @@ export interface IOrder {
   minQuantity?: number;
   avgExecPrice?: number;
   lastExecPrice?: number;
-  source?: any;
-  timeInForce?: any;
+  source?: string;
+  timeInForce?: OrderTimeInForce;
   gtdDate?: DateTime;
-  state?: any;
+  state?: OrderState;
   clientReasonStr?: string;
   chainId?: idType;
   creationTime?: DateTime;
   updateTime?: DateTime;
   notes?: string;
-  primaryRoute?: any;
-  secondaryRoute?: any;
-  orderRoute?: any;
-  venueHoldingOrder?: any;
+  primaryRoute?: string;
+  secondaryRoute?: string;
+  orderRoute?: string;
+  venueHoldingOrder?: string;
   commissionCharged?: number;
   exchangeOrderId?: idType;
   isSignificantShareholder?: boolean;
@@ -43,10 +51,10 @@ export interface IOrder {
   isLimitOffsetInDollar?: boolean;
   userId?: idType;
   placementCommission?: number;
-  legs?: any;
-  OrderLeg?: any;
-  strategyType?: any;
+  legs?: string;
+  OrderLeg?: string;
+  strategyType?: StrategyTypes;
   triggerStopPrice?: number;
   orderGroupId?: idType;
-  orderClass?: any;
+  orderClass?: OrderClass;
 }

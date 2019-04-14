@@ -5,13 +5,13 @@
  *   public set account(accountNumber: string | number) {
  *   public seedToken: string;
  *   public constructor(opts?: QuestradeAPIOptions) {
- *   public async createOrder(opts: any) {
- *   public async createStrategy(opts: any) {
+ *   public async createOrder(opts: an!y) {
+ *   public async createStrategy(opts: an!y) {
  *   public async getAccounts(): Promise<IAccount[]> {
- *   public async getActivities(opts_: any) {
+ *   public async getActivities(opts_: an!y) {
  *   public async getAllOrders() {
  *   public async getBalances(): Promise<IBalances> {
- *   public async getCandles(id: string, opts?: any) {
+ *   public async getCandles(id: string, opts?: an!y) {
  *   public async getClosedOrders() {
  *   public async getExecutions() {
  *   public async getMarkets() {
@@ -45,25 +45,25 @@ currency	Enumeration	Currency code (ISO format).
 snapQuotesLimit	Integer	Number of snap quotes that the user can retrieve from a market.
 
   public async getOpenOrders() {
-  public async getOptionChain(symbolId: any) {
-  public async getOptionQuote(filters_: any[]) {
-  public async getOptionQuoteSimplified(filters: any) {
-  public async getOrder(id: any) {
-  public async getOrders(ids: any) {
+  public async getOptionChain(symbolId: an!y) {
+  public async getOptionQuote(filters_: an!y[]) {
+  public async getOptionQuoteSimplified(filters: an!y) {
+  public async getOrder(id: an!y) {
+  public async getOrders(ids: an!y) {
   public async getPositions() {
   public async getPrimaryAccountNumber(
   public async getQuote(id: string | number) {
-  public async getQuotes(ids: any) {
+  public async getQuotes(ids: an!y) {
   public async getServerTimeObjects(): Promise<IDateObject> {
   public async getstockSymbolId(stockSymbol: string): Promise<number> {
-  public async getSymbol(id: any) {
-  public async getSymbols(ids: any) {
+  public async getSymbol(id: an!y) {
+  public async getSymbols(ids: an!y) {
   public async removeOrder(id: string) {
   public async search(prefix: string, offset: number = 0) {
   public async searchSymbol(stockSymbol: string): Promise<IStockSymbol> {
-  public async testOrder(opts: any) {
-  public async testStrategy(opts: any) {
-  public async updateOrder(id: string, opts: any) {
+  public async testOrder(opts: an!y) {
+  public async testStrategy(opts: an!y) {
+  public async updateOrder(id: string, opts: an!y) {
   private _accessToken: string;
   private _account: string;
   private _apiServer: string;
@@ -74,8 +74,8 @@ snapQuotesLimit	Integer	Number of snap quotes that the user can retrieve from a 
   private _keyFile: string;
   private _refreshToken: string;
   private _test: boolean;
-  private async _accountApi<T = any>(
-  private async _api<T = any>(
+  private async _accountApi<T = an!y>(
+  private async _api<T = an!y>(
   private async _getTime(): Promise<string> {
   private async _loadKey() {
   private async _refreshKey() {
@@ -98,13 +98,13 @@ private _test: boolean;
 // ! set account(accountNumber: string | number)
 
 
- * getOrder(id: any)
- * getSymbol(id: any)
- * getOptionChain(symbolId: any)
+ * getOrder(id: an!y)
+ * getSymbol(id: an!y)
+ * getOptionChain(symbolId: an!y)
  *
- * getOrders(ids: any)
- * getSymbols(ids: any)
- * getQuotes(ids: any)
+ * getOrders(ids: an!y)
+ * getSymbols(ids: an!y)
+ * getQuotes(ids: an!y)
  *
  * public get keyFile()
  * getPositions()
@@ -121,13 +121,13 @@ private _test: boolean;
  * searchSymbol(stockSymbol: string): Promise<IStockSymbol>
  * getstockSymbolId(stockSymbol: string): Promise<number>
  *
- * createOrder(opts: any)
- * updateOrder(id: string, opts: any)
- * testOrder(opts: any)
- * createStrategy(opts: any)
- * testStrategy(opts: any)
- * getActivities(opts_: any)
- * getOptionQuote(filters_: any[])
+ * createOrder(opts: an!y)
+ * updateOrder(id: string, opts: an!y)
+ * testOrder(opts: an!y)
+ * createStrategy(opts: an!y)
+ * testStrategy(opts: an!y)
+ * getActivities(opts_: an!y)
+ * getOptionQuote(filters_: an!y[])
  *
  *
  * public seedToken: string;
@@ -136,8 +136,8 @@ private _test: boolean;
  * getPrimaryAccountNumber(
  * search(prefix: string, offset: number = 0)
  * getQuote(id: string | number)
- * getOptionQuoteSimplified(filters: any)
- * getCandles(id: string, opts?: any)
+ * getOptionQuoteSimplified(filters: an!y)
+ * getCandles(id: string, opts?: an!y)
  * removeOrder(id: string)
  *
  * @format

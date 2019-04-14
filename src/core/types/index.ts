@@ -23,11 +23,14 @@ export { UserAccountType } from './enums/UserAccountType';
 export { AcountNumber, IAccount, IAccounts } from './IAccounts';
 export { IAccountActivity, IActivities } from './IActivities';
 export { IBalance, IBalances } from './IBalances';
+export { ICandle, ICandles } from './ICandles';
 export { ICreds } from './ICreds';
 export { IDateObject } from './IDateObject';
+export { IEquitySymbol, IEquitySymbols } from './IEquitySymbols';
 export { IExecution, IExecutions } from './IExecutions';
 export { IHeaders } from './IHeaders';
 export { IMarket, IMarketsResponse } from './IMarketsResponse';
+export { IOptionsQuote, IOptionsQuotes } from './IOptionsQuotes';
 export { IOrder, IOrders } from './IOrders';
 export { IPosition, IPositions } from './IPositions';
 export {
@@ -36,6 +39,7 @@ export {
 } from './IQuestradeAPIOptions';
 export { IQuote, IQuotes } from './IQuotes';
 export { IStockSymbol } from './IStockSymbol';
+export { ISymbol, ISymbols } from './ISymbols';
 export {
   IFilter,
   Optionals,

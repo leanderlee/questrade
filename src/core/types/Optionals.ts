@@ -6,10 +6,10 @@ import { HistoricalDataGranularity, OptionType } from './enums';
 export type AccountType = number | string;
 export interface IFilter {
   optionType: OptionType;
-  underlyingId: number; // Underlying ID
-  expiryDate: DateTime; // Expiry date
-  minstrikePrice: number; // 0 Min strike price
-  maxstrikePrice: number; // 0 Max strike price
+  underlyingId: number;
+  expiryDate: DateTime;
+  minstrikePrice: number;
+  maxstrikePrice: number;
 }
 
 interface ITimeStartEnd {
@@ -20,24 +20,20 @@ interface ITimeStartEndAndInterval extends ITimeStartEnd {
   interval?: HistoricalDataGranularity | string;
 }
 interface IOrdersOptions {
-  id?: AccountType; // Account number.
-  // Can occur in the ‘location’ header only.
-  startTime?: DateTime; // Start of the time range in ISO format.
-  // By default – start of today, 12:00am.
-  endTime?: DateTime; // End of the time range in ISO format.
-  // By default – end of today, 11:59pm.
-  // Enum All, Open, Closed – retrieve all, active or closed orders.
-  stateFilter?: any;
-  orderId?: number; // Retrieve single order details.
+  id?: AccountType;
+  startTime?: DateTime;
+  endTime?: DateTime;
+  stateFilter?: string;
+  orderId?: number;
 }
 interface IOptionals extends ITimeStartEndAndInterval, IOrdersOptions {
-  stateFilter?: any;
+  stateFilter?: string;
   id?: string | number;
   name?: string;
   names?: string[] | string;
-  offset?: any;
-  prefix?: any;
-  interval?: any;
+  offset?: number;
+  prefix?: string | number;
+  interval?: string;
   ids?: string | number | string[] | number[];
   filters?: IFilter[];
   filter?: IFilter;
