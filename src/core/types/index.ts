@@ -25,12 +25,22 @@ export { IAccountActivity, IActivities } from './IActivities';
 export { IBalance, IBalances } from './IBalances';
 export { ICreds } from './ICreds';
 export { IDateObject } from './IDateObject';
+export { IExecution, IExecutions } from './IExecutions';
 export { IHeaders } from './IHeaders';
 export { IMarket, IMarketsResponse } from './IMarketsResponse';
+export { IOrder, IOrders } from './IOrders';
 export { IPosition, IPositions } from './IPositions';
 export {
   IQuestradeAPIOptions,
   QuestradeAPIOptions,
 } from './IQuestradeAPIOptions';
 export { IStockSymbol } from './IStockSymbol';
+export {
+  IFilter,
+  Optionals,
+  OrdersOptions,
+  TimeRange,
+  TimeRangeInterval,
+} from './Optionals';
 export { Time } from './Time';
+export { DateTime, idsType, idType } from './Types';

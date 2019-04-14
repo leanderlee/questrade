@@ -8,20 +8,34 @@ import { sync } from 'mkdirp';
 import { default as moment } from 'moment';
 import { dirname } from 'path';
 import {
+  AcountNumber,
+  HistoricalDataGranularity,
+  IAccount,
+  IAccountActivity,
+  IAccounts,
+  IActivities,
   IBalances,
   ICreds,
+  IDateObject,
+  idsType,
+  idType,
+  IExecution,
+  IExecutions,
+  IFilter,
+  IHeaders,
   IMarket,
   IMarketsResponse,
+  IPosition,
+  IPositions,
   IStockSymbol,
+  Optionals,
+  OrdersOptions,
   QuestradeAPIOptions,
   Time,
-} from '..';
-import { AcountNumber, IAccount, IAccounts } from '../IAccounts';
-import { IAccountActivity, IActivities } from '../IActivities';
-import { IDateObject } from '../IDateObject';
-import { IHeaders } from '../IHeaders';
-import { IPosition, IPositions } from '../IPositions';
-
+  TimeRange,
+  TimeRangeInterval,
+} from '../../types';
+import { IOrder, IOrders } from '../IOrders';
 export class QuestradeClass extends EE {
   public get getServerTime(): Promise<string> {
     return this._getTime();
@@ -45,7 +59,7 @@ export class QuestradeClass extends EE {
   private _refreshToken: string;
   private _test: boolean;
 
-  public constructor(opts?: QuestradeAPIOptions) {
+  public constructor(options?: QuestradeAPIOptions) {
     super();
 
     this._accountNumber = '';
@@ -56,32 +70,32 @@ export class QuestradeClass extends EE {
     this.seedToken = '';
 
     try {
-      if (typeof opts === 'undefined' || opts === undefined) {
+      if (typeof options === 'undefined' || options === undefined) {
         throw new Error('questrade_missing_api_key or options');
       }
-      if (typeof opts === 'string' && opts.indexOf('/') !== -1) {
-        this._keyFile = opts;
+      if (typeof options === 'string' && options.indexOf('/') !== -1) {
+        this._keyFile = options;
       }
-      if (typeof opts === 'string' && opts.indexOf('/') === -1) {
-        this.seedToken = opts;
+      if (typeof options === 'string' && options.indexOf('/') === -1) {
+        this.seedToken = options;
       }
-      if (typeof opts === 'object') {
+      if (typeof options === 'object') {
         // Set to true if using a practice account
         // (http://www.questrade.com/api/free-practice-account)
-        this._test = opts.test === undefined ? false : !!opts.test;
+        this._test = options.test === undefined ? false : !!options.test;
         // Directory where the last refreshToken is stored.
         // The file name will have to be seedToken
-        this._keyDir = opts.keyDir || './keys';
+        this._keyDir = options.keyDir || './keys';
         // Used as part of the API URL
-        this._apiVersion = opts.apiVersion || 'v1';
+        this._apiVersion = options.apiVersion || 'v1';
         // File that stores the last refreshToken.
         // Not really neede if you keep the seedToken and the keyDir
-        this._keyFile = opts.keyFile || '';
+        this._keyFile = options.keyFile || '';
         // The original token obtained mannuelly from the interface
-        this.seedToken = opts.seedToken || '';
+        this.seedToken = options.seedToken || '';
         // The default Account agains wich the API are made.
         // GetAccounts() will return the possible values
-        this._accountNumber = `${opts.account}` || '';
+        this._accountNumber = `${options.account}` || '';
       }
       // The refresh token used to login and get the new accessToken,
       // the new refreshToken (next time to log in) and the api_server
@@ -160,61 +174,33 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method createOrder(opts: any)
-  public async createOrder(opts: any) {
-    try {
-      return this._accountApi('POST', '/orders', opts);
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-  // ! async method createStrategy(opts: any)
-  public async createStrategy(opts: any) {
-    try {
-      return this._accountApi('POST', '/orders/strategy', opts);
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-  // ! async method getAccounts(): Promise<IAccount[]>
+
+  // ! async method getAccounts()
   public async getAccounts(): Promise<IAccount[]> {
     try {
-      const response = await this._api<IAccounts>('GET', '/accounts');
-      return response.accounts;
+      const { accounts } = await this._api<IAccounts>('GET', '/accounts');
+      return accounts;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-  // ! async method getActivities(opts_: any)
-  public async getActivities(opts?: any): Promise<IAccountActivity[]> {
+  // ! async method getActivities(opts_)
+  public async getActivities(
+    range: TimeRange = {}
+  ): Promise<IAccountActivity[]> {
     try {
-      let startTime;
-      let endTime;
-      if (!!opts) {
-        if (opts.startTime && !moment(opts.startTime).isValid()) {
-          throw new Error('start_time_invalid');
+      const { startTime, endTime } = this._timeValidation(range);
+
+      const { activities } = await this._accountApi<IActivities>(
+        'GET',
+        '/activities',
+        {
+          endTime,
+          startTime,
         }
-        if (opts.endTime && !moment(opts.endTime).isValid()) {
-          throw new Error('end_time_invalid');
-        }
-        opts.startTime
-          ? (startTime = moment(opts.startTime).toISOString())
-          : (startTime = moment()
-              .startOf('day')
-              .subtract(30, 'days')
-              .toISOString());
-        opts.endTime
-          ? (endTime = moment(opts.endTime).toISOString())
-          : (endTime = moment().toISOString());
-      }
-      const some = await this._accountApi<IActivities>('GET', '/activities', {
-        endTime,
-        startTime,
-      });
-      return some.activities;
+      );
+      return activities;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
@@ -223,7 +209,7 @@ export class QuestradeClass extends EE {
   // ! async method getAllOrders()
   public async getAllOrders() {
     try {
-      const acountResponse: any = await this._accountApi('GET', '/orders', {
+      const acountResponse = await this._accountApi<any>('GET', '/orders', {
         stateFilter: 'All',
       });
       return keyBy(acountResponse.orders, 'id');
@@ -232,7 +218,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method getBalances(): Promise<IBalances>
+  // ! async method getBalances()
   public async getBalances(): Promise<IBalances> {
     try {
       const balances = await this._accountApi<IBalances>('GET', '/balances');
@@ -242,29 +228,20 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method getCandles(id: string, opts?: any)
-  public async getCandles(id: string, opts?: any) {
+  // ! async method getCandles(id)
+  public async getCandles(
+    id: idType,
+    rangeAndInterval: TimeRangeInterval = {
+      interval: HistoricalDataGranularity.OneDay,
+    }
+  ) {
     try {
-      const opt: any = opts || {};
-      if (opt.startTime && !moment(opt.startTime).isValid()) {
-        throw new Error('start_time_invalid');
-      }
-      // details: opt.startTime,
-      if (opt.endTime && !moment(opt.endTime).isValid()) {
-        throw new Error('end_time_invalid');
-      }
-      const startTime = opt.startTime
-        ? moment(opt.startTime).toISOString()
-        : moment()
-            .startOf('day')
-            .subtract(30, 'days')
-            .toISOString();
-      const endTime = opt.endTime
-        ? moment(opt.endTime).toISOString()
-        : moment().toISOString();
-      const response: any = this._api('GET', `/markets/candles/${id}`, {
+      const { startTime, endTime, interval } = this._timeValidation(
+        rangeAndInterval
+      );
+      const response = await this._api<any>('GET', `/markets/candles/${id}`, {
         endTime,
-        interval: opt.interval || 'OneDay',
+        interval,
         startTime,
       });
       return response.candles;
@@ -274,21 +251,27 @@ export class QuestradeClass extends EE {
     }
   }
   // ! async method getClosedOrders()
-  public async getClosedOrders() {
+  public async getClosedOrders(): Promise<IOrder[]> {
     try {
-      const response: any = await this._accountApi('GET', '/orders', {
+      const { orders } = await this._accountApi<IOrders>('GET', '/orders', {
         stateFilter: 'Closed',
       });
-      return keyBy(response.orders, 'id');
+      return orders;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
   // ! async method getExecutions()
-  public async getExecutions() {
+  public async getExecutions(range: TimeRange = {}): Promise<IExecution[]> {
     try {
-      return this._accountApi('GET', '/executions');
+      const { startTime, endTime } = this._timeValidation(range);
+      const executions = await this._accountApi<IExecutions>(
+        'GET',
+        '/executions',
+        { startTime, endTime }
+      );
+      return executions.executions;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
@@ -297,8 +280,8 @@ export class QuestradeClass extends EE {
   // ! async method getMarkets()
   public async getMarkets(): Promise<IMarket[]> {
     try {
-      const response = await this._api<IMarketsResponse>('GET', '/markets');
-      return response.markets; // keyBy(response.markets, 'name');
+      const { markets } = await this._api<IMarketsResponse>('GET', '/markets');
+      return markets; // keyBy(response.markets, 'name');
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
@@ -307,7 +290,7 @@ export class QuestradeClass extends EE {
   // ! async method getOpenOrders()
   public async getOpenOrders() {
     try {
-      const response: any = await this._accountApi('GET', '/orders', {
+      const response = await this._accountApi<any>('GET', '/orders', {
         stateFilter: 'Open',
       });
       keyBy(response.orders, 'id');
@@ -316,10 +299,10 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method getOptionChain(symbolId: any)
-  public async getOptionChain(symbolId: any) {
+  // ! async method getOptionChain(symbolId)
+  public async getOptionChain(symbolId: number) {
     try {
-      const response: any = await this._api(
+      const response = await this._api<any>(
         'GET',
         `/symbols/${symbolId}/options`
       );
@@ -337,14 +320,15 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method getOptionQuote(filters_: any[])
-  public async getOptionQuote(filters_: any[]) {
+  // ! async method getOptionQuote(filters_[])
+  // % post
+  public async getOptionQuote(filters_: IFilter[] | IFilter) {
     try {
       let filters = filters_;
       if (!Array.isArray(filters) && typeof filters === 'object') {
         filters = [filters];
       }
-      const response: any = await this._api('POST', '/markets/quotes/options', {
+      const response = await this._api<any>('POST', '/markets/quotes/options', {
         filters,
       });
       return response.optionQuotes;
@@ -353,8 +337,8 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method getOptionQuoteSimplified(filters: any)
-  public async getOptionQuoteSimplified(filters: any) {
+  // ! async method getOptionQuoteSimplified(filters)
+  public async getOptionQuoteSimplified(filters: IFilter) {
     try {
       const optionsQuotes = await this.getOptionQuote(filters);
       return chain(optionsQuotes)
@@ -364,7 +348,7 @@ export class QuestradeClass extends EE {
           );
           if (parsedSymbol.length >= 5) {
             const parsedDate = parsedSymbol[2].match(/^(\d+)([a-zA-Z]+)(\d+)$/);
-            const expiryDate: any = moment()
+            const expiryDate = moment()
               .utc()
               .month(parsedDate[2])
               .date(parsedDate[1])
@@ -411,27 +395,31 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method getOrder(id: any)
-  public async getOrder(id: any) {
+  // ! async method getOrder(id)
+  public async getOrder(orderId: idType, orderOptions: OrdersOptions = {}) {
     try {
-      const response: any = await this._accountApi('GET', `/orders/${id}`);
-      if (!response.orders.length) {
+      const { orders } = await this._accountApi<IOrders>(
+        'GET',
+        `/orders/${orderId}`,
+        orderOptions
+      );
+      if (!orders.length) {
         throw Error('order_not_found');
       }
-      return response.orders[0];
+      return orders;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-  // ! async method getOrders(ids: any)
-  public async getOrders(ids: any) {
+  // ! async method getOrders(ids)
+  public async getOrders(ids: idsType) {
     try {
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
       if (!ids.length) return {};
-      const response: any = await this._accountApi('GET', '/orders', {
+      const response = await this._accountApi<any>('GET', '/orders', {
         ids: ids.join(','),
       });
       return keyBy(response.orders, 'id');
@@ -475,14 +463,14 @@ export class QuestradeClass extends EE {
     this._accountNumber = accounts[0].number;
     return this._accountNumber;
   }
-  // ! async method getQuote(id: string | number)
-  public async getQuote(id: string | number) {
+  // ! async method getQuote(id)
+  public async getQuote(id: idType) {
     try {
       let symID = '';
       if (typeof id === 'number') {
         symID = id.toString();
       }
-      const response: any = await this._api('GET', `/markets/quotes/${symID}`);
+      const response = await this._api<any>('GET', `/markets/quotes/${symID}`);
       if (!response.quotes) {
         return {
           message: 'quote_not_found',
@@ -495,14 +483,14 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method getQuotes(ids: any)
-  public async getQuotes(ids: any) {
+  // ! async method getQuotes(ids)
+  public async getQuotes(ids: idsType) {
     try {
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
       if (!ids.length) return {};
-      const response = await this._api('GET', '/markets/quotes', {
+      const response = await this._api<any>('GET', '/markets/quotes', {
         ids: ids.join(','),
       });
       return keyBy(response.quotes, 'symbolId');
@@ -549,41 +537,41 @@ export class QuestradeClass extends EE {
     };
     return returnDate;
   }
-  // ! async method getstockSymbolId(stockSymbol: string)
+  // ! async method getstockSymbolId(stockSymbol)
   public async getstockSymbolId(stockSymbol: string): Promise<number> {
     return (await this.searchSymbol(stockSymbol)).symbolId;
   }
-  // ! async method getSymbol(id: any)
-  public async getSymbol(id: any) {
+  // ! async method getSymbol(id)
+  public async getSymbol(idOrSymbol: idType) {
     try {
-      let params: any = false;
-      if (typeof id === 'number') {
+      let params;
+      if (typeof idOrSymbol === 'number') {
         params = {
-          id,
+          id: idOrSymbol,
         };
-      } else if (typeof id === 'string') {
+      } else if (typeof idOrSymbol === 'string') {
         params = {
-          names: id,
+          names: idOrSymbol,
         };
       }
-      if (params === false) {
+      if (params === undefined) {
         throw new Error('missing_id');
       }
-      const response: any = this._api('GET', '/symbols', params);
+      const response = await this._api<any>('GET', '/symbols', params);
       return response.symbols[0];
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-  // ! async method getSymbols(ids: any)
-  public async getSymbols(ids: any) {
+  // ! async method getSymbols(ids)
+  public async getSymbols(ids: idsType) {
     try {
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
       if (!ids.length) return {};
-      let params: any = false;
+      let params;
       if (typeof ids[0] === 'number') {
         params = {
           ids: ids.join(','),
@@ -593,10 +581,10 @@ export class QuestradeClass extends EE {
           names: ids.join(','),
         };
       }
-      if (params === false) {
+      if (params === undefined) {
         throw new Error('missing_id');
       }
-      const response: any = await this._api('GET', '/symbols', params);
+      const response = await this._api<any>('GET', '/symbols', params);
       if (!response.symbols.length) {
         throw new Error('symbols_not_found');
       }
@@ -607,19 +595,11 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method removeOrder(id: string)
-  public async removeOrder(id: string) {
-    try {
-      return this._accountApi('DELETE', `/orders/${id}`);
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-  // ! async method search(prefix: string, offset: number = 0)
+
+  // ! async method search(prefix)
   public async search(prefix: string, offset: number = 0) {
     try {
-      const response: any = await this._api('GET', '/symbols/search', {
+      const response = await this._api<any>('GET', '/symbols/search', {
         offset,
         prefix,
       });
@@ -629,11 +609,11 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method searchSymbol(stockSymbol: string): Promise<IStockSymbol>
+  // ! async method searchSymbol(stockSymbol)
   public async searchSymbol(stockSymbol: string): Promise<IStockSymbol> {
     try {
       const offset: number = 0;
-      const response: any = await this._api('GET', '/symbols/search', {
+      const response = await this._api<any>('GET', '/symbols/search', {
         offset,
         prefix: stockSymbol,
       });
@@ -645,39 +625,13 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method testOrder(opts: any)
-  public async testOrder(opts: any) {
-    try {
-      return this._accountApi('POST', '/orders/impact', opts);
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-  // ! async method testStrategy(opts: any)
-  public async testStrategy(opts: any) {
-    try {
-      return this._accountApi('POST', '/orders/strategy/impact', opts);
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-  // ! async method updateOrder(id: string, opts: any)
-  public async updateOrder(id: string, opts: any) {
-    try {
-      return this._accountApi('POST', `/orders/${id}`, opts);
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-  // ? async method _accountApi<T = any>
+
+  // ? async method _accountApi<T>
   // Method that appends the set account to the API calls so all calls are made
-  private async _accountApi<T = any>(
-    method?: any,
-    endpoint?: any,
-    options?: any
+  private async _accountApi<T>(
+    method?: string,
+    endpoint?: string,
+    options?: Optionals
   ) {
     if (!this._accountNumber) {
       throw new Error('no_account_selected');
@@ -689,16 +643,16 @@ export class QuestradeClass extends EE {
       { location: this._accountNumber }
     );
   }
-  // ? async method _api<T = any>
+  // ? async method _api<T>
   // Method that actually mades the GET/POST request to Questrade
-  private async _api<T = any>(
+  private async _api<T>(
     method?: string,
     endpoint?: string,
-    options?: any,
+    options?: Optionals,
     additionalHeaders?: IHeaders
   ): Promise<T> {
     const client = axios;
-    let params: any = {};
+    let params: Optionals = {};
     if (typeof options !== 'undefined' && typeof options === 'object') {
       params = options;
     }
@@ -723,14 +677,14 @@ export class QuestradeClass extends EE {
   }
   // ? async method getTime(): Promise <string>
   private async _getTime(): Promise<string> {
-    const time = await this._api<Time>('GET', '/time');
-    return time.time;
+    const { time } = await this._api<Time>('GET', '/time');
+    return time;
   }
   // ? async method _loadKey()
   //  Reads the refreshToken stored in the file (if it exist),
   // otherwise uses the seedToken
   private async _loadKey() {
-    let refreshToken: any;
+    let refreshToken: string = '';
     try {
       if (!!this._keyFile) {
         sync(dirname(this._keyFile));
@@ -795,4 +749,120 @@ export class QuestradeClass extends EE {
     writeFileSync(this.keyFile, this._refreshToken, 'utf8');
     return this._refreshToken;
   }
+
+  private _timeValidation(range: TimeRange = {}): Optionals {
+    if (range.startTime && !moment(range.startTime).isValid()) {
+      throw new Error('start_time_invalid');
+    }
+    // details: range.startTime,
+    if (range.endTime && !moment(range.endTime).isValid()) {
+      throw new Error('end_time_invalid');
+    }
+    const startTime = range.startTime
+      ? moment(range.startTime).toISOString()
+      : moment()
+          .startOf('day')
+          .subtract(30, 'days')
+          .toISOString();
+    const endTime = range.endTime
+      ? moment(range.endTime).toISOString()
+      : moment().toISOString();
+    return { ...range, startTime, endTime };
+  }
 }
+
+// const deprecated:never = {
+// ! async method removeOrder(id)
+/*   public async removeOrder(id: string) {
+    try {
+      return this._accountApi('DELETE', `/orders/${id}`); // # DELETE
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  } */
+
+// ! async method createOrder(options)
+/*  public async createOrder(options) {
+    try {
+      return this._accountApi('POST', '/orders', options); // # POST
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  } */
+// ! async method createStrategy(options)
+/*   public async createStrategy(options) {
+    try {
+      return this._accountApi('POST', '/orders/strategy', options); // # POST
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  } */
+
+// ! async method testOrder(options)
+/*   public async testOrder(options) {
+    try {
+      return this._accountApi('POST', '/orders/impact', options); // # POST
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  } */
+// ! async method testStrategy(options)
+// public async testStrategy(options) {
+//   try {  // # POST
+//     return this._accountApi('POST', '/orders/strategy/impact', options);
+//   } catch (error) {
+//     console.error(error.message);
+//     throw new Error(error.message);
+//   }
+// }
+// ! async method updateOrder(id)
+/*   public async updateOrder(id: string, options) {
+    try {
+      return this._accountApi('POST', `/orders/${id}`, options); // # POST
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+        if (opt.startTime && !moment(opt.startTime).isValid()) {
+        throw new Error('start_time_invalid');
+      }
+      // details: opt.startTime,
+      if (opt.endTime && !moment(opt.endTime).isValid()) {
+        throw new Error('end_time_invalid');
+      }
+      const startTime = opt.startTime
+        ? moment(opt.startTime).toISOString()
+        : moment()
+            .startOf('day')
+            .subtract(30, 'days')
+            .toISOString();
+      const endTime = opt.endTime
+        ? moment(opt.endTime).toISOString()
+        : moment().toISOString();
+
+         let startTime;
+      let endTime;
+      if (!!options) {
+        if (options.startTime && !moment(options.startTime).isValid()) {
+          throw new Error('start_time_invalid');
+        }
+        if (options.endTime && !moment(options.endTime).isValid()) {
+          throw new Error('end_time_invalid');
+        }
+        options.startTime
+          ? (startTime = moment(options.startTime).toISOString())
+          : (startTime = moment()
+              .startOf('day')
+              .subtract(30, 'days')
+              .toISOString());
+        options.endTime
+          ? (endTime = moment(options.endTime).toISOString())
+          : (endTime = moment().toISOString());
+      // }
+  */
+// }
