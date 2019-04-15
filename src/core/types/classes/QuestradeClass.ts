@@ -26,8 +26,6 @@ import {
   IMarketsResponse,
   IPosition,
   IPositions,
-  ISymbol,
-  ISymbols,
   Optionals,
   OrdersOptions,
   QuestradeAPIOptions,
@@ -37,7 +35,7 @@ import {
 } from '../../types';
 import { OrderStateFilterType } from '../enums';
 import { ICandle, ICandles } from '../ICandles';
-import { IEquitySymbols } from '../IEquitySymbols';
+import { IEquitySymbol, IEquitySymbols } from '../IEquitySymbols';
 // import { IEquitySymbol, IEquitySymbols } from '../IEquitySymbols';
 import { IOptionsQuotes } from '../IOptionsQuotes';
 import { IOrder, IOrders } from '../IOrders';
@@ -573,13 +571,13 @@ export class QuestradeClass extends EE {
   // public async getstockSymbolId(stockSymbol: string): Promise<number> {
   //   return (await this.searchSymbol(stockSymbol)).symbolId;
   // }
-  // ! async method getSymbol(id)
-  public async getEquitySymbols(idOrSymbol: idType): Promise<IEquitySymbols> {
+  // ! async method getEquitySymbols(idOrSymbol)
+  public async getEquitySymbols(idOrSymbol: idType): Promise<IEquitySymbol[]> {
     try {
       let params;
-      if (typeof idOrSymbol === 'number') {
+      if (typeof idOrSymbol === 'number' || !isNaN(Number(idOrSymbol))) {
         params = {
-          id: idOrSymbol,
+          ids: Number(idOrSymbol),
         };
       } else if (typeof idOrSymbol === 'string') {
         params = {
@@ -587,15 +585,45 @@ export class QuestradeClass extends EE {
         };
       }
       if (params === undefined) {
-        throw new Error('missing_id');
+        throw new Error('missing_ID_or_Symbol');
       }
-      const { symbols } = this._api<IEquitySymbols>('GET', '/symbols', params);
+      const { symbols } = await this._api<IEquitySymbols>(
+        'GET',
+        '/symbols',
+        params
+      );
       return symbols;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
+  // $ old version
+  // ! async method getSymbol(id)
+  // public async getEquitySymbols(idOrSymbol: idType):
+  // Promise<IEquitySymbols> {
+  //   try {
+  //     let params;
+  //     if (typeof idOrSymbol === 'number') {
+  //       params = {
+  //         id: idOrSymbol,
+  //       };
+  //     } else if (typeof idOrSymbol === 'string') {
+  //       params = {
+  //         names: idOrSymbol,
+  //       };
+  //     }
+  //     if (params === undefined) {
+  //       throw new Error('missing_id');
+  //     }
+  //     const { symbols } = this._api<IEquitySymbols>
+  // ('GET', '/symbols', params);
+  //     return symbols;
+  //   } catch (error) {
+  //     console.error(error.message);
+  //     throw new Error(error.message);
+  //   }
+  // }
   // ! async method getSymbols(ids)
   // public async getSymbols(ids: idsType): Promise<ISymbol[]> {
   //   try {
@@ -616,7 +644,8 @@ export class QuestradeClass extends EE {
   //     if (params === undefined) {
   //       throw new Error('missing_id');
   //     }
-  //     const { symbols } = await this._api<ISymbols>('GET', '/symbols', params);
+  //     const { symbols } =
+  //  await this._api<ISymbols>('GET', '/symbols', params);
 
   //     return symbols;
   //   } catch (error) {

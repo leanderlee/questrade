@@ -1,6 +1,6 @@
 /** @format */
 
-import { QuestradeClass } from '../core/types';
+import { QuestradeClass } from '../../core/types';
 
 export async function allOfGetOrders(qt: QuestradeClass) {
   const orders = await qt.getOrdersByIds([469330615, 479029601]); //

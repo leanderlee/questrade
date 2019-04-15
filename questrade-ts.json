@@ -1,0 +1,25 @@
+{
+  "scripts": {
+    "smoke:test": "jest --silent --detectOpenHandles --forceExit --config ./src/__tests__/smoketest/jest.config.js",
+    "travis:iex-luxcium-api": "npm run test:ci && npm run build && npm run copy:static:files",
+    "posttravis": "npm run prebuild && ls && cd .. && pwd && ls",
+    "pretest": "tsc --noEmit --pretty && npm run lint && npm run smoke:test",
+    "test": "jest --silent --detectOpenHandles --forceExit --coverage --coverageReporters=text ",
+    "quick:test": "jest --silent --detectOpenHandles --forceExit",
+    "test:ci": "npm run pretest && jest --runInBand --silent --detectOpenHandles --forceExit",
+    "prebuild": "rimraf build",
+    "build": "tsc",
+    "debug": "cd /Users/neb_401/Developer/neb401corp/LuxciumProject/iex-luxcium-api; env NODE_ENV=development env NODE_ENV=development /Users/neb_401/.nvm/versions/node/v10.15.3/bin/node -r ts-node/register ./src/main.ts",
+    "lint": "tslint --project . --format stylish",
+    "gitcheck": "git diff-index origin/master",
+    "copy:static:1": "cp-cli package.json ./build/package.json",
+    "copy:static:2": "cp-cli .npmignore ./build/.npmignore && npm run copy:static:1",
+    "copy:static:3": "cp-cli LICENSE ./build/LICENSE && npm run copy:static:2",
+    "copy:static:files": "cp-cli README.md build/README.md && npm run copy:static:3",
+    "coverrage": "jest --silent --detectOpenHandles --forceExit --coverage --coverageReporters=html",
+    "coveralls": "jest --silent --detectOpenHandles --forceExit --coverage --coverageReporters=text-lcov | coveralls",
+    "predist": "npm run test && npm run build && npm run copy:static:files && npm run gitcheck",
+    "local:predist": "npm run pretest && tsc && npm run copy:static:files",
+    "dist": "cd build && npm publish"
+  }
+}

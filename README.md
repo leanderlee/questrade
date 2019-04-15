@@ -2,6 +2,8 @@
 
 # Questrade API
 
+## UNSTABLE NO TEST SUIT INSTALLED YET
+
 This API is an easy way to use the [Questrade API](www.questrade.com/api/documentation/getting-started) immediately.
 
 ### Features

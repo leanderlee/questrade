@@ -1,6 +1,6 @@
 {
   "name": "questrade-ts",
-  "version": "1.0.0",
+  "version": "0.0.0-unstablePre.1",
   "description": "Unofficial Questrade API wraper with typescript support by Luxcium.",
   "main": "./build/src/index.js",
   "types": "./build/lib/index.d.ts",
@@ -15,14 +15,16 @@
     "copy:npmignore": "cp-cli .npmignore ./build/.npmignore && npm run copy:package:json",
     "copy:LICENSE": "cp-cli LICENSE ./build/LICENSE && npm run copy:npmignore",
     "copy:readme": "cp-cli README.md build/README.md && npm run copy:LICENSE",
-    "copy:static:files": "npm run copy:readme",
-    "predist": "npm run test && npm run build && npm run copy:static:files && npm run gitcheck",
-    "dist": "npm run build",
-    "predist:clean": "npm install && npm run test && npm run build && npm run copy:static:files && npm run gitcheck",
-    "dist:clean": "npm run build",
+    "copy:notice": "cp-cli notice.md build/notice.md && npm run copy:readme",
+    "copy:static:files": "npm run copy:notice ",
+    "predist": "rimraf package-lock.json && rimraf node_modules && npm install && npm run build && npm run copy:static:files && npm run gitcheck",
+    "dist": "rimraf ./build/tmp && echo done",
+    "predist:quick": "npm run build && npm run copy:static:files && npm run gitcheck",
+    "dist:quick": "echo done",
     "lint": "tslint --project . --format stylish",
     "pretest": "tsc --noEmit --pretty && npm run lint && npm run smoke:test",
-    "test": "jest --detectOpenHandles"
+    "test": "jest --detectOpenHandles",
+    "npm:dist": "cd build && npm publish"
   },
   "repository": {
     "type": "git",

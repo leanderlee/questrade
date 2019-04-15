@@ -1,5 +1,7 @@
 /** @format */
-
+import { main } from '../main/index';
+const seedToken = 'U45gzxijTrHbVrKmDNujvwMsOS4AlsTU0';
+main(seedToken).catch(error => console.log('MAINERROR:', error));
 // /** @format */
 // // import {} from 'chai'
 // import {

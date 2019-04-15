@@ -1,20 +1,25 @@
 /** @format */
-import { QuestradeClass, QuestradeHelperFunction } from '..';
+import { QuestradeClass, QuestradeHelperFunction } from '../../..';
 import { allOfGetAccounts } from './allOfGetAccounts';
 import { allOfGetActivities } from './allOfGetActivities';
 import { allOfgetBalances } from './allOfgetBalances';
+import { allOfGetEquitySymbols } from './allOfGetEquitySymbols';
 import { allOfGetExecutions } from './allOfGetExecutions';
 import { allOfgetMarkets } from './allOfgetMarkets';
 import { allOfGetOrder } from './allOfGetOrder';
 import { allOfGetOrders } from './allOfGetOrders';
 import { allOfGetPositions } from './allOfGetPositions';
 import { allOfgetServerTimeObject } from './allOfgetServerTimeObject';
+
 export const main = async (seedToken: string) => {
   await QuestradeHelperFunction({ seedToken }, async (qt: QuestradeClass) => {
     console.log('seedToken:', qt.seedToken);
     console.log('keyFile:', qt.keyFile);
     console.log('getServerTime:', qt.getServerTime);
-
+    console.log(
+      'qt.getPrimaryAccountNumber():',
+      await qt.getPrimaryAccountNumber()
+    );
     await allOfgetServerTimeObject(qt);
     await allOfGetAccounts(qt);
     await allOfGetPositions(qt);
@@ -24,15 +29,8 @@ export const main = async (seedToken: string) => {
     await allOfGetOrder(qt);
     await allOfGetOrders(qt);
     await allOfgetMarkets(qt);
-    // const result = await qt.search('aapl');
-    // await console.log(result);ù
-    console.log(
-      'qt.getPrimaryAccountNumber():',
-      await qt.getPrimaryAccountNumber()
-    );
+    await allOfGetEquitySymbols(qt);
     try {
-      const equitySymbols = await qt.getEquitySymbols('aapl');
-      console.log(equitySymbols);
       // const candle = await qt.getCandles(symbolID);
       // console.log(candle[0].close);
       // console.log(candle[0].end);
@@ -41,6 +39,8 @@ export const main = async (seedToken: string) => {
       // console.log(candle[0].open);
       // console.log(candle[0].close);
       // console.log(candle[0].volume);
+      // const result = await qt.search('aapl');
+      // await console.log(result);ù
     } catch (error) {
       console.log(error.message);
     }
