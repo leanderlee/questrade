@@ -25,7 +25,25 @@ export const main = async (seedToken: string) => {
     await allOfGetOrders(qt);
     await allOfgetMarkets(qt);
     // const result = await qt.search('aapl');
-    // await console.log(result);
+    // await console.log(result);ù
+    console.log(
+      'qt.getPrimaryAccountNumber():',
+      await qt.getPrimaryAccountNumber()
+    );
+    try {
+      const equitySymbols = await qt.getEquitySymbols('aapl');
+      console.log(equitySymbols);
+      // const candle = await qt.getCandles(symbolID);
+      // console.log(candle[0].close);
+      // console.log(candle[0].end);
+      // console.log(candle[0].high);
+      // console.log(candle[0].low);
+      // console.log(candle[0].open);
+      // console.log(candle[0].close);
+      // console.log(candle[0].volume);
+    } catch (error) {
+      console.log(error.message);
+    }
   });
 };
 
@@ -40,7 +58,7 @@ export const main = async (seedToken: string) => {
 & public async getAccounts(): Promise<IAccount[]> {
 & public async getActivities(
 & public async getBalances(): Promise<IBalances> {
-! public async getCandles(
+! public async getCandles()
 & public async getExecutions(range: TimeRange = {}): Promise<IExecution[]> {
 ! public async getMarkets(): Promise<IMarket[]> {
 ! public async getOptionQuote(filters_: IFilter[] | IFilter) {
