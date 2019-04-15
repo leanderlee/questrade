@@ -1,7 +1,11 @@
 /** @format */
 
 import { DateTime } from '.';
-import { HistoricalDataGranularity, OptionType } from './enums';
+import {
+  HistoricalDataGranularity,
+  OptionType,
+  OrderStateFilterType,
+} from './enums';
 
 export type AccountType = number | string;
 export interface IFilter {
@@ -23,11 +27,11 @@ interface IOrdersOptions {
   id?: AccountType;
   startTime?: DateTime;
   endTime?: DateTime;
-  stateFilter?: string;
+  stateFilter?: OrderStateFilterType;
   orderId?: number;
 }
 interface IOptionals extends ITimeStartEndAndInterval, IOrdersOptions {
-  stateFilter?: string;
+  stateFilter?: OrderStateFilterType;
   id?: string | number;
   name?: string;
   names?: string[] | string;

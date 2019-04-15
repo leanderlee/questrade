@@ -37,6 +37,7 @@ import {
   TimeRange,
   TimeRangeInterval,
 } from '../../types';
+import { OrderStateFilterType } from '../enums';
 import { ICandle, ICandles } from '../ICandles';
 import { IEquitySymbol, IEquitySymbols } from '../IEquitySymbols';
 import { IOptionsQuotes } from '../IOptionsQuotes';
@@ -196,7 +197,7 @@ export class QuestradeClass extends EE {
     range: TimeRange = {}
   ): Promise<IAccountActivity[]> {
     try {
-      const { startTime, endTime } = this._timeValidation(range);
+      const { startTime, endTime } = this._rangeValidation(range);
 
       const { activities } = await this._accountApi<IActivities>(
         'GET',
@@ -212,18 +213,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method getAllOrders()
-  public async getAllOrders(): Promise<IOrder[]> {
-    try {
-      const { orders } = await this._accountApi<IOrders>('GET', '/orders', {
-        stateFilter: 'All',
-      });
-      return orders;
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
+
   // ! async method getBalances()
   public async getBalances(): Promise<IBalances> {
     try {
@@ -242,7 +232,7 @@ export class QuestradeClass extends EE {
     }
   ): Promise<ICandle[]> {
     try {
-      const { startTime, endTime, interval } = this._timeValidation(
+      const { startTime, endTime, interval } = this._rangeValidation(
         rangeAndInterval
       );
       const { candles } = await this._api<ICandles>(
@@ -260,22 +250,11 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method getClosedOrders()
-  public async getClosedOrders(): Promise<IOrder[]> {
-    try {
-      const { orders } = await this._accountApi<IOrders>('GET', '/orders', {
-        stateFilter: 'Closed',
-      });
-      return orders;
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
+
   // ! async method getExecutions()
   public async getExecutions(range: TimeRange = {}): Promise<IExecution[]> {
     try {
-      const { startTime, endTime } = this._timeValidation(range);
+      const { startTime, endTime } = this._rangeValidation(range);
       const executions = await this._accountApi<IExecutions>(
         'GET',
         '/executions',
@@ -297,18 +276,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method getOpenOrders()
-  public async getOpenOrders(): Promise<IOrder[]> {
-    try {
-      const { orders } = await this._accountApi<IOrders>('GET', '/orders', {
-        stateFilter: 'Open',
-      });
-      return orders;
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
+
   // ! async method getOptionChain(symbolId)
   // public async getOptionChain(symbolId: number) {
   //   try {
@@ -416,33 +384,78 @@ export class QuestradeClass extends EE {
   //     throw new Error(error.message);
   //   }
   // }
-  // ! async method getOrder(id)
-  public async getOrder(orderId: idType, orderOptions: OrdersOptions = {}) {
+  // ! async method getOrdersAll()
+  public async getOrdersAll(range?: TimeRange): Promise<IOrder[]> {
     try {
+      return this.getOrder(undefined, {
+        stateFilter: OrderStateFilterType.All,
+        ...range,
+      });
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+  // ! async method getOrdersClosed()
+  public async getOrdersClosed(range?: TimeRange): Promise<IOrder[]> {
+    try {
+      return this.getOrder(undefined, {
+        stateFilter: OrderStateFilterType.Closed,
+        ...range,
+      });
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+  // ! async method getOrdersOpen()
+  public async getOrdersOpen(range?: TimeRange): Promise<IOrder[]> {
+    try {
+      return this.getOrder(undefined, {
+        stateFilter: OrderStateFilterType.Open,
+        ...range,
+      });
+    } catch (error) {
+      console.error(error.message);
+      throw new Error(error.message);
+    }
+  }
+  // ! async method getOrder()
+  public async getOrder(
+    orderId?: idType,
+    orderOptions: OrdersOptions = { stateFilter: OrderStateFilterType.All }
+  ): Promise<IOrder[]> {
+    const rangeValidated = this._rangeValidation(orderOptions);
+    try {
+      const url = !orderId ? '/orders' : `/orders/${orderId}`;
+      console.log('url:', url);
       const { orders } = await this._accountApi<IOrders>(
         'GET',
-        `/orders/${orderId}`,
-        orderOptions
+        '/orders',
+        rangeValidated
       );
-      if (!orders.length) {
-        throw Error('order_not_found');
-      }
+      // if (!orders.length) {
+      //   throw Error('order_not_found');
+      // }
       return orders;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
-  // ! async method getOrders(ids)
-  public async getOrders(ids: idsType): Promise<IOrder[]> {
+  // ! async method getOrdersByIds(ids)
+  public async getOrdersByIds(ids: idType[]): Promise<IOrder[]> {
     try {
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
+
       if (!ids.length) return [];
+
       const { orders } = await this._accountApi<IOrders>('GET', '/orders', {
         ids: ids.join(','),
       });
+
       return orders;
     } catch (error) {
       console.error(error.message);
@@ -466,21 +479,23 @@ export class QuestradeClass extends EE {
     if (!reset && this._accountNumber.toString().length === 8) {
       return this._accountNumber;
     }
-    // if zero throw if only one retur the only one ...
+    // if zero available then throw
     const accounts = await this.getAccounts();
     if (accounts.length < 1) {
       throw new Error('No account number found');
     }
+    // if only one retur the only one ...
     if (accounts.length === 1) {
       this._accountNumber = accounts[0].number;
       return this._accountNumber;
     }
-    // if more then one return the first one marked primary
+    // if more than one return the first one marked primary
     const primary = await accounts.filter(account => account.isPrimary);
     if (primary.length > 0) {
       this._accountNumber = primary[0].number;
       return this._accountNumber;
     }
+    // if none marked primary and more than one return first one
     this._accountNumber = accounts[0].number;
     return this._accountNumber;
   }
@@ -777,24 +792,23 @@ export class QuestradeClass extends EE {
     return this._refreshToken;
   }
 
-  private _timeValidation(range: TimeRange = {}): Optionals {
-    if (range.startTime && !moment(range.startTime).isValid()) {
+  private _rangeValidation(rangeOptions: TimeRange = {}): Optionals {
+    if (rangeOptions.startTime && !moment(rangeOptions.startTime).isValid()) {
       throw new Error('start_time_invalid');
     }
-    // details: range.startTime,
-    if (range.endTime && !moment(range.endTime).isValid()) {
+    if (rangeOptions.endTime && !moment(rangeOptions.endTime).isValid()) {
       throw new Error('end_time_invalid');
     }
-    const startTime = range.startTime
-      ? moment(range.startTime).toISOString()
+    const startTime = rangeOptions.startTime
+      ? moment(rangeOptions.startTime).toISOString()
       : moment()
           .startOf('day')
           .subtract(30, 'days')
           .toISOString();
-    const endTime = range.endTime
-      ? moment(range.endTime).toISOString()
+    const endTime = rangeOptions.endTime
+      ? moment(rangeOptions.endTime).toISOString()
       : moment().toISOString();
-    return { ...range, startTime, endTime };
+    return { startTime, endTime, ...rangeOptions };
   }
 }
 
