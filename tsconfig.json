@@ -102,13 +102,7 @@
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
   "include": ["./src/**/*"],
-  "exclude": [
-    "node_modules",
-    "build",
-    "**/*.spec.ts",
-    "**/smoke.detection.ts",
-    "**/__tests__/index.spec.ts"
-  ],
+  "exclude": ["node_modules", "build"],
 
   "plugins": [
     {

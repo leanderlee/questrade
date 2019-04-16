@@ -1,31 +1,69 @@
 /** @format */
 import { QuestradeClass, QuestradeHelperFunction } from '..';
-import { allOfGetAccounts } from './allOfGetAccounts';
+import { allOfGetAccounts } from '../main/allOfGetAccounts';
 import { allOfGetActivities } from './allOfGetActivities';
 import { allOfgetBalances } from './allOfgetBalances';
+import { allOfGetEquitySymbols } from './allOfGetEquitySymbols';
 import { allOfGetExecutions } from './allOfGetExecutions';
 import { allOfgetMarkets } from './allOfgetMarkets';
 import { allOfGetOrder } from './allOfGetOrder';
 import { allOfGetOrders } from './allOfGetOrders';
 import { allOfGetPositions } from './allOfGetPositions';
 import { allOfgetServerTimeObject } from './allOfgetServerTimeObject';
+
 export const main = async (seedToken: string) => {
   await QuestradeHelperFunction({ seedToken }, async (qt: QuestradeClass) => {
-    console.log('seedToken:', qt.seedToken);
-    console.log('keyFile:', qt.keyFile);
-    console.log('getServerTime:', qt.getServerTime);
-
-    await allOfgetServerTimeObject(qt);
-    await allOfGetAccounts(qt);
-    await allOfGetPositions(qt);
-    await allOfgetBalances(qt);
-    await allOfGetExecutions(qt);
-    await allOfGetActivities(qt);
-    await allOfGetOrder(qt);
-    await allOfGetOrders(qt);
-    await allOfgetMarkets(qt);
-    // const result = await qt.search('aapl');
-    // await console.log(result);
+    await console.log('seedToken:', qt.seedToken);
+    await console.log('keyFile:', qt.keyFile);
+    await console.log('getServerTime:', qt.getServerTime);
+    await console.log(
+      'qt.getPrimaryAccountNumber():',
+      await qt.getPrimaryAccountNumber()
+    );
+    await allOfgetServerTimeObject(qt, () => {
+      // do nothing yet
+    });
+    await allOfGetAccounts(qt, () => {
+      // do nothing yet
+    });
+    await allOfGetPositions(qt, () => {
+      // do nothing yet
+    });
+    await allOfgetBalances(qt, () => {
+      // do nothing yet
+    });
+    await allOfGetExecutions(qt, () => {
+      // do nothing yet
+    });
+    await allOfGetActivities(qt, () => {
+      // do nothing yet
+    });
+    await allOfGetOrder(qt, () => {
+      // do nothing yet
+    });
+    await allOfGetOrders(qt, () => {
+      // do nothing yet
+    });
+    await allOfgetMarkets(qt, () => {
+      // do nothing yet
+    });
+    await allOfGetEquitySymbols(qt, () => {
+      // do nothing yet
+    });
+    try {
+      // const candle = await qt.getCandles(symbolID);
+      // await console.log(candle[0].close);
+      // await console.log(candle[0].end);
+      // await console.log(candle[0].high);
+      // await console.log(candle[0].low);
+      // await console.log(candle[0].open);
+      // await console.log(candle[0].close);
+      // await console.log(candle[0].volume);
+      // const result = await qt.search('aapl');
+      // await await console.log(result);Ã¹
+    } catch (error) {
+      await console.log(error.message);
+    }
   });
 };
 
@@ -40,7 +78,7 @@ export const main = async (seedToken: string) => {
 & public async getAccounts(): Promise<IAccount[]> {
 & public async getActivities(
 & public async getBalances(): Promise<IBalances> {
-! public async getCandles(
+! public async getCandles()
 & public async getExecutions(range: TimeRange = {}): Promise<IExecution[]> {
 ! public async getMarkets(): Promise<IMarket[]> {
 ! public async getOptionQuote(filters_: IFilter[] | IFilter) {

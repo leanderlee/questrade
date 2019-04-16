@@ -3,7 +3,6 @@
 import { AxiosRequestConfig, AxiosResponse, default as axios } from 'axios';
 import { EventEmitter as EE } from 'events';
 import { readFileSync, writeFileSync } from 'fs';
-import { /* chain, */ keyBy /* , pick */ } from 'lodash';
 import { sync } from 'mkdirp';
 import { default as moment } from 'moment';
 import { dirname } from 'path';
@@ -27,9 +26,6 @@ import {
   IMarketsResponse,
   IPosition,
   IPositions,
-  IStockSymbol,
-  ISymbol,
-  ISymbols,
   Optionals,
   OrdersOptions,
   QuestradeAPIOptions,
@@ -40,6 +36,7 @@ import {
 import { OrderStateFilterType } from '../enums';
 import { ICandle, ICandles } from '../ICandles';
 import { IEquitySymbol, IEquitySymbols } from '../IEquitySymbols';
+// import { IEquitySymbol, IEquitySymbols } from '../IEquitySymbols';
 import { IOptionsQuotes } from '../IOptionsQuotes';
 import { IOrder, IOrders } from '../IOrders';
 import { IQuote, IQuotes } from '../IQuotes';
@@ -571,16 +568,16 @@ export class QuestradeClass extends EE {
     return returnDate;
   }
   // ! async method getstockSymbolId(stockSymbol)
-  public async getstockSymbolId(stockSymbol: string): Promise<number> {
-    return (await this.searchSymbol(stockSymbol)).symbolId;
-  }
-  // ! async method getSymbol(id)
-  public async getSymbol(idOrSymbol: idType): Promise<ISymbol[]> {
+  // public async getstockSymbolId(stockSymbol: string): Promise<number> {
+  //   return (await this.searchSymbol(stockSymbol)).symbolId;
+  // }
+  // ! async method getEquitySymbols(idOrSymbol)
+  public async getEquitySymbols(idOrSymbol: idType): Promise<IEquitySymbol[]> {
     try {
       let params;
-      if (typeof idOrSymbol === 'number') {
+      if (typeof idOrSymbol === 'number' || !isNaN(Number(idOrSymbol))) {
         params = {
-          id: idOrSymbol,
+          ids: Number(idOrSymbol),
         };
       } else if (typeof idOrSymbol === 'string') {
         params = {
@@ -588,59 +585,83 @@ export class QuestradeClass extends EE {
         };
       }
       if (params === undefined) {
-        throw new Error('missing_id');
+        throw new Error('missing_ID_or_Symbol');
       }
-      const { symbols } = await this._api<ISymbols>('GET', '/symbols', params);
+      const { symbols } = await this._api<IEquitySymbols>(
+        'GET',
+        '/symbols',
+        params
+      );
       return symbols;
     } catch (error) {
       console.error(error.message);
       throw new Error(error.message);
     }
   }
+  // $ old version
+  // ! async method getSymbol(id)
+  // public async getEquitySymbols(idOrSymbol: idType):
+  // Promise<IEquitySymbols> {
+  //   try {
+  //     let params;
+  //     if (typeof idOrSymbol === 'number') {
+  //       params = {
+  //         id: idOrSymbol,
+  //       };
+  //     } else if (typeof idOrSymbol === 'string') {
+  //       params = {
+  //         names: idOrSymbol,
+  //       };
+  //     }
+  //     if (params === undefined) {
+  //       throw new Error('missing_id');
+  //     }
+  //     const { symbols } = this._api<IEquitySymbols>
+  // ('GET', '/symbols', params);
+  //     return symbols;
+  //   } catch (error) {
+  //     console.error(error.message);
+  //     throw new Error(error.message);
+  //   }
+  // }
   // ! async method getSymbols(ids)
-  public async getSymbols(ids: idsType): Promise<ISymbol[]> {
-    try {
-      if (!Array.isArray(ids)) {
-        throw new Error('missing_ids');
-      }
-      if (!ids.length) return [];
-      let params;
-      if (typeof ids[0] === 'number') {
-        params = {
-          ids: ids.join(','),
-        };
-      } else if (typeof ids[0] === 'string') {
-        params = {
-          names: ids.join(','),
-        };
-      }
-      if (params === undefined) {
-        throw new Error('missing_id');
-      }
-      const { symbols } = await this._api<ISymbols>('GET', '/symbols', params);
+  // public async getSymbols(ids: idsType): Promise<ISymbol[]> {
+  //   try {
+  //     if (!Array.isArray(ids)) {
+  //       throw new Error('missing_ids');
+  //     }
+  //     if (!ids.length) return [];
+  //     let params;
+  //     if (typeof ids[0] === 'number') {
+  //       params = {
+  //         ids: ids.join(','),
+  //       };
+  //     } else if (typeof ids[0] === 'string') {
+  //       params = {
+  //         names: ids.join(','),
+  //       };
+  //     }
+  //     if (params === undefined) {
+  //       throw new Error('missing_id');
+  //     }
+  //     const { symbols } =
+  //  await this._api<ISymbols>('GET', '/symbols', params);
 
-      return symbols;
-    } catch (error) {
-      console.error(error.message);
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
+  //     return symbols;
+  //   } catch (error) {
+  //     console.error(error.message);
+  //     console.error(error.message);
+  //     throw new Error(error.message);
+  //   }
+  // }
 
   // ! async method search(prefix)
-  public async search(
-    prefix: string,
-    offset: number = 0
-  ): Promise<IEquitySymbol[]> {
+  public async search(prefix: string, offset: number = 0): Promise<any> {
     try {
-      const { equitySymbols } = await this._api<IEquitySymbols>(
-        'GET',
-        '/symbols/search',
-        {
-          offset,
-          prefix,
-        }
-      );
+      const { equitySymbols } = await this._api<any>('GET', '/symbols/search', {
+        offset,
+        prefix,
+      });
       return equitySymbols;
     } catch (error) {
       console.error(error.message);
@@ -648,23 +669,30 @@ export class QuestradeClass extends EE {
     }
   }
   // ! async method searchSymbol(stockSymbol)
-  public async searchSymbol(stockSymbol: string): Promise<IStockSymbol> {
+  public async searchSymbol(
+    stockSymbol: string,
+    offset: number = 0
+  ): Promise<any> {
     try {
-      const offset: number = 0;
-      const { equitySymbols } = await this._api<IEquitySymbols>(
-        'GET',
-        '/symbols/search',
-        {
-          offset,
-          prefix: stockSymbol,
-        }
-      );
-      return keyBy<IEquitySymbol>(equitySymbols, 'symbol')[
-        stockSymbol.toUpperCase()
-      ];
+      const equitySymbols = await this._api<any>('GET', '/symbols/search', {
+        offset,
+        prefix: stockSymbol,
+      });
+
+      console.log(equitySymbols);
+      // return keyBy<IEquitySymbol>(equitySymbols, 'symbol')[
+      //   stockSymbol.toUpperCase()
+      // ];
+      // const some = equitySymbols.find(
+      //   symb => symb.symbol === stockSymbol.toUpperCase()
+      // );
+      // if (!!some) {
+      //   return some;
+      // }
+      // throw new Error("Can't find symbol");
     } catch (error) {
       console.error(error.message);
-      throw new Error(error.message);
+      // throw new Error(error.message);
     }
   }
 
@@ -719,8 +747,12 @@ export class QuestradeClass extends EE {
   }
   // ? async method getTime(): Promise <string>
   private async _getTime(): Promise<string> {
-    const { time } = await this._api<Time>('GET', '/time');
-    return time;
+    try {
+      const { time } = await this._api<Time>('GET', '/time');
+      return time;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
   // ? async method _loadKey()
   //  Reads the refreshToken stored in the file (if it exist),

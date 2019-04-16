@@ -2,6 +2,10 @@
 
 # Questrade API
 
+## Unstable version and no test suites installed yet (NOT READY FOR PRODUCTION)
+
+Until version 1.0 breaking change will occur at minor version change 0.X.0
+
 This API is an easy way to use the [Questrade API](www.questrade.com/api/documentation/getting-started) immediately.
 
 ### Features
