@@ -36,7 +36,6 @@ import {
 import { OrderStateFilterType } from '../enums';
 import { ICandle, ICandles } from '../ICandles';
 import { IEquitySymbol, IEquitySymbols } from '../IEquitySymbols';
-// import { IEquitySymbol, IEquitySymbols } from '../IEquitySymbols';
 import { IOptionsQuotes } from '../IOptionsQuotes';
 import { IOrder, IOrders } from '../IOrders';
 import { IQuote, IQuotes } from '../IQuotes';
@@ -273,28 +272,6 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-
-  // ! async method getOptionChain(symbolId)
-  // public async getOptionChain(symbolId: number) {
-  //   try {
-  //     const response = await this._api<an!y>(
-  //       'GET',
-  //       `/symbols/${symbolId}/options`
-  //     );
-  //     return chain(response.optionChain)
-  //       .keyBy('expiryDate')
-  //       .mapValues(option => {
-  //         return keyBy(
-  //           option.chainPerRoot[0].chainPerStrikePrice,
-  //           'strikePrice'
-  //         );
-  //       })
-  //       .value();
-  //   } catch (error) {
-  //     console.error(error.message);
-  //     throw new Error(error.message);
-  //   }
-  // }
   // ! async method getOptionQuote(filters_[])
   // % post
   public async getOptionQuote(filters_: IFilter[] | IFilter) {
@@ -316,71 +293,7 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // ! async method getOptionQuoteSimplified(filters)
-  // public async getOptionQuoteSimplified(filters: an!y) {
-  //   try {
-  //     const optionsQuotes: an!y = await this.getOptionQuote(filters);
-  //     return chain(optionsQuotes)
-  //       .map(optionQuote => {
-  //         const parsedSymbol = optionQuote.symbol.match(
-  //           /^([a-zA-Z]+)(.+)(C|P)(\d+\.\d+)$/
-  //         );
-  //         if (parsedSymbol !== null) {
-  //           if (parsedSymbol.length >= 5) {
-  //             const parsedDate = parsedSymbol[2].match(
-  //               /^(\d+)([a-zA-Z]+)(\d+)$/
-  //             );
-  //             if (parsedDate !== null) {
-  //               const expiryDate = moment()
-  //                 .utc()
-  //                 .month(parsedDate[2])
-  //                 .date(parsedDate[1])
-  //                 .year(20 + parsedDate[3])
-  //                 .startOf('day');
-  //               const expiryString = `${expiryDate
-  //                 .toISOString()
-  //                 .slice(0, -1)}000-04:00`;
-  //               optionQuote.underlying = parsedSymbol[1];
-  //               optionQuote.expiryDate = expiryString;
-  //               optionQuote.strikePrice = parseFloat(parsedSymbol[4]);
-  //               optionQuote.optionType =
-  //                 parsedSymbol[3] === 'P' ? 'Put' : 'Call';
-  //             }
-  //           }
-  //           return optionQuote;
-  //         }
-  //       })
-  //       .groupBy('underlying')
-  //       .mapValues(underlyingQuotes => {
-  //         return chain(underlyingQuotes)
-  //           .groupBy('optionType')
-  //           .mapValues(optionTypeQuotes => {
-  //             return chain(optionTypeQuotes)
-  //               .groupBy('expiryDate')
-  //               .mapValues(expiryDateQuotes => {
-  //                 return chain(expiryDateQuotes)
-  //                   .keyBy(quote => {
-  //                     return quote.strikePrice.toFixed(2);
-  //                   })
-  //                   .mapValues(quote => {
-  //                     return pick(quote, [
-  //                       'symbol',
-  //                       'symbolId',
-  //                       'lastTradePrice',
-  //                     ]);
-  //                   })
-  //                   .value();
-  //               })
-  //               .value();
-  //           })
-  //           .value();
-  //       })
-  //       .value();
-  //   } catch (error) {
-  //     console.error(error.message);
-  //     throw new Error(error.message);
-  //   }
-  // }
+
   // ! async method getOrdersAll()
   public async getOrdersAll(range?: TimeRange): Promise<IOrder[]> {
     try {
@@ -598,62 +511,6 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-  // $ old version
-  // ! async method getSymbol(id)
-  // public async getEquitySymbols(idOrSymbol: idType):
-  // Promise<IEquitySymbols> {
-  //   try {
-  //     let params;
-  //     if (typeof idOrSymbol === 'number') {
-  //       params = {
-  //         id: idOrSymbol,
-  //       };
-  //     } else if (typeof idOrSymbol === 'string') {
-  //       params = {
-  //         names: idOrSymbol,
-  //       };
-  //     }
-  //     if (params === undefined) {
-  //       throw new Error('missing_id');
-  //     }
-  //     const { symbols } = this._api<IEquitySymbols>
-  // ('GET', '/symbols', params);
-  //     return symbols;
-  //   } catch (error) {
-  //     console.error(error.message);
-  //     throw new Error(error.message);
-  //   }
-  // }
-  // ! async method getSymbols(ids)
-  // public async getSymbols(ids: idsType): Promise<ISymbol[]> {
-  //   try {
-  //     if (!Array.isArray(ids)) {
-  //       throw new Error('missing_ids');
-  //     }
-  //     if (!ids.length) return [];
-  //     let params;
-  //     if (typeof ids[0] === 'number') {
-  //       params = {
-  //         ids: ids.join(','),
-  //       };
-  //     } else if (typeof ids[0] === 'string') {
-  //       params = {
-  //         names: ids.join(','),
-  //       };
-  //     }
-  //     if (params === undefined) {
-  //       throw new Error('missing_id');
-  //     }
-  //     const { symbols } =
-  //  await this._api<ISymbols>('GET', '/symbols', params);
-
-  //     return symbols;
-  //   } catch (error) {
-  //     console.error(error.message);
-  //     console.error(error.message);
-  //     throw new Error(error.message);
-  //   }
-  // }
 
   // ! async method search(prefix)
   public async search(prefix: string, offset: number = 0): Promise<any> {
@@ -824,6 +681,8 @@ export class QuestradeClass extends EE {
     return this._refreshToken;
   }
 
+  // ?   private _rangeValidation(rangeOptions: TimeRange = {})
+  // used to validate range of start and end dates and setting a 30 day default value
   private _rangeValidation(rangeOptions: TimeRange = {}): Optionals {
     if (rangeOptions.startTime && !moment(rangeOptions.startTime).isValid()) {
       throw new Error('start_time_invalid');
@@ -843,99 +702,3 @@ export class QuestradeClass extends EE {
     return { startTime, endTime, ...rangeOptions };
   }
 }
-
-// const deprecated:never = {
-// ! async method removeOrder(id)
-/*   public async removeOrder(id: string) {
-    try {
-      return this._accountApi('DELETE', `/orders/${id}`); // # DELETE
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  } */
-
-// ! async method createOrder(options)
-/*  public async createOrder(options) {
-    try {
-      return this._accountApi('POST', '/orders', options); // # POST
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  } */
-// ! async method createStrategy(options)
-/*   public async createStrategy(options) {
-    try {
-      return this._accountApi('POST', '/orders/strategy', options); // # POST
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  } */
-
-// ! async method testOrder(options)
-/*   public async testOrder(options) {
-    try {
-      return this._accountApi('POST', '/orders/impact', options); // # POST
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  } */
-// ! async method testStrategy(options)
-// public async testStrategy(options) {
-//   try {  // # POST
-//     return this._accountApi('POST', '/orders/strategy/impact', options);
-//   } catch (error) {
-//     console.error(error.message);
-//     throw new Error(error.message);
-//   }
-// }
-// ! async method updateOrder(id)
-/*   public async updateOrder(id: string, options) {
-    try {
-      return this._accountApi('POST', `/orders/${id}`, options); // # POST
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
-    }
-  }
-        if (opt.startTime && !moment(opt.startTime).isValid()) {
-        throw new Error('start_time_invalid');
-      }
-      // details: opt.startTime,
-      if (opt.endTime && !moment(opt.endTime).isValid()) {
-        throw new Error('end_time_invalid');
-      }
-      const startTime = opt.startTime
-        ? moment(opt.startTime).toISOString()
-        : moment()
-            .startOf('day')
-            .subtract(30, 'days')
-            .toISOString();
-      const endTime = opt.endTime
-        ? moment(opt.endTime).toISOString()
-        : moment().toISOString();
-
-         let startTime;
-      let endTime;
-      if (!!options) {
-        if (options.startTime && !moment(options.startTime).isValid()) {
-          throw new Error('start_time_invalid');
-        }
-        if (options.endTime && !moment(options.endTime).isValid()) {
-          throw new Error('end_time_invalid');
-        }
-        options.startTime
-          ? (startTime = moment(options.startTime).toISOString())
-          : (startTime = moment()
-              .startOf('day')
-              .subtract(30, 'days')
-              .toISOString());
-        options.endTime
-          ? (endTime = moment(options.endTime).toISOString())
-          : (endTime = moment().toISOString());
-      // }
-  */
-// }
