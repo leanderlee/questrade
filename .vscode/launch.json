@@ -1,0 +1,47 @@
+{
+  // Utilisez IntelliSense pour en savoir plus sur les attributs possibles.
+  // Pointez pour afficher la description des attributs existants.
+  // Pour plus d'informations, visitez : https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    /*    {
+      "type": "node",
+      "request": "attach",
+      "name": "ID Attach (by Process ID)",
+      "processId": "${command:PickProcess}"
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach (Port: 9922)",
+      "port": 9922
+    }, */
+
+    /*     {
+      "type": "node",
+      "request": "launch",
+      "protocol": "inspector",
+      "name": "old TS-Node Debug Launch",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/src/main.ts"],
+      "cwd": "${workspaceFolder}"
+    }, */
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "TS-Node Debug Launch",
+      "protocol": "inspector",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/src/main.ts"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "stopOnEntry": true,
+      "autoAttachChildProcesses": false,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ]
+}

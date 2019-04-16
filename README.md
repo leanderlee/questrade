@@ -1,13 +1,10 @@
-Questrade API
-=============
+<!-- @format -->
 
-[![npm package](https://nodei.co/npm/questrade.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/questrade/)
+# Questrade API
 
-[![Build status](https://img.shields.io/travis/leanderlee/questrade.svg?style=flat-square)](https://travis-ci.org/leanderlee/questrade)
-[![Dependency Status](https://img.shields.io/david/leanderlee/questrade.svg?style=flat-square)](https://david-dm.org/leanderlee/questrade)
-[![Known Vulnerabilities](https://snyk.io/test/npm/questrade/badge.svg?style=flat-square)](https://snyk.io/test/npm/questrade)
-[![Gitter](https://img.shields.io/badge/gitter-join_chat-blue.svg?style=flat-square)](https://gitter.im/leanderlee/questrade?utm_source=badge)
+## Unstable version and no test suites installed yet (NOT READY FOR PRODUCTION)
 
+Until version 1.0 breaking change will occur at minor version change 0.X.0
 
 This API is an easy way to use the [Questrade API](www.questrade.com/api/documentation/getting-started) immediately.
 
@@ -29,30 +26,19 @@ You will then need to get an [API key](https://login.questrade.com/APIAccess/use
 
 After that's it's really simple to use:
 
-```js
-var Questrade = require('questrade');
+```typescript
+import { QuestradeClass, QuestradeHelperFunction } from '.';
 
-var qt = new Questrade('<your-api-key-here>');
-// - OR -
-var qt = new Questrade('./path/to/file'); // Location of a text file with the API key
+const seedToken = 'R0TFhgiWFjKi1YCwCjAMJFugwD4A8cgb0';
 
-// Wait to login
-qt.on('ready', function () {
-
-  // Access your account here
-  qt.getAccounts()
-  qt.getBalances()
-
-  // Get Market quotes
-  qt.getQuote('MSFT')
-
-  // ... etc. See the full documentation for all the calls you can make!
-})
+(async () => {
+  await QuestradeHelperFunction({ seedToken }, async (qt: QuestradeClass) => {
+    const symb = await qt.searchSymbol('aapl');
+    console.log(symb);
+    console.log(await qt.getQuote(symb.symbolId));
+  });
+})().catch(error => console.log(error));
 ```
-
-Apart from the `ready` event, we emit include `error` on fatal errors, and `refresh` when the login token is refreshed.
-
-I would not recommend calling other calls before the `ready` event fires.
 
 ### Security and Token management
 
@@ -60,252 +46,26 @@ Questrade's security token system requires that you save the latest refresh toke
 
 In order to do that, you should set either the `keyDir` option (defaults to `./keys`) or `keyFile` to point to a file (defaults to using a directory.) -- See full options below.
 
-## Switching Accounts
+### Switching Accounts
 
 By default, if you instantiate the `Questrade` class without passing in an account ID to options, we will try to find and select the primary account (by fetching a list of all the accounts). If you want to change the account, simply do:
 
-```js
+```typescript
 qt.account = '123456'; // Switch to account 123456 -- All future calls will use this account.
 ```
 
-## Streaming
+### MIT LICENSE
 
-For those accounts that have L1 data access (either practice account or Advanced market data packages) you can stream live market data.
+Copyright (c) 2019 Benjamin Vincent Kasapoglu (Luxcium)
+Copyright (c) 2016-2019 Leander Lee
 
-```js
-var request = require('request');
-var Questrade = require('questrade');
+MIT LICENSE (WITH ALL DUE RESERVATION PLEASE FIRST READ ./notice.md)
+Permission is hereby granted, free of charge, to all person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
-var options = {
-  test: true, // For practice accounts
-  seedToken: 'YOURTOKENHERE',
-}
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
-var qt = new Questrade(options);
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ALL KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ALL CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// Wait to login
-qt.on('ready', function (err) {
-  // Websocket port changes by API and by symbol. So you have to get the port every time you need different data stream
-  var getWebSocketURL = function (symbolId, cb) {
-    var webSocketURL;
-    request({
-      method: 'GET',
-      url: qt.apiUrl + '/markets/quotes?ids=' + symbolId + '&stream=true&mode=WebSocket',
-      auth: {
-        bearer: qt.accessToken
-      }
-    }, function (err, http, body) {
-      if (err) {
-        cb(err, null);
-      } else {
-        response = JSON.parse(body);
-        webSocketURL = qt.api_server.slice(0, -1) + ':' + response.streamPort + '/' + qt.apiVersion + '/markets/quotes?ids=' + symbolId + 'stream=true&mode=WebSocket';
-        cb(null, webSocketURL);
-      }
-    });
-  }
-  getWebSocketURL('9291,8049', function (err, webSocketURL) { // BMO.TO & AAPL
-    console.log(webSocketURL);
-    const WebSocket = require('ws');
-    const ws = new WebSocket(webSocketURL);
+## Contributions
 
-    ws.on('open', function open() {
-      ws.send(qt.accessToken);
-    });
-
-    ws.on('message', function incoming(data) {
-      console.log(data);
-      // Do what you want with the data
-    });
-
-    // CLOSING WebSocket Connections otherwise will remain open
-    process.on('exit', function () {
-      if (ws) {
-        console.log('CLOSE WebSocket');
-        ws.close();
-      }
-    });
-
-    //catches ctrl+c event
-    process.on('SIGINT', function () {
-      if (ws) {
-        console.log('CLOSE WebSocket SIGINT');
-        ws.close();
-      }
-    });
-
-    //catches uncaught exceptions
-    process.on('uncaughtException', function () {
-      if (ws) {
-        console.log('CLOSE WebSocket');
-        ws.close();
-      }
-    });
-  });
-
-})
-
-```
-
-## Some examples
-
-#### Account Info
-```js
-qt.getBalances(function (err, balances) {})
-qt.getAccounts(function (err, accounts) {})
-qt.getActivities(function (err, activities) {})
-qt.getMarkets(function (err, markets) {})
-```
-
-#### Orders
-```js
-qt.getOrder(orderId, function (err, order) {})
-qt.getOpenOrders(function (err, orders) {})
-qt.getAllOrders(function (err, orders) {})
-qt.getClosedOrders(function (err, orders) {})
-qt.createOrder(newOrder, function (err, response) {})
-qt.updateOrder(orderId, newOrder, function (err, response) {})
-qt.removeOrder(orderId, function (err, response) {})
-qt.testOrder(order, function (err, impact) {})
-```
-
-#### Quotes
-```js
-qt.getSymbol(symbolId, function (err, symbol) {})
-qt.getSymbol('MSFT', function (err, symbol) {})
-qt.search('B', function (err, symbols) {})
-qt.getQuote('MSFT', function (err, quote) {})
-qt.getQuotes(['MSFT', 'AAPL', 'BMO'], function (err, quotes) {})
-qt.getCandles(symbolId, options, function (err, candles) {})
-```
-
-#### Strategy
-```js
-qt.createStrategy(newStrategy, function (err, response) {})
-qt.testStrategy(strategy, function (err, impact) {})
-```
-
-#### Option Chain
-```js
-qt.getSymbol('MSFT', function (err, symbol) {
-  qt.getOptionChain(symbol.symbolId, function (err, options) {
-    var filters = [];
-    Object.keys(options).forEach(function (expiryDate) {
-      filters.push({
-        optionType: 'Call',
-        underlyingId: symbol.symbolId,
-        expiryDate: expiryDate
-      })
-      filters.push({
-        optionType: 'Put',
-        underlyingId: symbol.symbolId,
-        expiryDate: expiryDate
-      })
-    })
-    qt.getOptionQuoteSimplified(filters, function (err, options) {
-       /*
-
-        options = {
-          MSFT: {
-            Call: {
-              '2016-06-24T00:00:00.000000-04:00': [Option Chain],
-              '2016-07-01T00:00:00.000000-04:00': [Option Chain],
-              '2016-07-08T00:00:00.000000-04:00': [Option Chain],
-              '2016-07-15T00:00:00.000000-04:00': [Option Chain],
-              '2016-07-22T00:00:00.000000-04:00': [Option Chain],
-              '2016-07-29T00:00:00.000000-04:00': [Option Chain],
-              '2016-08-05T00:00:00.000000-04:00': [Option Chain],
-              '2016-08-19T00:00:00.000000-04:00': [Option Chain],
-              '2016-09-16T00:00:00.000000-04:00': [Option Chain],
-              '2016-10-21T00:00:00.000000-04:00': [Option Chain],
-              '2017-01-20T00:00:00.000000-04:00': [Option Chain],
-              '2017-04-21T00:00:00.000000-04:00': [Option Chain],
-              '2017-06-16T00:00:00.000000-04:00': [Option Chain],
-              '2018-01-19T00:00:00.000000-04:00': [Option Chain]
-            },
-            Put: {
-              '2016-06-24T00:00:00.000000-04:00': [Option Chain],
-              '2016-07-01T00:00:00.000000-04:00': [Option Chain],
-              '2016-07-08T00:00:00.000000-04:00': [Option Chain],
-              '2016-07-15T00:00:00.000000-04:00': [Option Chain],
-              '2016-07-22T00:00:00.000000-04:00': [Option Chain],
-              '2016-07-29T00:00:00.000000-04:00': [Option Chain],
-              '2016-08-05T00:00:00.000000-04:00': [Option Chain],
-              '2016-08-19T00:00:00.000000-04:00': [Option Chain],
-              '2016-09-16T00:00:00.000000-04:00': [Option Chain],
-              '2016-10-21T00:00:00.000000-04:00': [Option Chain],
-              '2017-01-20T00:00:00.000000-04:00': [Option Chain],
-              '2017-04-21T00:00:00.000000-04:00': [Option Chain],
-              '2017-06-16T00:00:00.000000-04:00': [Option Chain],
-              '2018-01-19T00:00:00.000000-04:00': [Option Chain]
-            }
-          }
-        }
-
-        [Option Chain] =
-          {
-            '30.00': {
-              symbol: 'MSFT16Jun17C30.00',
-              symbolId: 14053313,
-              lastTradePrice: 20
-            },
-            '35.00': {
-              symbol: 'MSFT16Jun17C35.00',
-              symbolId: 14053314,
-              lastTradePrice: 15.3
-            },
-
-             ... etc
-
-            '75.00': {
-              symbol: 'MSFT16Jun17C75.00',
-              symbolId: 14053324,
-              lastTradePrice: null
-            }
-          }
-       */
-    })
-  })
-})
-```
-### Full Options
-
-- **test** - Whether or not to use real or fake login server (and API server)
-- **keyDir** - Directory location of tokens to be saved. Defaults to `./keys`.
-- **keyFile** - Instead of picking a directory location, specify the exact key file to use instead.
-- **account** - Specify which account ID to use
-- **apiVersion** - Defaults to `v1`
-
-
-### Full Documentation
-
-- **setPrimaryAccount** (cb)
-- **getAccounts** (cb)
-- **getPositions** (cb)
-- **getBalances** (cb)
-- **getExecutions** (cb)
-- **getOrder** (id, cb)
-- **getOrders** (ids, cb)
-- **getOpenOrders** (cb)
-- **getAllOrders** (cb)
-- **getClosedOrders** (cb)
-- **getActivities** (cb)
-- **getSymbol** (id, cb)
-- **getSymbols** (ids, cb)
-- **search** (query, offset, cb)
-- **getOptionChain** (symbolId, cb)
-- **getMarkets** (cb)
-- **getQuote** (id, cb)
-- **getQuotes** (ids, cb)
-- **getOptionQuote** (filters, cb)
-- **getOptionQuoteSimplified** (filters, cb)
-- **getCandles** (id, opts, cb)
-- **createOrder** (opts, cb)
-- **updateOrder** (id, opts, cb)
-- **testOrder** (opts, cb)
-- **removeOrder** (id, cb)
-- **createStrategy** (opts, cb)
-- **testStrategy** (opts, cb)
-
-### Contributions
-Are welcome!
+All contributions are welcome!

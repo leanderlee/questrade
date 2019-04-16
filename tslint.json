@@ -1,0 +1,66 @@
+{
+  "extends": [
+    "tslint:latest",
+    "tslint-config-airbnb",
+    "tslint-config-prettier"
+  ],
+  "linterOptions": {
+    "exclude": ["./build", "./node_modules/**/*"]
+  },
+  "defaultSeverity": "warning",
+  "rulesDirectory": [],
+  "rules": {
+    // ?-- TYPESCRIPT RULES
+    "import-name": true,
+    "max-line-length": [true, 80],
+    "no-boolean-literal-compare": false,
+    "no-console": false,
+    "no-unused-expression": true,
+    "object-literal-sort-keys": false,
+    "object-shorthand-properties-first": false,
+    "ordered-imports": true,
+    "triple-equals": [true, "allow-null-check"],
+
+    "ter-arrow-parens": [
+      true,
+      "as-needed",
+      {
+        "requireForBlockBody": false
+      }
+    ],
+    "promise-function-async": true,
+    "function-name": false,
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-leading-underscore",
+      "allow-trailing-underscore"
+    ]
+  },
+  "jsRules": {
+    // ?-- JAVASCRIPT RULES
+    "import-name": false,
+    "max-line-length": [true, 80],
+    "no-console": false,
+    "object-literal-sort-keys": false,
+    "ordered-imports": true,
+    "triple-equals": [true, "allow-null-check"],
+    "ter-arrow-parens": [
+      true,
+      "as-needed",
+      {
+        "requireForBlockBody": false
+      }
+    ],
+    "promise-function-async": true,
+    "function-name": false,
+    "variable-name": [
+      true,
+      "check-format",
+      "allow-leading-underscore",
+      "allow-trailing-underscore",
+      "ban-keywords"
+    ]
+  }
+}
