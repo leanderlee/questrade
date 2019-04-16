@@ -2,7 +2,7 @@
   "name": "questrade-ts",
   "version": "1.0.0",
   "description": "Unofficial Questrade API wraper with typescript support by Luxcium.",
-  "main": "./build/index.js",
+  "main": "./build/src/index.js",
   "types": "./build/lib/index.d.ts",
   "scripts": {
     "smoke:test": "jest --silent --detectOpenHandles --forceExit --config ./src/__tests__/smoketest/jest.config.js",

@@ -1,12 +1,16 @@
 /** @format */
 
+import { AccountStatus, ClientAccountType, UserAccountType } from './enums';
+
+export type AcountNumber = string | number;
+
 export interface IAccount {
-  type: string;
-  number: string;
-  status: string;
+  type: UserAccountType;
+  number: AcountNumber;
+  status: AccountStatus;
   isPrimary: boolean;
   isBilling: boolean;
-  clientAccountType: string;
+  clientAccountType: ClientAccountType;
 }
 
 export interface IAccounts {

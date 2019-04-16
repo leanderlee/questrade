@@ -2,15 +2,16 @@
 
 import { Currency, ListingExchange, SecurityType } from './enums';
 
-export interface IStockSymbol {
+export interface IEquitySymbols {
+  equitySymbols: IEquitySymbol[];
+}
+export interface IEquitySymbol {
   symbol: string;
   symbolId: number;
   description: string;
   securityType: SecurityType;
   listingExchange: ListingExchange;
-  isTradable: boolean;
   isQuotable: boolean;
+  isTradable: boolean;
   currency: Currency;
 }
-
-export type StockSymbol = IStockSymbol | string;

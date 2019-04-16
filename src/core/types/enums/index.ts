@@ -1,7 +1,6 @@
 /** @format */
 
 export { AccountStatus } from './AccountStatus';
-export { AccountType } from './AccountType';
 export { ClientAccountType } from './ClientAccountType';
 export { Currency } from './Currency';
 export { HistoricalDataGranularity } from './HistoricalDataGranularity';
@@ -19,3 +18,4 @@ export { OrderType } from './OrderType';
 export { SecurityType } from './SecurityType';
 export { StrategyTypes } from './StrategyTypes';
 export { TickType } from './TickType';
+export { UserAccountType } from './UserAccountType';

@@ -9,7 +9,7 @@
     "allowSyntheticDefaultImports": true,
 
     "rootDir": "./src",
-    "outDir": "./build",
+    "outDir": "./build/src",
     "declarationDir": "./build/lib/",
     "tsBuildInfoFile": "./build/tmp/tsbuildinfo",
 

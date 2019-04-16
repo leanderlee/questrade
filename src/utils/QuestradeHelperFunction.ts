@@ -4,7 +4,7 @@ import { IQuestradeAPIOptions, QuestradeClass } from '../core/types';
 
 export async function QuestradeHelperFunction(
   opts: IQuestradeAPIOptions,
-  cb?: any
+  cb?: (qt: QuestradeClass) => Promise<void>
 ) {
   const qt = await new QuestradeClass(opts);
   qt.on('ready', () => {
