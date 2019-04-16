@@ -1,6 +1,6 @@
 /** @format */
 import { QuestradeClass, QuestradeHelperFunction } from '..';
-import { allOfGetAccounts } from '../main/allOfGetAccounts';
+import { allOfGetAccounts } from './allOfGetAccounts';
 import { allOfGetActivities } from './allOfGetActivities';
 import { allOfgetBalances } from './allOfgetBalances';
 import { allOfGetEquitySymbols } from './allOfGetEquitySymbols';
@@ -21,34 +21,34 @@ export const main = async (seedToken: string) => {
       await qt.getPrimaryAccountNumber()
     );
     await allOfgetServerTimeObject(qt, () => {
-      // do nothing yet
+      // do nothing yet!
     });
     await allOfGetAccounts(qt, () => {
-      // do nothing yet
+      // do nothing yet!
     });
     await allOfGetPositions(qt, () => {
-      // do nothing yet
+      // do nothing yet!
     });
     await allOfgetBalances(qt, () => {
-      // do nothing yet
+      // do nothing yet!
     });
     await allOfGetExecutions(qt, () => {
-      // do nothing yet
+      // do nothing yet!
     });
     await allOfGetActivities(qt, () => {
-      // do nothing yet
+      // do nothing yet!
     });
     await allOfGetOrder(qt, () => {
-      // do nothing yet
+      // do nothing yet!
     });
     await allOfGetOrders(qt, () => {
-      // do nothing yet
+      // do nothing yet!
     });
     await allOfgetMarkets(qt, () => {
-      // do nothing yet
+      // do nothing yet!
     });
     await allOfGetEquitySymbols(qt, () => {
-      // do nothing yet
+      // do nothing yet!
     });
     try {
       // const candle = await qt.getCandles(symbolID);
