@@ -1,6 +1,6 @@
 /** @format */
 
-import { QuestradeClass } from '../../core/types';
+import { QuestradeClass } from '../core/types';
 
 export async function allOfgetBalances(qt: QuestradeClass, done: any) {
   const getBalances = await qt.getBalances();

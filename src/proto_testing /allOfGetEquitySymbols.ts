@@ -1,6 +1,6 @@
 /** @format */
 
-import { QuestradeClass } from '../../core/types';
+import { QuestradeClass } from '../core/types';
 
 export async function allOfGetEquitySymbols(qt: QuestradeClass, done: any) {
   let equitySymbols = await qt.getEquitySymbols('aapl');
