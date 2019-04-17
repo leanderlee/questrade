@@ -1,5 +1,4 @@
 /** @format */
-
 import { AxiosRequestConfig, AxiosResponse, default as axios } from 'axios';
 import { EventEmitter as EE } from 'events';
 import { readFileSync, writeFileSync } from 'fs';
@@ -39,6 +38,7 @@ import { IEquitySymbol, IEquitySymbols } from '../IEquitySymbols';
 import { IOptionsQuotes } from '../IOptionsQuotes';
 import { IOrder, IOrders } from '../IOrders';
 import { IQuote, IQuotes } from '../IQuotes';
+
 export class QuestradeClass extends EE {
   public get getServerTime(): Promise<string> {
     return this._getTime();
@@ -61,17 +61,14 @@ export class QuestradeClass extends EE {
   private _keyFile: string;
   private _refreshToken: string;
   private _test: boolean;
-
   public constructor(options?: QuestradeAPIOptions) {
     super();
-
     this._accountNumber = '';
     this._apiVersion = 'v1';
     this._keyDir = './keys';
     this._keyFile = '';
     this._test = false;
     this.seedToken = '';
-
     try {
       if (typeof options === 'undefined' || options === undefined) {
         throw new Error('questrade_missing_api_key or options');
@@ -116,7 +113,6 @@ export class QuestradeClass extends EE {
         : 'https://login.questrade.com';
       // Running the Authentification process and emit 'ready' when done
       // if (!!this._account) this.emit('ready');
-
       const loadKey = async () => {
         try {
           await this._loadKey();
@@ -150,13 +146,11 @@ export class QuestradeClass extends EE {
           throw new Error(error.message);
         }
       };
-
       const main = async () => {
         try {
           await loadKey();
           await refreshKey();
           await getPrimaryAccountNumber();
-
           this.emit('ready');
         } catch (error) {
           console.error(error.message);
@@ -164,7 +158,6 @@ export class QuestradeClass extends EE {
           throw new Error(error.message);
         }
       };
-
       main()
         .then(() => {
           // will alphabetise
@@ -177,7 +170,6 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-
   // ! async method getAccounts()
   public async getAccounts(): Promise<IAccount[]> {
     try {
@@ -194,7 +186,6 @@ export class QuestradeClass extends EE {
   ): Promise<IAccountActivity[]> {
     try {
       const { startTime, endTime } = this._rangeValidation(range);
-
       const { activities } = await this._accountApi<IActivities>(
         'GET',
         '/activities',
@@ -209,7 +200,6 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-
   // ! async method getBalances()
   public async getBalances(): Promise<IBalances> {
     try {
@@ -246,7 +236,6 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-
   // ! async method getExecutions()
   public async getExecutions(range: TimeRange = {}): Promise<IExecution[]> {
     try {
@@ -293,7 +282,6 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-
   // ! async method getOrdersAll()
   public async getOrdersAll(range?: TimeRange): Promise<IOrder[]> {
     try {
@@ -359,13 +347,10 @@ export class QuestradeClass extends EE {
       if (!Array.isArray(ids)) {
         throw new Error('missing_ids');
       }
-
       if (!ids.length) return [];
-
       const { orders } = await this._accountApi<IOrders>('GET', '/orders', {
         ids: ids.join(','),
       });
-
       return orders;
     } catch (error) {
       console.error(error.message);
@@ -511,7 +496,6 @@ export class QuestradeClass extends EE {
       throw new Error(error.message);
     }
   }
-
   // ! async method search(prefix)
   public async search(prefix: string, offset: number = 0): Promise<any> {
     try {
@@ -535,7 +519,6 @@ export class QuestradeClass extends EE {
         offset,
         prefix: stockSymbol,
       });
-
       console.log(equitySymbols);
       // return keyBy<IEquitySymbol>(equitySymbols, 'symbol')[
       //   stockSymbol.toUpperCase()
@@ -552,7 +535,6 @@ export class QuestradeClass extends EE {
       // throw new Error(error.message);
     }
   }
-
   // ? async method _accountApi<T>
   // Method that appends the set account to the API calls so all calls are made
   private async _accountApi<T>(
@@ -583,7 +565,6 @@ export class QuestradeClass extends EE {
     if (typeof options !== 'undefined' && typeof options === 'object') {
       params = options;
     }
-
     const auth = `Bearer ${this._accessToken}`;
     const url: string = this._apiUrl + endpoint;
     const headers: IHeaders = { Authorization: auth, ...additionalHeaders };
@@ -622,7 +603,6 @@ export class QuestradeClass extends EE {
       } else {
         sync(this._keyDir);
       }
-
       refreshToken = await readFileSync(this.keyFile, 'utf8');
     } catch (error) {
       console.error(error.message);
@@ -635,6 +615,27 @@ export class QuestradeClass extends EE {
     }
     this._refreshToken = refreshToken;
     return refreshToken;
+  }
+  // ?   private _rangeValidation(rangeOptions: TimeRange = {})
+  // used to validate range of start and end dates and setting
+  // a 30 day default value
+  private _rangeValidation(rangeOptions: TimeRange = {}): Optionals {
+    if (rangeOptions.startTime && !moment(rangeOptions.startTime).isValid()) {
+      throw new Error('start_time_invalid');
+    }
+    if (rangeOptions.endTime && !moment(rangeOptions.endTime).isValid()) {
+      throw new Error('end_time_invalid');
+    }
+    const startTime = rangeOptions.startTime
+      ? moment(rangeOptions.startTime).toISOString()
+      : moment()
+          .startOf('day')
+          .subtract(30, 'days')
+          .toISOString();
+    const endTime = rangeOptions.endTime
+      ? moment(rangeOptions.endTime).toISOString()
+      : moment().toISOString();
+    return { startTime, endTime, ...rangeOptions };
   }
   // ? async method _refreshKey()
   //  Refresh the tokem (aka Logs in) using the latest RefreshToken
@@ -659,11 +660,8 @@ export class QuestradeClass extends EE {
         params,
         url,
       };
-
       response = await client(axiosConfig);
-
       const creds: ICreds = await response.data;
-
       this._apiServer = creds.api_server;
       this._apiUrl = `${this._apiServer}${this._apiVersion}`;
       this._accessToken = creds.access_token;
@@ -679,26 +677,5 @@ export class QuestradeClass extends EE {
   private async _saveKey() {
     writeFileSync(this.keyFile, this._refreshToken, 'utf8');
     return this._refreshToken;
-  }
-
-  // ?   private _rangeValidation(rangeOptions: TimeRange = {})
-  // used to validate range of start and end dates and setting a 30 day default value
-  private _rangeValidation(rangeOptions: TimeRange = {}): Optionals {
-    if (rangeOptions.startTime && !moment(rangeOptions.startTime).isValid()) {
-      throw new Error('start_time_invalid');
-    }
-    if (rangeOptions.endTime && !moment(rangeOptions.endTime).isValid()) {
-      throw new Error('end_time_invalid');
-    }
-    const startTime = rangeOptions.startTime
-      ? moment(rangeOptions.startTime).toISOString()
-      : moment()
-          .startOf('day')
-          .subtract(30, 'days')
-          .toISOString();
-    const endTime = rangeOptions.endTime
-      ? moment(rangeOptions.endTime).toISOString()
-      : moment().toISOString();
-    return { startTime, endTime, ...rangeOptions };
   }
 }

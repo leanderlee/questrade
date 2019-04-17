@@ -1,108 +1,64 @@
 {
   "compilerOptions": {
+    /* ALWAYS USE Strict Type-Checking and Additional Checks Options will alwas be true !!!    */
+    /* ALWAYS TRUE      */ "strict": true /*                         ALWAYS TRUE      */,
+    /* ALWAYS TRUE      */ "alwaysStrict": true /*                   ALWAYS TRUE      */,
+    /* ALWAYS TRUE      */ "noImplicitAny": true /*                  ALWAYS TRUE      */,
+    /* ALWAYS TRUE      */ "noImplicitThis": true /*                 ALWAYS TRUE      */,
+    /* ALWAYS TRUE      */ "strictBindCallApply": true /*            ALWAYS TRUE      */,
+    /* ALWAYS TRUE      */ "strictFunctionTypes": true /*            ALWAYS TRUE      */,
+    /* ALWAYS TRUE      */ "strictNullChecks": true /*               ALWAYS TRUE      */,
+    /* ALWAYS TRUE      */ "strictPropertyInitialization": true /*   ALWAYS TRUE      */,
+    /* ALWAYS TRUE      */ "noFallthroughCasesInSwitch": true /*     ALWAYS TRUE      */,
+    /* ALWAYS TRUE      */ "noImplicitReturns": true /*              ALWAYS TRUE      */,
+    /* ALWAYS TRUE      */ "noUnusedLocals": true /*                 ALWAYS TRUE      */,
+    /* ALWAYS TRUE      */ "noUnusedParameters": true /*             ALWAYS TRUE      */,
+    /* ALWAYS USE Strict Type-Checking and Additional Checks Options will alwas be true !!!    */
+
     /* Basic Options */
     "target": "es5",
     "lib": ["dom", "esnext"],
     "module": "commonjs",
-    "pretty": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-
+    "jsx": "preserve",
     "rootDir": "./src",
     "outDir": "./build/src",
-    "declarationDir": "./build/lib/",
-    "tsBuildInfoFile": "./build/tmp/tsbuildinfo",
-
-    /* Source Map Options */
-    "importHelpers": true,
-    "composite": true,
-    "incremental": true,
-    "declaration": true,
-    "inlineSources": true,
-    "inlineSourceMap": true,
 
     /* Compilation Options */
-    "traceResolution": false,
+    "importHelpers": true,
+    "removeComments": true,
+    "composite": true,
+    "incremental": true,
+    "tsBuildInfoFile": "./build/tmp/tsbuildinfo",
+    "diagnostics": true,
     "listFiles": false,
     "listEmittedFiles": false,
-    "diagnostics": true,
+    "traceResolution": false,
     "extendedDiagnostics": true,
 
-    // "forceConsistentCasingInFileNames": true,
+    /* Module Resolution Options */
     "moduleResolution": "node",
-    "jsx": "preserve",
-    "types": ["node", "jest"],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "types": ["node"],
     "typeRoots": [
       "node_modules/.registry.npmjs.org/@types/**/*",
       "node_modules/@types/**/*"
     ],
-    // "rootDirs": [],
-
-    /* Strict Type-Checking Options */
-    "strict": true,
-    "alwaysStrict": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictBindCallApply": true,
-    "strictFunctionTypes": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
-
-    /* Additional Checks */
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": false,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-
-    "experimentalDecorators": false,
-    "emitDecoratorMetadata": false
-
-    /* Basic Options */
-    // "target": "es5",                          /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019' or 'ESNEXT'. */
-    // "module": "commonjs",                     /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'. */
-    // "lib": [],                             /* Specify library files to be included in the compilation. */
-    // "allowJs": true,                       /* Allow javascript files to be compiled. */
-    // "checkJs": true,                       /* Report errors in .js files. */
-    // "jsx": "preserve",                     /* Specify JSX code generation: 'preserve', 'react-native', or 'react'. */
-    // "declaration": true,                   /* Generates corresponding '.d.ts' file. */
-    // "declarationMap": true,                /* Generates a sourcemap for each corresponding '.d.ts' file. */
-    // "sourceMap": true,                     /* Generates corresponding '.map' file. */
-    // "outFile": "./build/index.js" /* Concatenate and emit output to single file. */
-    // "outDir": "./",                        /* Redirect output structure to the directory. */
-    // "rootDir": "./",                       /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */
-    // "composite": true /* Enable project compilation */,
-    // "incremental": true /* Enable incremental compilation */
-    // "tsBuildInfoFile": "./",               /* Specify file to store incremental compilation information */
-    // "removeComments": true,                /* Do not emit comments to output. */
-    // "noEmit": true,                        /* Do not emit outputs. */
-    // "importHelpers": true,                 /* Import emit helpers from 'tslib'. */
-    // "downlevelIteration": true,            /* Provide full support for iterables in 'for-of', spread, and destructuring when targeting 'ES5' or 'ES3'. */
-    // "isolatedModules": true,               /* Transpile each file as a separate module (similar to 'ts.transpileModule'). */
-
-    /* Module Resolution Options */
-    // "moduleResolution": "node",            /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
-    // "baseUrl": "./" /* Base directory to resolve non-absolute module names. */,
-    // "paths": {},                           /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
-    // "rootDirs": ["./src/**/**"]
-    /* List of root folders whose combined content represents the structure of the project at runtime. */
-    // "typeRoots": [],                       /* List of folders to include type definitions from. */
-    // "types": [],                           /* Type declaration files to be included in compilation. */
-    // "allowSyntheticDefaultImports": true,  /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */
-    // "esModuleInterop": true                   /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */
-    // "preserveSymlinks": true,              /* Do not resolve the real path of symlinks. */
 
     /* Source Map Options */
-    // "sourceRoot": "",                      /* Specify the location where debugger should locate TypeScript files instead of source locations. */
-    // "mapRoot": "",                         /* Specify the location where debugger should locate map files instead of generated locations. */
-    // "inlineSourceMap": true,               /* Emit a single file with source maps instead of having a separate file. */
-    // "inlineSources": true,                 /* Emit the source alongside the sourcemaps within a single file; requires '--inlineSourceMap' or '--sourceMap' to be set. */
+    "declaration": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "declarationDir": "./build/lib/",
 
-    /* Experimental Options */
-    // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
-    // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
+    /* Additional Options */
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "pretty": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["./src/**/*"],
-  "exclude": ["node_modules", "build"],
+  "exclude": ["node_modules", "build", "imports"],
 
   "plugins": [
     {
