@@ -45,14 +45,16 @@
   },
   "homepage": "https://github.com/luxcium/questrade",
   "dependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/lodash": "^4.14.123",
+    "@types/mkdirp": "^0.5.2",
+    "@types/moment": "^2.13.0",
     "axios": "^0.18.0",
     "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
     "moment": "^2.24.0"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.123",
-    "@types/mkdirp": "^0.5.2",
     "@types/node": "^11.13.0",
     "cp-cli": "^2.0.0",
     "prettier": "^1.16.4",
