@@ -30,7 +30,7 @@
     "release:minor": "npm run predist:check && npm version minor && npm run dist",
     "release:patch": "npm run predist:check && npm version patch && npm run dist",
     "release:again": "npm run predist:check && npm run dist",
-    "release": "npm run release:again"
+    "release": "npm run release:again "
   },
   "repository": {
     "type": "git",
