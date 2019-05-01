@@ -34,9 +34,11 @@ const seedToken = 'R0TFhgiWFjKi1YCwCjAMJFugwD4A8cgb0';
 (async () => {
   const { questrade } = await tokenConnection(seedToken);
 
-  const symb = await questrade.searchSymbol('aapl');
+  // using qt for short if you prefer
+  const qt = questrade;
+  const symb = await qt.searchSymbol('aapl');
   console.log(symb);
-  console.log(await questrade.getQuote(symb.symbolId));
+  console.log(await qt.getQuote(symb.symbolId));
 })().catch(error => console.log(error));
 ```
 
