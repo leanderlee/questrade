@@ -1,5 +1,5 @@
 /** @format */
 
 import { main } from './index';
-const seedToken = 'lNwA6-R9oeepOAbgnajCRW6JvHODgkjM0';
+const seedToken = 'AGKcjCWcxgIGr5WPaKY83qNxFnH6qX2I0';
 main(seedToken).catch(error => console.log('MAINERROR:', error));

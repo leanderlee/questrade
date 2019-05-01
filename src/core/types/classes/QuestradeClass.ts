@@ -129,10 +129,10 @@ export class QuestradeClass extends EE {
           await this._refreshKey();
           this.emit('keyRefreshed');
         } catch (error) {
-          console.error(error.message);
+          console.error('at refreshKey in constructor', error.message);
           this.emit('refreshKeyError');
-          this.emit('error');
-          throw new Error(error.message);
+          this.emit('error', error.message);
+          // throw new Error(error.message);
         }
       };
       const getPrimaryAccountNumber = async () => {
@@ -578,10 +578,6 @@ export class QuestradeClass extends EE {
   // otherwise uses the seedToken
   private async _loadKey() {
     let refreshToken: string = '';
-    if (!this._refreshToken) {
-      this._refreshToken = this.seedToken;
-      this._saveKey();
-    }
     try {
       if (!!this._keyFile) {
         sync(dirname(this._keyFile));
@@ -590,10 +586,14 @@ export class QuestradeClass extends EE {
       }
       refreshToken = await readFileSync(this.keyFile, 'utf8');
     } catch (error) {
-      console.error(error.message);
+      console.error('Will save seedToken and try to authenticate again');
       // throw new Error(error.message);
     } finally {
-      //
+      if (!refreshToken) {
+        this._refreshToken = this.seedToken;
+        this._saveKey();
+        this._loadKey();
+      }
     }
     this._refreshToken = refreshToken;
     return refreshToken;
@@ -650,9 +650,15 @@ export class QuestradeClass extends EE {
       this._refreshToken = creds.refresh_token;
       await this._saveKey();
     } catch (error) {
-      console.error(error.message);
+      console.error('at _refreshKey()', error.message);
       throw new Error(error.message);
     }
+    /*
+        if (!this._refreshToken) {
+      this._refreshToken = this.seedToken;
+      this._saveKey();
+    }
+    */
   }
   // ? async method _saveKey()
   // Saves the latest refreshToken in the file name after the seedToken
