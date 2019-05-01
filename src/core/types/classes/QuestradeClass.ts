@@ -118,9 +118,9 @@ export class QuestradeClass extends EE {
           await this._loadKey();
           this.emit('keyLoaded');
         } catch (error) {
-          console.error(error.message);
-          this.emit('loadKeyError');
-          this.emit('error');
+          console.error('loadKey error at loadKey()', error.message);
+          // this.emit('loadKeyError');
+          // this.emit('error');
           throw new Error(error.message);
         }
       };
@@ -152,18 +152,20 @@ export class QuestradeClass extends EE {
           await refreshKey();
           await getPrimaryAccountNumber();
           this.emit('ready');
-        } catch (error) {
-          console.error(error.message);
-          this.emit('error');
-          throw new Error(error.message);
+        } catch (mainError) {
+          // console.error(error.message);
+          console.log('Error at main() in constructor', mainError.message);
+          // this.emit('error');
+          // throw new Error(error.message);
         }
       };
       main()
         .then(() => {
           // will alphabetise
         })
-        .catch(err => {
-          throw new Error(err.message);
+        .catch(callingMainError => {
+          console.log('Error calling main() in constructor', callingMainError);
+          // throw new Error(err.message);
         });
     } catch (error) {
       console.error(error.message);
@@ -576,6 +578,10 @@ export class QuestradeClass extends EE {
   // otherwise uses the seedToken
   private async _loadKey() {
     let refreshToken: string = '';
+    if (!this._refreshToken) {
+      this._refreshToken = this.seedToken;
+      this._saveKey();
+    }
     try {
       if (!!this._keyFile) {
         sync(dirname(this._keyFile));
@@ -585,12 +591,9 @@ export class QuestradeClass extends EE {
       refreshToken = await readFileSync(this.keyFile, 'utf8');
     } catch (error) {
       console.error(error.message);
-      throw new Error(error.message);
+      // throw new Error(error.message);
     } finally {
-      if (!refreshToken) {
-        this._refreshToken = this.seedToken;
-        this._saveKey();
-      }
+      //
     }
     this._refreshToken = refreshToken;
     return refreshToken;
