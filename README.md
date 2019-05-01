@@ -34,7 +34,7 @@ After that, it is really simple to use:
 
 ```typescript
 // typescript
-import { tokenConnection } from '.';
+import { tokenConnection } from 'questrade-ts';
 
 const seedToken = 'R0TFhgiWFjKi1YCwCjAMJFugwD4A8cgb0';
 
@@ -73,7 +73,7 @@ By default, if you instantiate the `Questrade` class without passing in an accou
 qt.account = '12345678'; // Switch to account 12345678 -- All future calls will use this account. using 8 digits
 ```
 
-## Contributions
+# Contributions
 
 All contributions are welcome!
 
