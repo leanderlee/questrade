@@ -52,18 +52,18 @@ const seedToken = 'R0TFhgiWFjKi1YCwCjAMJFugwD4A8cgb0';
 })();
 ```
 
-### Security and Token management
+## Security and Token management
 
 Questrade's security token system requires that you save the latest refresh token that it vends you. After you create one in the user apps page, our library needs to save a key somewhere onto disk. By default, we create a folder for these keys in `./keys` at your working directory, but you can change the directory location or to load from a text file (with the key as its contents).
 
 In order to do that, you should set either the `keyDir` option (defaults to `./keys`) or `keyFile` to point to a file (defaults to using a directory.) -- See full options below.
 
-### Switching Accounts
+## Switching Accounts
 
 By default, if you instantiate the `Questrade` class without passing in an account ID to options, we will try to find and select the primary account (by fetching a list of all the accounts). If you want to change the account, simply do:
 
 ```typescript
-qt.account = '123456'; // Switch to account 123456 -- All future calls will use this account.
+qt.account = '12345678'; // Switch to account 123456 -- All future calls will use this account. using 8 digits
 ```
 
 ## Contributions
