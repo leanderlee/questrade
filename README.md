@@ -31,15 +31,23 @@ import { tokenConnection } from '.';
 
 const seedToken = 'R0TFhgiWFjKi1YCwCjAMJFugwD4A8cgb0';
 
+// using async function to avoid  then().catch()
 (async () => {
-  const { questrade } = await tokenConnection(seedToken);
+  try {
+    const { questrade } = await tokenConnection(seedToken);
 
-  // using qt for short if you prefer
-  const qt = questrade;
-  const symb = await qt.searchSymbol('aapl');
-  console.log(symb);
-  console.log(await qt.getQuote(symb.symbolId));
-})().catch(error => console.log(error));
+    // using qt for short if you prefer
+    const qt = questrade;
+
+    const symb = await qt.searchSymbol('aapl');
+
+    console.log(symb);
+
+    console.log(await qt.getQuote(symb.symbolId));
+  } catch (error) {
+    console.log(error);
+  }
+})();
 ```
 
 ### Security and Token management
