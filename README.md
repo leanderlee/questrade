@@ -2,9 +2,9 @@
 
 # Questrade API
 
-## Unstable version and no test suites installed yet (NOT READY FOR PRODUCTION)
+## This version do not have any test suites installed yet and is not ready for production
 
-Until version 1.0 breaking change will occur at minor version change 0.X.0
+Until version 1.0 breaking change will occur at minor version change 0.X.0, Please make sure to open a [GitHub issues](https://github.com/luxcium/questrade-ts/issues) for anything problematic to help us during the development phase of this project.
 
 This API is an easy way to use the [Questrade API](www.questrade.com/api/documentation/getting-started) immediately.
 
@@ -27,16 +27,16 @@ You will then need to get an [API key](https://login.questrade.com/APIAccess/use
 After that's it's really simple to use:
 
 ```typescript
-import { QuestradeClass, QuestradeHelperFunction } from '.';
+import { tokenConnection } from '.';
 
 const seedToken = 'R0TFhgiWFjKi1YCwCjAMJFugwD4A8cgb0';
 
 (async () => {
-  await QuestradeHelperFunction({ seedToken }, async (qt: QuestradeClass) => {
-    const symb = await qt.searchSymbol('aapl');
-    console.log(symb);
-    console.log(await qt.getQuote(symb.symbolId));
-  });
+  const { questrade } = await tokenConnection(seedToken);
+
+  const symb = await questrade.searchSymbol('aapl');
+  console.log(symb);
+  console.log(await questrade.getQuote(symb.symbolId));
 })().catch(error => console.log(error));
 ```
 
@@ -54,6 +54,14 @@ By default, if you instantiate the `Questrade` class without passing in an accou
 qt.account = '123456'; // Switch to account 123456 -- All future calls will use this account.
 ```
 
+## Contributions
+
+All contributions are welcome!
+
+## Questrade does not maintain this unofficial SDK
+
+Refer to [Questrade's Documentation](https://www.questrade.com/api/documentation/) to get help and please open a [GitHub issues](https://github.com/luxcium/questrade-ts/issues) for anything you feel dont match the way it should be working when refering to Questrade docs.
+
 ### MIT LICENSE
 
 Copyright (c) 2019 Benjamin Vincent Kasapoglu (Luxcium)
@@ -65,7 +73,3 @@ Permission is hereby granted, free of charge, to all person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ALL KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ALL CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-## Contributions
-
-All contributions are welcome!
