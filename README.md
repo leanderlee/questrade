@@ -4,7 +4,7 @@
 
 ## Currently, this API does not have any test suites installed and is therefore not to be considered ready for production
 
-Until version 1.0 breaking change will occur at minor version change 0.X.0, Please make sure to open a [GitHub issues](https://github.com/luxcium/questrade-ts/issues) for anything problematic to help us during the development phase of this project.
+Until version 1.0 breaking change will occur at minor version change 0.X.0, Please make sure to open a [GitHub issues](https://github.com/luxcium/questrade-ts/issues) for anything problematic to help us during the development phase of this project. use the `--save-exact` flag until the version 1.0.x Using the caret (circumflex accent`U+005E`) ^0.X.Y on a version stating with 0.x should not upgrade to folowing minor version but to have full control make sure you unsing that flag or `-E` and then to upgrade to a new latest version use `@latest` i.e. `npm i --save-exact questrade-ts@latest`. alternatively you may use `--no-save` to prevents saving to dependencies at all.
 
 This API is an easy way to use the [Questrade API](www.questrade.com/api/documentation/getting-started) immediately.
 
@@ -19,7 +19,13 @@ This API is an easy way to use the [Questrade API](www.questrade.com/api/documen
 Simply start by installing this questrade-ts library:
 
 ```bash
-npm install --save questrade-ts
+npm install --save-exact questrade-ts
+```
+
+or
+
+```bash
+npm install --save-exact questrade-ts@latest
 ```
 
 You will then need to get an [API key](https://login.questrade.com/APIAccess/userapps.aspx).
