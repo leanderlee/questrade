@@ -31,8 +31,9 @@ import { tokenConnection } from '.';
 
 const seedToken = 'R0TFhgiWFjKi1YCwCjAMJFugwD4A8cgb0';
 
-// using async function to avoid  then().catch()
+// using async Immediately Invoked Function Expressions to avoid using then().catch()
 (async () => {
+  // always put you code in a try catch block
   try {
     const { questrade } = await tokenConnection(seedToken);
 
@@ -45,6 +46,7 @@ const seedToken = 'R0TFhgiWFjKi1YCwCjAMJFugwD4A8cgb0';
 
     console.log(await qt.getQuote(symb.symbolId));
   } catch (error) {
+    // manage your errors here if needed
     console.log(error);
   }
 })();
