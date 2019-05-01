@@ -26,4 +26,9 @@ export {
   IQuestradeAPIOptions,
   QuestradeAPIOptions,
 } from './core/types/IQuestradeAPIOptions';
-export { QuestradeHelperFunction } from './utils/QuestradeHelperFunction';
+export { QuestradeHelperFunction };
+import { QuestradeHelperFunction } from './utils/QuestradeHelperFunction';
+export const tokenConnection = async (seedToken: string) => {
+  const questrade = await QuestradeHelperFunction({ seedToken });
+  return { questrade: questrade };
+};

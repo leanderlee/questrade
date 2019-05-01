@@ -20,6 +20,7 @@
     "object-shorthand-properties-first": false,
     "ordered-imports": true,
     "triple-equals": [true, "allow-null-check"],
+    "object-literal-shorthand": false,
 
     "ter-arrow-parens": [
       true,
