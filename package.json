@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/leanderlee/questrade",
   "devDependencies": {
-    "mocha": "^2.5.3"
+    "mocha": "^6.1.4"
   },
   "dependencies": {
     "lodash": "^4.17.11",
