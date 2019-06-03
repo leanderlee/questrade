@@ -11,8 +11,10 @@ describe('API', function () {
 
   it('sets the key as an option or as a string', function () {
     var qt1 = new Questrade('abc');
+    qt1.on('error', () => {});
     assert.equal(qt1.seedToken, 'abc');
     var qt2 = new Questrade({ seedToken: 'abc' });
+    qt2.on('error', () => {});
     assert.equal(qt2.seedToken, 'abc');
   })
   
