@@ -25,9 +25,9 @@
     "mocha": "^2.5.3"
   },
   "dependencies": {
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.11",
     "mkdirp": "^0.5.1",
-    "moment": "^2.20.1",
-    "request": "^2.83.0"
+    "moment": "^2.24.0",
+    "request": "^2.88.0"
   }
 }
