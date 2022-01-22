@@ -178,7 +178,7 @@ Questrade.prototype._api = function (method, endpoint, params, cb) {
         message: 'api_call_failed',
         url: self.apiUrl + endpoint,
         method,
-        details: e,
+        details: err,
       });
     }
     cb(null, response);
