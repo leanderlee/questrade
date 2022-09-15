@@ -137,7 +137,6 @@ class QuestradeApi {
       apiVersion = 'v1', // Used as part of the API URL
       clientId,
       accessToken,
-      accountId,
     } = opts
     this.isDev = isDev
     this.apiVersion = apiVersion
