@@ -30,7 +30,8 @@ npm install --save questrade
 
 You will then need to get an [API key](https://login.questrade.com/APIAccess/userapps.aspx).
 
-After that's it's really simple to use:
+**Important note about key management:**
+After that's it's really simple to use, but you **WILL** need to save the new API key and use it every time you try to reconnect. The API key Questrade initially gives you will no longer be valid after you call `connect`.
 
 ```js
 const Questrade = require('questrade');
@@ -173,13 +174,13 @@ getWebSocketURL('9291,8049', function (err, webSocketURL) { // BMO.TO & AAPL
 
 ### Full Documentation
 
-- **getPrimaryAccount** () => [Account](#Account_Object)
-- **getAccounts** () => [[Account](#Account_Object)]
+- **getPrimaryAccount** () => [Account](#account-object)
+- **getAccounts** () => [[Account](#account-object)]
 - **getMarkets** (cb)
 - **getQuotesById** (symbolIds)
-- **getSymbol** (ticker) => [Symbol](#Symbol_Object)
-- **getSymbols** (tickers) => [[Symbol](#Symbol_Object)]
-- **searchSymbols** (prefix, offset = 0) => [[Symbol](#Symbol_Object)]
+- **getSymbol** (ticker) => [Symbol](#symbol-object)
+- **getSymbols** (tickers) => [[Symbol](#symbol-object)]
+- **searchSymbols** (prefix, offset = 0) => [[Symbol](#symbol-object)]
 
 #### Account Object
 - **getPositions** ()
