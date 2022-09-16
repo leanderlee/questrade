@@ -1,6 +1,6 @@
-import _ from 'lodash'
-import fetch from 'isomorphic-unfetch'
-import moment from 'moment'
+const _ = require('lodash')
+const fetch = require('isomorphic-unfetch')
+const moment = require('moment')
 
 class QuestradeOptions {
   constructor(api, data) {
