@@ -1,5 +1,10 @@
-Questrade API
+Questrade API (v1)
 =============
+
+## Deprecation notice
+```
+This API is no longer used, please refer to the v2 README for the latest version API.
+```
 
 [![npm package](https://nodei.co/npm/questrade.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/questrade/)
 
