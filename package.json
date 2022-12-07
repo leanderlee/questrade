@@ -3,9 +3,7 @@
   "version": "2.0.4",
   "description": "Questrade API",
   "main": "index.js",
-  "scripts": {
-    "test": "mocha"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git@github.com:leanderlee/questrade.git"
