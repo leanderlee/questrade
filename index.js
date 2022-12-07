@@ -173,7 +173,7 @@ class QuestradeApi {
       this.accessToken = access_token
       return refresh_token
     } catch (e) {
-      console.log('Failed to connect, received:', credsJson)
+      e.receivedText = credsJson
       throw e
     }
   }
