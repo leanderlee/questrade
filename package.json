@@ -21,12 +21,7 @@
     "url": "https://github.com/leanderlee/questrade/issues"
   },
   "homepage": "https://github.com/leanderlee/questrade",
-  "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-plugin-import": "^2.20.2",
-    "mocha": "^6.1.4"
-  },
+  "devDependencies": {},
   "dependencies": {
     "isomorphic-unfetch": "^3.1.0",
     "lodash": "^4.17.11",
