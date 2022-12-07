@@ -165,11 +165,17 @@ class QuestradeApi {
         'Content-Type': 'application/json',
       },
     })
-    const creds = await response.json()
-    const { api_server, access_token, refresh_token } = creds
-    this.apiUrl = `${api_server}${this.apiVersion}`
-    this.accessToken = access_token
-    return refresh_token
+    const credsJson = await response.text()
+    try {
+      const creds = JSON.parse(credsJson)
+      const { api_server, access_token, refresh_token } = creds
+      this.apiUrl = `${api_server}${this.apiVersion}`
+      this.accessToken = access_token
+      return refresh_token
+    } catch (e) {
+      console.log('Failed to connect, received:', credsJson)
+      throw e
+    }
   }
 
   // Method that actually mades the GET/POST request to Questrade
